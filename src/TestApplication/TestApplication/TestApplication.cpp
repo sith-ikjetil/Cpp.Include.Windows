@@ -1,9 +1,14 @@
+///////////////////////////////////////////////////////////////////
+//: Title        : CContextMenu.cpp
+//: Date         : 2020-05-01
+//: Author       : "Kjetil Kristoffer Solberg" <post@ikjetil.no>
+//: Version      : 1.0.0.0
+//: Descriptions : Implementation of Cpp.Include.Windows Test Application.
 //
 // #include
 //
 #include <iostream>
 #include "../../include/itsoftware.h"
-//#include "../../include/itsoftware-cli.h" // C++/CLI mode only
 #include "../../include/itsoftware-com.h"
 #include "../../include/itsoftware-exceptions.h"
 #include "../../include/itsoftware-win.h"

@@ -257,7 +257,7 @@ namespace ItSoftware
 		enum ComApartment
 		{
 			SingleThreaded = COINIT_APARTMENTTHREADED,
-			MultiThreaded = COINIT_MULTITHREADED,
+			MultiThreaded = COINIT_MULTITHREADED
 		};
 
 		//
