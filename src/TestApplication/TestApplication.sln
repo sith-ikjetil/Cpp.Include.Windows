@@ -5,6 +5,16 @@ VisualStudioVersion = 16.0.30804.86
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestApplication", "TestApplication\TestApplication.vcxproj", "{873D241C-EFA9-4545-A071-4C0430B72D6A}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "include", "include", "{D85257F5-C507-4458-A14F-721837522410}"
+	ProjectSection(SolutionItems) = preProject
+		..\include\itsoftware-cli.h = ..\include\itsoftware-cli.h
+		..\include\itsoftware-com.h = ..\include\itsoftware-com.h
+		..\include\itsoftware-exceptions.h = ..\include\itsoftware-exceptions.h
+		..\include\itsoftware-win.cpp = ..\include\itsoftware-win.cpp
+		..\include\itsoftware-win.h = ..\include\itsoftware-win.h
+		..\include\itsoftware.h = ..\include\itsoftware.h
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
