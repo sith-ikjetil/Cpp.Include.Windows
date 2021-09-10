@@ -253,7 +253,7 @@ namespace ItSoftware
 		};
 
 		//
-		// ItsMarshalGITPtr wrapper of interface using GlobalInterfaceTable
+		// Marshalling wrapper of interface using GlobalInterfaceTable
 		//
 		template <typename T>
 		class ItsMarshalGITPtr
