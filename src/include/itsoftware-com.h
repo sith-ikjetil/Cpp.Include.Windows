@@ -160,6 +160,189 @@ namespace ItSoftware
 		};
 
 		//
+		// Marshalling wrapper of interface using CoMarshalInterface
+		//
+		template <typename T>
+		class ItsMarshalPtr
+		{
+		private:
+			bool				m_bHasMarshaled;
+			bool				m_bHasUnMarshaled;
+			IID					m_riid;
+			CComPtr<IStream>	m_pStream;
+
+			HRESULT ResetStreamPosition()
+			{
+				if (this->m_bHasMarshaled) {
+					LARGE_INTEGER start = { 0 };
+					ULARGE_INTEGER offset = { 0 };
+					HRESULT hr = this->m_pStream->Seek(start, 0, &offset);
+					if (FAILED(hr)) {
+						return hr;
+					}
+					return S_OK;
+				}
+				return E_FAIL;
+			}
+		protected:
+		public:
+			ItsMarshalPtr()
+			{
+				this->m_riid = IID_IUnknown;
+				this->m_bHasMarshaled = false;
+				this->m_bHasUnMarshaled = false;
+			}
+
+			IID GetIID()
+			{
+				return this->m_riid;
+			}
+
+			bool GetHasMarshaled()
+			{
+				return this->m_bHasMarshaled;
+			}
+
+			bool GetHasUnMarshaled()
+			{
+				return this->m_bHasUnMarshaled;
+			}
+
+			HRESULT Marshal(const IID& riid, LPUNKNOWN pUnknown)
+			{
+				if (!this->m_bHasMarshaled)
+				{
+					HRESULT hr = CreateStreamOnHGlobal(0, TRUE, &this->m_pStream);
+					if (FAILED(hr)) {
+						return hr;
+					}
+
+					hr = CoMarshalInterface(this->m_pStream, riid, pUnknown, MSHCTX_LOCAL, 0, MSHLFLAGS_NORMAL);
+					if (FAILED(hr)) {
+						this->m_pStream.Release();
+						return hr;
+					}
+
+					this->m_riid = riid;
+					this->m_bHasMarshaled = true;
+
+					return S_OK;
+				}
+
+				return E_FAIL;
+			}
+
+			HRESULT UnMarshal(T** ptr)
+			{
+				if (this->m_bHasMarshaled && !this->m_bHasUnMarshaled)
+				{
+					this->ResetStreamPosition();
+
+					HRESULT hr = ::CoUnmarshalInterface(this->m_pStream, this->m_riid, (void**)ptr);
+					if (FAILED(hr)) {
+						return hr;
+					}
+
+					this->m_bHasUnMarshaled = true;
+
+					return S_OK;
+				}
+
+				return E_FAIL;
+			}
+		};
+
+		//
+		// ItsMarshalGITPtr wrapper of interface using GlobalInterfaceTable
+		//
+		template <typename T>
+		class ItsMarshalGITPtr
+		{
+		private:
+			bool				m_bHasMarshaled;
+			bool				m_bHasUnMarshaled;
+			IID					m_riid;
+			DWORD				m_dwCookie;
+		protected:
+		public:
+			ItsMarshalGITPtr()
+			{
+				this->m_dwCookie = 0;
+				this->m_riid = IID_IUnknown;
+				this->m_bHasMarshaled = false;
+				this->m_bHasUnMarshaled = false;
+			}
+
+			DWORD GetCookie()
+			{
+				return this->m_dwCookie;
+			}
+
+			IID GetIID()
+			{
+				return this->m_riid;
+			}
+
+			bool GetHasMarshaled()
+			{
+				return this->m_bHasMarshaled;
+			}
+
+			bool GetHasUnMarshaled()
+			{
+				return this->m_bHasUnMarshaled;
+			}
+
+			HRESULT Marshal(const IID& riid, LPUNKNOWN pUnknown)
+			{
+				if (!this->m_bHasMarshaled)
+				{
+					CComPtr<IGlobalInterfaceTable> pIGIT;
+					HRESULT hr = CoCreateInstance(CLSID_StdGlobalInterfaceTable, NULL, CLSCTX_INPROC_SERVER, IID_IGlobalInterfaceTable, (void**)&pIGIT);
+					if (FAILED(hr)) {
+						return hr;
+					}
+
+					hr = pIGIT->RegisterInterfaceInGlobal(pUnknown, riid, &this->m_dwCookie);
+					if (FAILED(hr)) {
+						this->m_dwCookie = 0;
+						return hr;
+					}
+
+					this->m_riid = riid;
+					this->m_bHasMarshaled = true;
+
+					return S_OK;
+				}
+
+				return E_FAIL;
+			}
+
+			HRESULT UnMarshal(T** ptr)
+			{
+				if (this->m_bHasMarshaled && !this->m_bHasUnMarshaled)
+				{
+					CComPtr<IGlobalInterfaceTable> pIGIT;
+					HRESULT hr = CoCreateInstance(CLSID_StdGlobalInterfaceTable, NULL, CLSCTX_INPROC_SERVER, IID_IGlobalInterfaceTable, (void**)&pIGIT);
+					if (FAILED(hr)) {
+						return hr;
+					}
+
+					hr = pIGIT->GetInterfaceFromGlobal(this->m_dwCookie, this->m_riid, (void**)ptr);
+					if (FAILED(hr)) {
+						return hr;
+					}
+
+					this->m_bHasUnMarshaled = true;
+
+					return S_OK;
+				}
+
+				return E_FAIL;
+			}
+		};
+
+		//
 		// struct: ComUtil
 		//
 		struct ComUtil
