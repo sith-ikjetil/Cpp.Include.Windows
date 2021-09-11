@@ -1,0 +1,38 @@
+// TestCOMServer.idl : IDL source for TestCOMServer
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (TestCOMServer.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+[
+	object,
+	uuid(6ad6684d-fd5d-4911-bbb2-dc7f8d8fe1a9),
+	dual,
+	nonextensible,
+	pointer_default(unique)
+]
+interface ITestCOM : IDispatch
+{
+	[id(1), helpstring("Get Test Message")]
+	HRESULT GetMessage([out, retval] BSTR* message);
+};
+[
+	uuid(118932a2-d9c6-42e3-8b0f-f1822958c001),
+	version(1.0),
+]
+library TestCOMServerLib
+{
+	importlib("stdole2.tlb");
+	[
+		uuid(cc311dfc-6e9c-4789-858d-1b916c4c79f8)
+	]
+	coclass TestCOM
+	{
+		[default] interface ITestCOM;
+	};
+};
+
+import "shobjidl.idl";

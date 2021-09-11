@@ -1,0 +1,26 @@
+HKCR
+{
+	TestCOM.Test.1 = s 'TestCOM class'
+	{
+		CLSID = s '{cc311dfc-6e9c-4789-858d-1b916c4c79f8}'
+	}
+	TestCOM.Test = s 'TestCOM class'
+	{		
+		CurVer = s 'TestCOM.Test.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {cc311dfc-6e9c-4789-858d-1b916c4c79f8} = s 'TestCOM class'
+		{
+			ProgID = s 'TestCOM.Test.1'
+			VersionIndependentProgID = s 'TestCOM.Test'
+			ForceRemove Programmable
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			TypeLib = s '{118932a2-d9c6-42e3-8b0f-f1822958c001}'
+			Version = s '1.0'
+		}
+	}
+}

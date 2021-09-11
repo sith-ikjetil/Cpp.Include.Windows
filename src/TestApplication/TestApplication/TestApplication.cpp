@@ -21,6 +21,11 @@ using std::wcout;
 using std::endl;
 
 //
+// extern
+//
+extern void TestCOM();
+
+//
 // Function Prototypes
 //
 void TestToNumber();
@@ -43,6 +48,7 @@ int main()
     TestRandom();
     TestTime();
     TestString();
+    TestCOM();
 
     return EXIT_SUCCESS;
 }
