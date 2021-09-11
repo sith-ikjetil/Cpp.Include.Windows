@@ -24,5 +24,13 @@
     <ClCompile Include="TestCOM2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TestCOM.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="TestCOM.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

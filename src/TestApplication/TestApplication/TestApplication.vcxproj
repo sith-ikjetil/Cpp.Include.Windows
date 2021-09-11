@@ -140,8 +140,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="TestApplication.cpp" />
+    <ClCompile Include="TestCOM.cpp" />
     <ClCompile Include="TestCOM1.cpp" />
     <ClCompile Include="TestCOM2.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="TestCOM.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

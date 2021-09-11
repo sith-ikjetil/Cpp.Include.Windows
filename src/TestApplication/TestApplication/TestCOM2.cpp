@@ -12,6 +12,7 @@
 #include "../../include/itsoftware-exceptions.h"
 #include "../TestCOMServer/TestCOMServer_i.h"
 #include "../TestCOMServer/TestCOMServer_i.c"
+#include "TestCOM.h"
 
 //
 // using 
@@ -31,25 +32,34 @@ using std::lock_guard;
 // function prototypes
 //
 void TestCOM2();
-DWORD WINAPI THREAD1_2(LPVOID arg);
-DWORD WINAPI THREAD2_2(LPVOID arg);
-void MyThread3_2(void* arg);
-void PostPotentialQuitMessageToMainThread_2();
-void PrintLineToConsole_2(wstring text);
+DWORD WINAPI COM2_THREAD1(LPVOID arg);
+DWORD WINAPI COM2_THREAD2(LPVOID arg);
+void COM2_THREAD3(void* arg);
 
 //
-// global variables
+// extern
 //
-HWND g_hWndMainThread_2 = NULL;
-bool g_bThread1Fin_2 = false;
-bool g_bThread2Fin_2 = false;
-bool g_bThread3Fin_2 = false;
+extern HWND g_hWndMainThread;
+extern bool g_bThread1Fin;
+extern bool g_bThread2Fin;
+extern bool g_bThread3Fin;
 
 //
 // main
 //
 void TestCOM2()
 {
+	//
+	// initialize global common variables
+	//
+	g_hWndMainThread = NULL;
+	g_bThread1Fin = false;
+	g_bThread2Fin = false;
+	g_bThread3Fin = false;
+
+	//
+	// enter apartment
+	//
 	ComRuntime runtime(ComApartment::ApartmentThreaded);
 
 	wcout << L"## Test COM 2 ItsMarshalPtr ________________________________________________" << endl;
@@ -73,9 +83,9 @@ void TestCOM2()
 	DWORD dwThreadID1(0);
 	DWORD dwThreadID2(0);
 
-	unique_handle_handle	hThread1(::CreateThread(NULL, 1024 * 1024, THREAD1_2, (LPVOID)&pMarshal1, 0, &dwThreadID1));
-	unique_handle_handle	hThread2(::CreateThread(NULL, 1024 * 1024, THREAD2_2, (LPVOID)&pMarshal2, 0, &dwThreadID2));
-	unique_ptr<thread>		pThread3 = make_unique<thread>(MyThread3_2, (void*)&pMarshal3);
+	unique_handle_handle	hThread1(::CreateThread(NULL, 1024 * 1024, COM2_THREAD1, (LPVOID)&pMarshal1, 0, &dwThreadID1));
+	unique_handle_handle	hThread2(::CreateThread(NULL, 1024 * 1024, COM2_THREAD2, (LPVOID)&pMarshal2, 0, &dwThreadID2));
+	unique_ptr<thread>		pThread3 = make_unique<thread>(COM2_THREAD3, (void*)&pMarshal3);
 
 	//
 	// message loop msg object
@@ -88,7 +98,7 @@ void TestCOM2()
 	::GetMessage(&msg, NULL, 0, 0);
 	TranslateMessage(&msg);
 	DispatchMessage(&msg);
-	g_hWndMainThread_2 = msg.hwnd;
+	g_hWndMainThread = msg.hwnd;
 
 	//
 	// process calls to object created on this thread from other threads in other apartments
@@ -98,8 +108,8 @@ void TestCOM2()
 		DispatchMessage(&msg);
 	}
 
-	PrintLineToConsole_2(L"WM_QUIT received and exits message loop");
-	PrintLineToConsole_2(L"");
+	PrintLineToConsole(L"WM_QUIT received and exits message loop");
+	PrintLineToConsole(L"");
 
 	//
 	// join thread 3
@@ -110,7 +120,7 @@ void TestCOM2()
 //
 // Thread 1 - STA
 //
-DWORD WINAPI THREAD1_2(LPVOID pArg)
+DWORD WINAPI COM2_THREAD1(LPVOID pArg)
 {
 	ComRuntime runtime(ComApartment::ApartmentThreaded);
 
@@ -122,19 +132,19 @@ DWORD WINAPI THREAD1_2(LPVOID pArg)
 	CComBSTR bstr;
 	HRESULT hr = pIStaObject->GetMessage(&bstr);
 	if (FAILED(hr)) {
-		PrintLineToConsole_2( L"ERROR STA Thread 1: " + ItsError::GetErrorDescription(hr) );
-		g_bThread1Fin_2 = true;
-		PostPotentialQuitMessageToMainThread_2();
+		PrintLineToConsole( L"ERROR STA Thread 1: " + ItsError::GetErrorDescription(hr) );
+		g_bThread1Fin = true;
+		PostPotentialQuitMessageToMainThread();
 		return 1;
 	}
 
 	wstring str(L"Message from STA Thread 1: ");
 	str.append(bstr.operator LPWSTR());
-	PrintLineToConsole_2( str );
+	PrintLineToConsole( str );
 
-	g_bThread1Fin_2 = true;
+	g_bThread1Fin = true;
 
-	PostPotentialQuitMessageToMainThread_2();
+	PostPotentialQuitMessageToMainThread();
 
 	return 0;
 }
@@ -142,7 +152,7 @@ DWORD WINAPI THREAD1_2(LPVOID pArg)
 //
 // Thread 2 - MTA
 //
-DWORD WINAPI THREAD2_2(LPVOID pArg)
+DWORD WINAPI COM2_THREAD2(LPVOID pArg)
 {
 	ComRuntime runtime(ComApartment::MultiThreaded);
 
@@ -154,19 +164,19 @@ DWORD WINAPI THREAD2_2(LPVOID pArg)
 	CComBSTR bstr;
 	HRESULT hr = pIStaObject->GetMessage(&bstr);
 	if (FAILED(hr)) {
-		PrintLineToConsole_2(L"ERROR MTA Thread 2: " + ItsError::GetErrorDescription(hr));
-		g_bThread2Fin_2 = true;
-		PostPotentialQuitMessageToMainThread_2();
+		PrintLineToConsole(L"ERROR MTA Thread 2: " + ItsError::GetErrorDescription(hr));
+		g_bThread2Fin = true;
+		PostPotentialQuitMessageToMainThread();
 		return 1;
 	}
 
 	wstring str(L"Message from MTA Thread 2: ");
 	str.append(bstr.operator LPWSTR());
-	PrintLineToConsole_2(str);
+	PrintLineToConsole(str);
 
-	g_bThread2Fin_2 = true;
+	g_bThread2Fin = true;
 
-	PostPotentialQuitMessageToMainThread_2();
+	PostPotentialQuitMessageToMainThread();
 
 	return 0;
 }
@@ -174,7 +184,7 @@ DWORD WINAPI THREAD2_2(LPVOID pArg)
 //
 // Thread 3 - STA
 //
-void MyThread3_2(void* pArg)
+void COM2_THREAD3(void* pArg)
 {
 	ComRuntime runtime(ComApartment::ApartmentThreaded);
 
@@ -186,41 +196,17 @@ void MyThread3_2(void* pArg)
 	CComBSTR bstr;
 	HRESULT hr = pIStaObject->GetMessage(&bstr);
 	if (FAILED(hr)) {
-		PrintLineToConsole_2( L"ERROR STA Thread 3: " + ItsError::GetErrorDescription(hr) );
-		g_bThread3Fin_2 = true;
-		PostPotentialQuitMessageToMainThread_2();
+		PrintLineToConsole( L"ERROR STA Thread 3: " + ItsError::GetErrorDescription(hr) );
+		g_bThread3Fin = true;
+		PostPotentialQuitMessageToMainThread();
 		return;
 	}
 
 	wstring str(L"Message from STA Thread 3: ");
 	str.append(bstr.operator LPWSTR());
-	PrintLineToConsole_2(str);
+	PrintLineToConsole(str);
 
-	g_bThread3Fin_2 = true;
+	g_bThread3Fin = true;
 
-	PostPotentialQuitMessageToMainThread_2();
-}
-
-//
-// PostPotentialQuitMessageToMainThread
-//
-void PostPotentialQuitMessageToMainThread_2()
-{
-	static mutex m;
-	lock_guard<mutex> g(m);
-
-	if (g_bThread1Fin_2 && g_bThread2Fin_2 && g_bThread3Fin_2) {
-		PostMessage(g_hWndMainThread_2, WM_QUIT, 0, 0);
-	}
-}
-
-//
-// PrintLineToConsole
-//
-void PrintLineToConsole_2(wstring text)
-{
-	static mutex m;
-	lock_guard<mutex> g(m);
-
-	wcout << text << endl;
+	PostPotentialQuitMessageToMainThread();
 }
