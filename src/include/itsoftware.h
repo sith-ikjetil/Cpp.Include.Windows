@@ -489,7 +489,7 @@ namespace ItSoftware
 			return tos;
 		}
 
-		static wstring ToStringFormatted( size_t number )
+		static wstring ToStringFormatted( size_t number, wstring thousandSep = L",")
 		{
 			wstring txt = ItsConvert::ToString( number );
 			
@@ -510,7 +510,7 @@ namespace ItSoftware
 				{
 					if ( iCount < iSize )
 					{
-						ss << L" ";
+						ss << thousandSep;
 						ss << *itr;
 						iCount++;
 						i = groupSize - 1;
