@@ -23,7 +23,8 @@ using std::endl;
 //
 // extern
 //
-extern void TestCOM();
+extern void TestCOM1();
+extern void TestCOM2();
 
 //
 // Function Prototypes
@@ -48,7 +49,8 @@ int main()
     TestRandom();
     TestTime();
     TestString();
-    TestCOM();
+    TestCOM1();
+    TestCOM2();
 
     return EXIT_SUCCESS;
 }

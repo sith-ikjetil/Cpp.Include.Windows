@@ -45,11 +45,11 @@ CRITICAL_SECTION g_cs;
 //
 // main
 //
-void TestCOM()
+void TestCOM1()
 {
 	ComRuntime runtime(ComApartment::ApartmentThreaded);
 
-	wcout << L"## Test COM ________________________________________________" << endl;
+	wcout << L"## Test COM 1 ItsMarshalGITPtr ________________________________________________" << endl;
 
 	InitializeCriticalSection(&g_cs);
 
@@ -100,7 +100,7 @@ void TestCOM()
 		DispatchMessage(&msg);
 	}
 
-	wcout << L"WM_QUIT received and exits message loop" << endl;
+	wcout << L"WM_QUIT received and exits message loop" << endl << endl;
 
 	//
 	// join thread 3
