@@ -49,6 +49,8 @@ void TestCOM()
 {
 	ComRuntime runtime(ComApartment::ApartmentThreaded);
 
+	wcout << L"## Test COM ________________________________________________" << endl;
+
 	InitializeCriticalSection(&g_cs);
 
 	CComPtr<ITestCOM> pIStaObject;
