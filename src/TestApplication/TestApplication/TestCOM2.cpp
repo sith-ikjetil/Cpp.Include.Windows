@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include <thread>
+#include <mutex>
 #include "../../include/itsoftware.h"
 #include "../../include/itsoftware-com.h"
 #include "../../include/itsoftware-win.h"
@@ -23,6 +24,8 @@ using ItSoftware::Win::unique_handle_handle;
 using std::wcout;
 using std::endl;
 using std::thread;
+using std::mutex;
+using std::lock_guard;
 
 //
 // function prototypes
@@ -32,15 +35,15 @@ DWORD WINAPI THREAD1_2(LPVOID arg);
 DWORD WINAPI THREAD2_2(LPVOID arg);
 void MyThread3_2(void* arg);
 void PostPotentialQuitMessageToMainThread_2();
+void PrintLineToConsole_2(wstring text);
 
 //
 // global variables
 //
-HWND g_hWndMainThread2 = nullptr;
-bool g_bThread1Fin2 = false;
-bool g_bThread2Fin2 = false;
-bool g_bThread3Fin2 = false;
-CRITICAL_SECTION g_cs2;
+HWND g_hWndMainThread_2 = NULL;
+bool g_bThread1Fin_2 = false;
+bool g_bThread2Fin_2 = false;
+bool g_bThread3Fin_2 = false;
 
 //
 // main
@@ -50,8 +53,6 @@ void TestCOM2()
 	ComRuntime runtime(ComApartment::ApartmentThreaded);
 
 	wcout << L"## Test COM 2 ItsMarshalPtr ________________________________________________" << endl;
-
-	InitializeCriticalSection(&g_cs2);
 
 	CComPtr<ITestCOM> pIStaObject;
 	HRESULT hr = pIStaObject.CoCreateInstance(CLSID_TestCOM);
@@ -87,7 +88,7 @@ void TestCOM2()
 	::GetMessage(&msg, NULL, 0, 0);
 	TranslateMessage(&msg);
 	DispatchMessage(&msg);
-	g_hWndMainThread2 = msg.hwnd;
+	g_hWndMainThread_2 = msg.hwnd;
 
 	//
 	// process calls to object created on this thread from other threads in other apartments
@@ -97,7 +98,8 @@ void TestCOM2()
 		DispatchMessage(&msg);
 	}
 
-	wcout << L"WM_QUIT received and exits message loop" << endl << endl;
+	PrintLineToConsole_2(L"WM_QUIT received and exits message loop");
+	PrintLineToConsole_2(L"");
 
 	//
 	// join thread 3
@@ -120,17 +122,17 @@ DWORD WINAPI THREAD1_2(LPVOID pArg)
 	CComBSTR bstr;
 	HRESULT hr = pIStaObject->GetMessage(&bstr);
 	if (FAILED(hr)) {
-		wcout << L"ERROR STA Thread 1: " << ItsError::GetErrorDescription(hr) << endl;
-		g_bThread1Fin2 = true;
+		PrintLineToConsole_2( L"ERROR STA Thread 1: " + ItsError::GetErrorDescription(hr) );
+		g_bThread1Fin_2 = true;
 		PostPotentialQuitMessageToMainThread_2();
 		return 1;
 	}
 
 	wstring str(L"Message from STA Thread 1: ");
 	str.append(bstr.operator LPWSTR());
-	wcout << str << endl;
+	PrintLineToConsole_2( str );
 
-	g_bThread1Fin2 = true;
+	g_bThread1Fin_2 = true;
 
 	PostPotentialQuitMessageToMainThread_2();
 
@@ -152,17 +154,17 @@ DWORD WINAPI THREAD2_2(LPVOID pArg)
 	CComBSTR bstr;
 	HRESULT hr = pIStaObject->GetMessage(&bstr);
 	if (FAILED(hr)) {
-		wcout << L"ERROR MTA Thread 2: " << ItsError::GetErrorDescription(hr) << endl;
-		g_bThread2Fin2 = true;
+		PrintLineToConsole_2(L"ERROR MTA Thread 2: " + ItsError::GetErrorDescription(hr));
+		g_bThread2Fin_2 = true;
 		PostPotentialQuitMessageToMainThread_2();
 		return 1;
 	}
 
 	wstring str(L"Message from MTA Thread 2: ");
 	str.append(bstr.operator LPWSTR());
-	wcout << str << endl;
+	PrintLineToConsole_2(str);
 
-	g_bThread2Fin2 = true;
+	g_bThread2Fin_2 = true;
 
 	PostPotentialQuitMessageToMainThread_2();
 
@@ -184,17 +186,17 @@ void MyThread3_2(void* pArg)
 	CComBSTR bstr;
 	HRESULT hr = pIStaObject->GetMessage(&bstr);
 	if (FAILED(hr)) {
-		wcout << L"ERROR STA Thread 3: " << ItsError::GetErrorDescription(hr) << endl;
-		g_bThread3Fin2 = true;
+		PrintLineToConsole_2( L"ERROR STA Thread 3: " + ItsError::GetErrorDescription(hr) );
+		g_bThread3Fin_2 = true;
 		PostPotentialQuitMessageToMainThread_2();
 		return;
 	}
 
 	wstring str(L"Message from STA Thread 3: ");
 	str.append(bstr.operator LPWSTR());
-	wcout << str << endl;
+	PrintLineToConsole_2(str);
 
-	g_bThread3Fin2 = true;
+	g_bThread3Fin_2 = true;
 
 	PostPotentialQuitMessageToMainThread_2();
 }
@@ -204,14 +206,21 @@ void MyThread3_2(void* pArg)
 //
 void PostPotentialQuitMessageToMainThread_2()
 {
-	EnterCriticalSection(&g_cs2);
+	static mutex m;
+	lock_guard<mutex> g(m);
 
-	if (g_bThread1Fin2 && g_bThread2Fin2 && g_bThread3Fin2) {
-		PostMessage(g_hWndMainThread2, WM_QUIT, 0, 0);
-		LeaveCriticalSection(&g_cs2);
-		DeleteCriticalSection(&g_cs2);
-		return;
+	if (g_bThread1Fin_2 && g_bThread2Fin_2 && g_bThread3Fin_2) {
+		PostMessage(g_hWndMainThread_2, WM_QUIT, 0, 0);
 	}
+}
 
-	LeaveCriticalSection(&g_cs2);
+//
+// PrintLineToConsole
+//
+void PrintLineToConsole_2(wstring text)
+{
+	static mutex m;
+	lock_guard<mutex> g(m);
+
+	wcout << text << endl;
 }
