@@ -40,7 +40,7 @@ void TestString();
 //
 // Function: main
 //
-int main()
+int wmain(int argc, wchar_t** argv)
 {
     wcout << "### Cpp.Include.Windows - Test Application ###" << endl << endl;
     
