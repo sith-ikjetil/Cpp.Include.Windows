@@ -27,7 +27,7 @@ using std::thread;
 //
 // function prototypes
 //
-void TestCOM();
+void TestCOM1();
 DWORD WINAPI THREAD1(LPVOID arg);
 DWORD WINAPI THREAD2(LPVOID arg);
 void MyThread3(void* arg);
@@ -60,16 +60,16 @@ void TestCOM1()
 		return;
 	}
 
-	ItsMarshalGITPtr<ITestCOM> pMarshal1;
-	pMarshal1.Marshal(IID_ITestCOM, pIStaObject);
+	ItsMarshalGITPtr<ITestCOM, &IID_ITestCOM> pMarshal1;
+	pMarshal1.Marshal(pIStaObject);
 	wcout << L"Cookie 1: " << pMarshal1.GetCookie() << endl;
 
-	ItsMarshalGITPtr<ITestCOM> pMarshal2;
-	pMarshal2.Marshal(IID_ITestCOM, pIStaObject);
+	ItsMarshalGITPtr<ITestCOM, &IID_ITestCOM> pMarshal2;
+	pMarshal2.Marshal(pIStaObject);
 	wcout << L"Cookie 2: " << pMarshal2.GetCookie() << endl;
 
-	ItsMarshalGITPtr<ITestCOM> pMarshal3;
-	pMarshal3.Marshal(IID_ITestCOM, pIStaObject);
+	ItsMarshalGITPtr<ITestCOM, &IID_ITestCOM> pMarshal3;
+	pMarshal3.Marshal(pIStaObject);
 	wcout << L"Cookie 3: " << pMarshal3.GetCookie() << endl;
 
 	DWORD dwThreadID1(0);
@@ -115,7 +115,7 @@ DWORD WINAPI THREAD1(LPVOID pArg)
 {
 	ComRuntime runtime(ComApartment::ApartmentThreaded);
 
-	ItsMarshalGITPtr<ITestCOM>* pM = static_cast<ItsMarshalGITPtr<ITestCOM>*>(pArg);
+	ItsMarshalGITPtr<ITestCOM, &IID_ITestCOM>* pM = static_cast<ItsMarshalGITPtr<ITestCOM, &IID_ITestCOM>*>(pArg);
 
 	CComPtr<ITestCOM> pIStaObject;
 	pM->UnMarshal(&pIStaObject);
@@ -147,7 +147,7 @@ DWORD WINAPI THREAD2(LPVOID pArg)
 {
 	ComRuntime runtime(ComApartment::MultiThreaded);
 
-	ItsMarshalGITPtr<ITestCOM>* pM = static_cast<ItsMarshalGITPtr<ITestCOM>*>(pArg);
+	ItsMarshalGITPtr<ITestCOM, &IID_ITestCOM>* pM = static_cast<ItsMarshalGITPtr<ITestCOM, &IID_ITestCOM>*>(pArg);
 
 	CComPtr<ITestCOM> pIStaObject;
 	pM->UnMarshal(&pIStaObject);
@@ -179,7 +179,7 @@ void MyThread3(void* pArg)
 {
 	ComRuntime runtime(ComApartment::ApartmentThreaded);
 
-	ItsMarshalGITPtr<ITestCOM>* pM = static_cast<ItsMarshalGITPtr<ITestCOM>*>(pArg);
+	ItsMarshalGITPtr<ITestCOM, &IID_ITestCOM>* pM = static_cast<ItsMarshalGITPtr<ITestCOM, &IID_ITestCOM>*>(pArg);
 
 	CComPtr<ITestCOM> pIStaObject;
 	pM->UnMarshal(&pIStaObject);

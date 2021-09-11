@@ -162,13 +162,12 @@ namespace ItSoftware
 		//
 		// Marshalling wrapper of interface using CoMarshalInterface
 		//
-		template <typename T>
+		template <typename T, const IID* piid>
 		class ItsMarshalPtr
 		{
 		private:
 			bool				m_bHasMarshaled;
 			bool				m_bHasUnMarshaled;
-			IID					m_riid;
 			CComPtr<IStream>	m_pStream;
 
 			HRESULT ResetStreamPosition()
@@ -188,7 +187,6 @@ namespace ItSoftware
 		public:
 			ItsMarshalPtr()
 			{
-				this->m_riid = IID_IUnknown;
 				this->m_bHasMarshaled = false;
 				this->m_bHasUnMarshaled = false;
 			}
@@ -208,7 +206,7 @@ namespace ItSoftware
 				return this->m_bHasUnMarshaled;
 			}
 
-			HRESULT Marshal(const IID& riid, LPUNKNOWN pUnknown)
+			HRESULT Marshal(T* ptr)
 			{
 				if (!this->m_bHasMarshaled)
 				{
@@ -217,13 +215,12 @@ namespace ItSoftware
 						return hr;
 					}
 
-					hr = CoMarshalInterface(this->m_pStream, riid, pUnknown, MSHCTX_LOCAL, 0, MSHLFLAGS_NORMAL);
+					hr = CoMarshalInterface(this->m_pStream, (*piid), ptr, MSHCTX_LOCAL, 0, MSHLFLAGS_NORMAL);
 					if (FAILED(hr)) {
 						this->m_pStream.Release();
 						return hr;
 					}
 
-					this->m_riid = riid;
 					this->m_bHasMarshaled = true;
 
 					return S_OK;
@@ -238,7 +235,7 @@ namespace ItSoftware
 				{
 					this->ResetStreamPosition();
 
-					HRESULT hr = ::CoUnmarshalInterface(this->m_pStream, this->m_riid, (void**)ptr);
+					HRESULT hr = ::CoUnmarshalInterface(this->m_pStream, (*piid), (void**)ptr);
 					if (FAILED(hr)) {
 						return hr;
 					}
@@ -255,20 +252,18 @@ namespace ItSoftware
 		//
 		// Marshalling wrapper of interface using GlobalInterfaceTable
 		//
-		template <typename T>
+		template <typename T, const IID* piid>
 		class ItsMarshalGITPtr
 		{
 		private:
 			bool				m_bHasMarshaled;
 			bool				m_bHasUnMarshaled;
-			IID					m_riid;
 			DWORD				m_dwCookie;
 		protected:
 		public:
 			ItsMarshalGITPtr()
 			{
 				this->m_dwCookie = 0;
-				this->m_riid = IID_IUnknown;
 				this->m_bHasMarshaled = false;
 				this->m_bHasUnMarshaled = false;
 			}
@@ -293,7 +288,7 @@ namespace ItSoftware
 				return this->m_bHasUnMarshaled;
 			}
 
-			HRESULT Marshal(const IID& riid, LPUNKNOWN pUnknown)
+			HRESULT Marshal(T* ptr)
 			{
 				if (!this->m_bHasMarshaled)
 				{
@@ -303,13 +298,12 @@ namespace ItSoftware
 						return hr;
 					}
 
-					hr = pIGIT->RegisterInterfaceInGlobal(pUnknown, riid, &this->m_dwCookie);
+					hr = pIGIT->RegisterInterfaceInGlobal(ptr, (*piid), &this->m_dwCookie);
 					if (FAILED(hr)) {
 						this->m_dwCookie = 0;
 						return hr;
 					}
 
-					this->m_riid = riid;
 					this->m_bHasMarshaled = true;
 
 					return S_OK;
@@ -328,7 +322,7 @@ namespace ItSoftware
 						return hr;
 					}
 
-					hr = pIGIT->GetInterfaceFromGlobal(this->m_dwCookie, this->m_riid, (void**)ptr);
+					hr = pIGIT->GetInterfaceFromGlobal(this->m_dwCookie, (*piid), (void**)ptr);
 					if (FAILED(hr)) {
 						return hr;
 					}

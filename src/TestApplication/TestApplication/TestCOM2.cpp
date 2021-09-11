@@ -60,14 +60,14 @@ void TestCOM2()
 		return;
 	}
 
-	ItsMarshalPtr<ITestCOM> pMarshal1;
-	pMarshal1.Marshal(IID_ITestCOM, pIStaObject);
+	ItsMarshalPtr<ITestCOM, &IID_ITestCOM> pMarshal1;
+	pMarshal1.Marshal(pIStaObject);
 
-	ItsMarshalPtr<ITestCOM> pMarshal2;
-	pMarshal2.Marshal(IID_ITestCOM, pIStaObject);
+	ItsMarshalPtr<ITestCOM, &IID_ITestCOM> pMarshal2;
+	pMarshal2.Marshal(pIStaObject);
 
-	ItsMarshalPtr<ITestCOM> pMarshal3;
-	pMarshal3.Marshal(IID_ITestCOM, pIStaObject);
+	ItsMarshalPtr<ITestCOM, &IID_ITestCOM> pMarshal3;
+	pMarshal3.Marshal(pIStaObject);
 
 	DWORD dwThreadID1(0);
 	DWORD dwThreadID2(0);
@@ -112,7 +112,7 @@ DWORD WINAPI THREAD1_2(LPVOID pArg)
 {
 	ComRuntime runtime(ComApartment::ApartmentThreaded);
 
-	ItsMarshalPtr<ITestCOM>* pM = static_cast<ItsMarshalPtr<ITestCOM>*>(pArg);
+	ItsMarshalPtr<ITestCOM, &IID_ITestCOM>* pM = static_cast<ItsMarshalPtr<ITestCOM, &IID_ITestCOM>*>(pArg);
 
 	CComPtr<ITestCOM> pIStaObject;
 	pM->UnMarshal(&pIStaObject);
@@ -144,7 +144,7 @@ DWORD WINAPI THREAD2_2(LPVOID pArg)
 {
 	ComRuntime runtime(ComApartment::MultiThreaded);
 
-	ItsMarshalPtr<ITestCOM>* pM = static_cast<ItsMarshalPtr<ITestCOM>*>(pArg);
+	ItsMarshalPtr<ITestCOM, &IID_ITestCOM>* pM = static_cast<ItsMarshalPtr<ITestCOM, &IID_ITestCOM>*>(pArg);
 
 	CComPtr<ITestCOM> pIStaObject;
 	pM->UnMarshal(&pIStaObject);
@@ -176,7 +176,7 @@ void MyThread3_2(void* pArg)
 {
 	ComRuntime runtime(ComApartment::ApartmentThreaded);
 
-	ItsMarshalPtr<ITestCOM>* pM = static_cast<ItsMarshalPtr<ITestCOM>*>(pArg);
+	ItsMarshalPtr<ITestCOM, &IID_ITestCOM>* pM = static_cast<ItsMarshalPtr<ITestCOM, &IID_ITestCOM>*>(pArg);
 
 	CComPtr<ITestCOM> pIStaObject;
 	pM->UnMarshal(&pIStaObject);
