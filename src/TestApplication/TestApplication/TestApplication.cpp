@@ -61,7 +61,7 @@ wstring g_filenameText(L"D:\\ItsTextFile.txt");
 wstring g_filenameBinary(L"D:\\ItsFile.bin");
 thread g_eventThread;
 wstring g_path1(L"C:\\");
-wstring g_path2(L"Temp");
+wstring g_path2(L"Temp\\test.html");
 
 //
 // Function: main
@@ -330,9 +330,16 @@ void TestPath()
    
     wstring path = ItsPath::Combine(g_path1, g_path2);
     if (ItsPath::Exists(path)) {
-        wcout << L"Path: " << path << L" Exists" << endl << endl;
+        wcout << L"Path: " << path << L" Exists" << endl;
     }
     else {
-        wcout << L"Path: " << path << L" Does not exist" << endl << endl;
+        wcout << L"Path: " << path << L" Does not exist" << endl;
     }
+
+    wcout << L"Volume: " << ItsPath::GetVolume(path) << endl;
+    wcout << L"Directory: " << ItsPath::GetDirectory(path) << endl;
+    wcout << L"Filename: " << ItsPath::GetFilename(path) << endl;
+    wcout << L"Extension: " << ItsPath::GetExtension(path) << endl;
+
+    wcout << endl;
 }

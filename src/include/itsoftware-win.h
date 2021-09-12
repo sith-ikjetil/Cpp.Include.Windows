@@ -154,6 +154,7 @@ namespace ItSoftware
 		public:
 			static const wchar_t VolumeSeparator = ':';
 			static const wchar_t PathSeparator = '\\';
+			static const wchar_t ExtensionSeparator = '.';
 			static const vector<wchar_t> GetInvalidPathCharacters()
 			{
 				vector<wchar_t> chars;
@@ -268,6 +269,65 @@ namespace ItSoftware
 			static bool Exists(wstring path)
 			{
 				return static_cast<bool>(PathFileExistsW(path.c_str()));
+			}
+			static wstring GetVolume(wstring path) 
+			{
+				if (path.size() >= 2) {
+					if (path[1] == ItsPath::VolumeSeparator) {
+						wstring ret;
+						ret += path[0];
+						return ret;
+					}
+				}
+				return wstring(L"");
+			}
+			static wstring GetDirectory(wstring path) 
+			{
+				if (path.size() == 0) {
+					return wstring(L"");
+				}
+
+				if (path.find(ItsPath::PathSeparator) == -1) {
+					return wstring(L"");
+				}
+
+				auto i = path.find_last_of(ItsPath::PathSeparator);
+				if (i == std::wstring::npos) {
+					return wstring(L"");
+				}
+				return path.substr(0, i+1);
+			}
+			static wstring GetFilename(wstring path) 
+			{
+				if (path.size() == 0) {
+					return wstring(L"");
+				}
+
+				if (path.find(ItsPath::PathSeparator) == -1) {
+					return wstring(L"");
+				}
+
+				auto i = path.rfind(ItsPath::PathSeparator);
+				if (i == std::wstring::npos) {
+					return wstring(L"");
+				}
+				return path.substr(i+1, path.size()-i-1);
+			}
+			static wstring GetExtension(wstring path)
+			{
+				if (path.size() == 0) {
+					return wstring(L"");
+				}
+
+				if (path.find(ItsPath::PathSeparator) == -1) {
+					return wstring(L"");
+				}
+
+				auto i = path.rfind(ItsPath::ExtensionSeparator);
+				if (i == std::wstring::npos) {
+					return wstring(L"");
+				}
+				return path.substr(i, path.size() - i);
 			}
 		};
 
