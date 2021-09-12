@@ -680,7 +680,8 @@ namespace ItSoftware
 		enum class ItsFileTextType
 		{
 			Ansi,
-			UTF8,
+			UTF8NoBOM,
+			UTF8WithBOM,
 			Unicode
 		};
 
@@ -936,7 +937,7 @@ namespace ItSoftware
 						{
 							this->SetFilePosition(3, ItsFilePosition::FileBegin);
 
-							this->m_textType = ItsFileTextType::UTF8;
+							this->m_textType = ItsFileTextType::UTF8WithBOM;
 							return true;
 						}
 					}
@@ -954,7 +955,7 @@ namespace ItSoftware
 					bom.push_back(0xFF);
 					bom.push_back(0xFE);
 				}
-				else if (type == ItsFileTextType::UTF8)
+				else if (type == ItsFileTextType::UTF8WithBOM)
 				{
 					bom.push_back(0xEF);
 					bom.push_back(0xBB);
@@ -1044,9 +1045,38 @@ namespace ItSoftware
 					wstring all((wchar_t*)text.get());
 					lines = ItsString::Split(all, lineDelimiter);
 				}
-				else if (this->m_textType == ItsFileTextType::UTF8)
+				else if (this->m_textType == ItsFileTextType::UTF8WithBOM)
 				{
 					this->SetFilePosition(3, ItsFilePosition::FileBegin);
+
+					unique_ptr<BYTE[]> text = make_unique<BYTE[]>(size);
+
+					const DWORD readBuffSize = 8192;
+					size_t read_pos{ 0 };
+
+					DWORD dwRead{ 0 };
+
+					this->Read((BYTE*)text.get(), readBuffSize, &dwRead);
+
+					read_pos += dwRead;
+
+					while (dwRead > 0 && (read_pos + 3) < size)
+					{
+						this->Read((BYTE*)&(text.get()[read_pos]), readBuffSize, &dwRead);
+
+						read_pos += dwRead;
+					}
+
+					text.get()[size - 3] = '\0';
+					text.get()[size - 2] = '\0';
+					text.get()[size - 1] = '\0';
+
+					wstring all = ItSoftware::Encoding::UTF8::ToString((char*)text.get());
+					lines = ItsString::Split(all, lineDelimiter);
+				}
+				else if (this->m_textType == ItsFileTextType::UTF8NoBOM)
+				{
+					this->SetFilePosition(0, ItsFilePosition::FileBegin);
 
 					unique_ptr<BYTE[]> text = make_unique<BYTE[]>(size);
 
@@ -1156,9 +1186,38 @@ namespace ItSoftware
 					wstring all((wchar_t*)text.get());
 					out = all;
 				}
-				else if (this->m_textType == ItsFileTextType::UTF8)
+				else if (this->m_textType == ItsFileTextType::UTF8WithBOM)
 				{
 					this->SetFilePosition(3, ItsFilePosition::FileBegin);
+
+					unique_ptr<BYTE[]> text = make_unique<BYTE[]>(size);
+
+					const DWORD readBuffSize = 8192;
+					size_t read_pos{ 0 };
+
+					DWORD dwRead{ 0 };
+
+					this->Read((BYTE*)text.get(), readBuffSize, &dwRead);
+
+					read_pos += dwRead;
+
+					while (dwRead > 0 && (read_pos + 3) < size)
+					{
+						this->Read((BYTE*)&(text.get()[read_pos]), readBuffSize, &dwRead);
+
+						read_pos += dwRead;
+					}
+
+					text.get()[size - 3] = '\0';
+					text.get()[size - 2] = '\0';
+					text.get()[size - 1] = '\0';
+
+					wstring all = ItSoftware::Encoding::UTF8::ToString((char*)text.get());
+					out = all;
+				}
+				else if (this->m_textType == ItsFileTextType::UTF8NoBOM)
+				{
+					this->SetFilePosition(0, ItsFilePosition::FileBegin);
 
 					unique_ptr<BYTE[]> text = make_unique<BYTE[]>(size);
 
@@ -1221,11 +1280,17 @@ namespace ItSoftware
 					DWORD dwWritten{ 0 };
 					return this->Write((BYTE*)text.data(), (DWORD)(text.size() * sizeof(wchar_t)), &dwWritten);
 				}
-				else if (this->m_textType == ItsFileTextType::UTF8) {
+				else if (this->m_textType == ItsFileTextType::UTF8WithBOM) {
 					long cbLength{ 0 };
-					BYTE* pData = ItSoftware::Encoding::UTF8::ToBytes(text, &cbLength);
+					unique_ptr<BYTE[]> pData(ItSoftware::Encoding::UTF8::ToBytes(text, &cbLength));
 					DWORD dwWritten{ 0 };
-					return this->Write(pData, cbLength, &dwWritten);
+					return this->Write(pData.get(), cbLength, &dwWritten);
+				}
+				else if (this->m_textType == ItsFileTextType::UTF8NoBOM) {
+					long cbLength{ 0 };
+					unique_ptr<BYTE[]> pData(ItSoftware::Encoding::UTF8::ToBytes(text, &cbLength));
+					DWORD dwWritten{ 0 };
+					return this->Write(pData.get(), cbLength, &dwWritten);
 				}
 
 				return false;

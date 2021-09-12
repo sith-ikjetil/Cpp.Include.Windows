@@ -19,6 +19,12 @@
 //
 using std::wcout;
 using std::endl;
+using ItSoftware::Win::ItsTimer;
+using ItSoftware::Win::ItsTextFile;
+using ItSoftware::Win::ItsFileOpenCreation;
+using ItSoftware::Win::ItsFileTextType;
+using ItSoftware::Win::ItsFile;
+using ItSoftware::ItsTime;
 
 //
 // extern
@@ -34,8 +40,17 @@ void TestToString();
 void TestRandom();
 void TestTime();
 void TestString();
-// TestTimer
-// TestBase64
+void TestTimerStart();
+void TestTimerStop();
+void TestFileText();
+void TestFileBinary();
+
+//
+// global variables
+//
+ItsTimer g_timer;
+wstring g_filenameText(L"D:\\ItsTextFile.txt");
+wstring g_filenameBinary(L"D:\\ItsFile.bin");
 
 //
 // Function: main
@@ -44,6 +59,8 @@ int wmain(int argc, wchar_t** argv)
 {
     wcout << "### Cpp.Include.Windows - Test Application ###" << endl << endl;
     
+    TestTimerStart();
+    
     TestToNumber();
     TestToString();
     TestRandom();
@@ -51,6 +68,10 @@ int wmain(int argc, wchar_t** argv)
     TestString();
     TestCOM1();
     TestCOM2();
+    TestFileText();
+    TestFileBinary();
+
+    TestTimerStop();
 
     return EXIT_SUCCESS;
 }
@@ -158,4 +179,94 @@ void TestString()
     wcout << L"ItsString::Trim(testTrim) = \"" << ItsString::Trim(testTrim) << "\"" << endl;
 
     wcout << endl;
+}
+
+//
+// Function: TestTimerStart
+//
+// (i) Starts timer
+//
+void TestTimerStart()
+{
+    wcout << L"## Test Timer Start ________________________________________________" << endl;
+    wcout << L"Timer started..." << endl;
+    g_timer.Start();
+}
+
+//
+// Function: TestTimerStop
+//
+// (i) Stops timer
+//
+void TestTimerStop()
+{
+    g_timer.Stop();
+
+    wcout << L"## Test Timer Stop ________________________________________________" << endl;
+    wcout << L"Time elapsed: " << ItsTime::RenderMsToFullString(g_timer.GetMilliseconds(), true) << endl << endl;
+}
+
+//
+// Function: TestFileText
+//
+// (i) Tests files
+//
+void TestFileText()
+{
+
+    wcout << L"## Test File Text ________________________________________________" << endl;
+
+    ItsTextFile file{};
+    bool bResult = file.OpenOrCreateText(g_filenameText, L"rw", L"", ItsFileOpenCreation::CreateAlways, ItsFileTextType::UTF8NoBOM);
+    if (!bResult) {
+        wcout << L"ItsTextFile OpenOrCreateText failed" << endl;
+        return;
+    }
+
+    bResult = file.WriteText(L"Small step for man. Large leap for mankind.");
+    if (!bResult) {
+        wcout << L"ItsTextFile WriteText failed" << endl << endl;
+        return;
+    }
+
+    bResult = file.Close();
+    if (!bResult) {
+        wcout << L"ItsTextFile Close failed" << endl << endl;
+        return;
+    }
+
+    wcout << L"ItsTextFile successfully written to: " << g_filenameText << endl << endl;
+}
+
+//
+// Function: TestFileBinary
+//
+// (i) Tests files
+//
+void TestFileBinary()
+{
+    wcout << L"## Test File Binary ________________________________________________" << endl;
+
+    ItsFile file{};
+    bool bResult = file.OpenOrCreate(g_filenameBinary, L"rw", L"", ItsFileOpenCreation::CreateAlways);
+    if (!bResult) {
+        wcout << L"ItsFile OpenOrCreate failed" << endl;
+        return;
+    }
+
+    vector<BYTE> data = {0x01, 0x02, 0x03, 0x04, 0x05 };
+    DWORD dwWritten(0);
+    bResult = file.Write(data.data(), static_cast<DWORD>(data.size()), &dwWritten);
+    if (!bResult) {
+        wcout << L"ItsFile Write failed" << endl << endl;
+        return;
+    }
+
+    bResult = file.Close();
+    if (!bResult) {
+        wcout << L"ItsFile Close failed" << endl << endl;
+        return;
+    }
+
+    wcout << L"ItsFile successfully written to: " << g_filenameBinary << endl << endl;
 }
