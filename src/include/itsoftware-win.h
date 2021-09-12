@@ -198,43 +198,7 @@ namespace ItSoftware
 			}
 			static const vector<wchar_t> GetInvalidFilenameCharacters()
 			{
-				vector<wchar_t> chars;
-				chars.push_back(static_cast<wchar_t>(0x0022));
-				chars.push_back(static_cast<wchar_t>(0x003c));
-				chars.push_back(static_cast<wchar_t>(0x003e));
-				chars.push_back(static_cast<wchar_t>(0x007c));
-				chars.push_back(static_cast<wchar_t>(0x0000));
-				chars.push_back(static_cast<wchar_t>(0x0001));
-				chars.push_back(static_cast<wchar_t>(0x0002));
-				chars.push_back(static_cast<wchar_t>(0x0003));
-				chars.push_back(static_cast<wchar_t>(0x0004));
-				chars.push_back(static_cast<wchar_t>(0x0005));
-				chars.push_back(static_cast<wchar_t>(0x0006));
-				chars.push_back(static_cast<wchar_t>(0x0007));
-				chars.push_back(static_cast<wchar_t>(0x0008));
-				chars.push_back(static_cast<wchar_t>(0x0009));
-				chars.push_back(static_cast<wchar_t>(0x000a));
-				chars.push_back(static_cast<wchar_t>(0x000b));
-				chars.push_back(static_cast<wchar_t>(0x000c));
-				chars.push_back(static_cast<wchar_t>(0x000d));
-				chars.push_back(static_cast<wchar_t>(0x000e));
-				chars.push_back(static_cast<wchar_t>(0x000f));
-				chars.push_back(static_cast<wchar_t>(0x0010));
-				chars.push_back(static_cast<wchar_t>(0x0011));
-				chars.push_back(static_cast<wchar_t>(0x0012));
-				chars.push_back(static_cast<wchar_t>(0x0013));
-				chars.push_back(static_cast<wchar_t>(0x0014));
-				chars.push_back(static_cast<wchar_t>(0x0015));
-				chars.push_back(static_cast<wchar_t>(0x0016));
-				chars.push_back(static_cast<wchar_t>(0x0017));
-				chars.push_back(static_cast<wchar_t>(0x0018));
-				chars.push_back(static_cast<wchar_t>(0x0019));
-				chars.push_back(static_cast<wchar_t>(0x001a));
-				chars.push_back(static_cast<wchar_t>(0x001b));
-				chars.push_back(static_cast<wchar_t>(0x001c));
-				chars.push_back(static_cast<wchar_t>(0x001d));
-				chars.push_back(static_cast<wchar_t>(0x001e));
-				chars.push_back(static_cast<wchar_t>(0x001f));
+				vector<wchar_t> chars = ItsPath::GetInvalidPathCharacters();
 				chars.push_back(static_cast<wchar_t>(0x003a));
 				chars.push_back(static_cast<wchar_t>(0x002a));
 				chars.push_back(static_cast<wchar_t>(0x003f));
@@ -328,6 +292,33 @@ namespace ItSoftware
 					return wstring(L"");
 				}
 				return path.substr(i, path.size() - i);
+			}
+			static bool IsPathValid(wstring path)
+			{
+				wstring volume = ItsPath::GetVolume(path);
+				wstring directory = ItsPath::GetDirectory(path);
+				wstring filename = ItsPath::GetFilename(path);
+
+				auto invalidPathChars = ItsPath::GetInvalidPathCharacters();
+				auto invalidFileChars = ItsPath::GetInvalidFilenameCharacters();
+
+				for (auto d: directory) {
+					for (auto i : invalidPathChars) {
+						if (d == i) {
+							return false;
+						}
+					}
+				}
+
+				for (auto f : filename) {
+					for (auto i : invalidFileChars) {
+						if (f == i) {
+							return false;
+						}
+					}
+				}
+
+				return true;
 			}
 		};
 

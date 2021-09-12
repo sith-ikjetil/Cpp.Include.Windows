@@ -62,6 +62,8 @@ wstring g_filenameBinary(L"D:\\ItsFile.bin");
 thread g_eventThread;
 wstring g_path1(L"C:\\");
 wstring g_path2(L"Temp\\test.html");
+wstring g_validPath(L"C:\\Temp\\test.html");
+wstring g_invalidPath(L"C:\\?Temp\\test:\a.html");
 
 //
 // Function: main
@@ -340,6 +342,8 @@ void TestPath()
     wcout << L"Directory: " << ItsPath::GetDirectory(path) << endl;
     wcout << L"Filename: " << ItsPath::GetFilename(path) << endl;
     wcout << L"Extension: " << ItsPath::GetExtension(path) << endl;
+    wcout << L"Is valid path valid: " << ((ItsPath::IsPathValid(path)) ? L"true" : L"false") << endl;
+    wcout << L"Is invalid path valid: " << ((ItsPath::IsPathValid(g_invalidPath)) ? L"true" : L"false") << endl;
 
     wcout << endl;
 }
