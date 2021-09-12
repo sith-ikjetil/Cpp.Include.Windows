@@ -9,6 +9,7 @@
 // #include
 //
 #include <iostream>
+#include <thread>
 #include "../../include/itsoftware.h"
 #include "../../include/itsoftware-com.h"
 #include "../../include/itsoftware-exceptions.h"
@@ -19,11 +20,13 @@
 //
 using std::wcout;
 using std::endl;
+using std::thread;
 using ItSoftware::Win::ItsTimer;
 using ItSoftware::Win::ItsTextFile;
 using ItSoftware::Win::ItsFileOpenCreation;
 using ItSoftware::Win::ItsFileTextType;
 using ItSoftware::Win::ItsFile;
+using ItSoftware::Win::ItsEvent;
 using ItSoftware::ItsTime;
 
 //
@@ -44,13 +47,17 @@ void TestTimerStart();
 void TestTimerStop();
 void TestFileText();
 void TestFileBinary();
+void TestEventStart();
+void TestEventStop();
 
 //
 // global variables
 //
 ItsTimer g_timer;
+ItsEvent g_event;
 wstring g_filenameText(L"D:\\ItsTextFile.txt");
 wstring g_filenameBinary(L"D:\\ItsFile.bin");
+thread g_eventThread;
 
 //
 // Function: main
@@ -59,8 +66,9 @@ int wmain(int argc, wchar_t** argv)
 {
     wcout << "### Cpp.Include.Windows - Test Application ###" << endl << endl;
     
+    TestEventStart();
+
     TestTimerStart();
-    
     TestToNumber();
     TestToString();
     TestRandom();
@@ -70,8 +78,11 @@ int wmain(int argc, wchar_t** argv)
     TestCOM2();
     TestFileText();
     TestFileBinary();
-
     TestTimerStop();
+
+    TestEventStop();
+    
+    if (g_eventThread.joinable()) { g_eventThread.join(); }
 
     return EXIT_SUCCESS;
 }
@@ -269,4 +280,36 @@ void TestFileBinary()
     }
 
     wcout << L"ItsFile successfully written to: " << g_filenameBinary << endl << endl;
+}
+
+//
+// Function: TestEventStart
+//
+// (i) Start testing event
+//
+void TestEventStart()
+{
+    g_event.Clear();
+
+    wcout << L"## Test Event _________________________________________________" << endl;
+    wcout << L"Event is cleared" << endl << endl;
+    
+    g_eventThread = thread([] {
+        g_event.Wait(-1);
+        wcout << L"## Test Event _________________________________________________" << endl;
+        wcout << L"Event works as expected" << endl << endl;
+        });
+}
+
+//
+// Function: TestEventStop
+//
+//
+//
+void TestEventStop()
+{
+    g_event.Signal();
+
+    wcout << L"## Test Event _________________________________________________" << endl;
+    wcout << L"Event is Signaled" << endl << endl;
 }
