@@ -27,6 +27,7 @@ using ItSoftware::Win::ItsFileOpenCreation;
 using ItSoftware::Win::ItsFileTextType;
 using ItSoftware::Win::ItsFile;
 using ItSoftware::Win::ItsEvent;
+using ItSoftware::Win::ItsPath;
 using ItSoftware::ItsTime;
 
 //
@@ -49,6 +50,7 @@ void TestFileText();
 void TestFileBinary();
 void TestEventStart();
 void TestEventStop();
+void TestPath();
 
 //
 // global variables
@@ -58,6 +60,8 @@ ItsEvent g_event;
 wstring g_filenameText(L"D:\\ItsTextFile.txt");
 wstring g_filenameBinary(L"D:\\ItsFile.bin");
 thread g_eventThread;
+wstring g_path1(L"C:\\");
+wstring g_path2(L"Temp");
 
 //
 // Function: main
@@ -78,6 +82,7 @@ int wmain(int argc, wchar_t** argv)
     TestCOM2();
     TestFileText();
     TestFileBinary();
+    TestPath();
     TestTimerStop();
 
     TestEventStop();
@@ -304,7 +309,7 @@ void TestEventStart()
 //
 // Function: TestEventStop
 //
-//
+// (i) Stop testing event.
 //
 void TestEventStop()
 {
@@ -312,4 +317,22 @@ void TestEventStop()
 
     wcout << L"## Test Event _________________________________________________" << endl;
     wcout << L"Event is Signaled" << endl << endl;
+}
+
+//
+// Function: TestPath
+//
+// (i) Tests path
+//
+void TestPath()
+{
+    wcout << L"## Test Path __________________________________________________" << endl;
+   
+    wstring path = ItsPath::Combine(g_path1, g_path2);
+    if (ItsPath::Exists(path)) {
+        wcout << L"Path: " << path << L" Exists" << endl << endl;
+    }
+    else {
+        wcout << L"Path: " << path << L" Does not exist" << endl << endl;
+    }
 }

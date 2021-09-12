@@ -147,6 +147,131 @@ namespace ItSoftware
 		};
 
 		//
+		// struct: ItsPath
+		// 
+		struct ItsPath
+		{
+		public:
+			static const wchar_t VolumeSeparator = ':';
+			static const wchar_t PathSeparator = '\\';
+			static const vector<wchar_t> GetInvalidPathCharacters()
+			{
+				vector<wchar_t> chars;
+				chars.push_back(static_cast<wchar_t>(0x0022));
+				chars.push_back(static_cast<wchar_t>(0x003c));
+				chars.push_back(static_cast<wchar_t>(0x003e));
+				chars.push_back(static_cast<wchar_t>(0x007c));
+				chars.push_back(static_cast<wchar_t>(0x0000));
+				chars.push_back(static_cast<wchar_t>(0x0001));
+				chars.push_back(static_cast<wchar_t>(0x0002));
+				chars.push_back(static_cast<wchar_t>(0x0003));
+				chars.push_back(static_cast<wchar_t>(0x0004));
+				chars.push_back(static_cast<wchar_t>(0x0005));
+				chars.push_back(static_cast<wchar_t>(0x0006));
+				chars.push_back(static_cast<wchar_t>(0x0007));
+				chars.push_back(static_cast<wchar_t>(0x0008));
+				chars.push_back(static_cast<wchar_t>(0x0009));
+				chars.push_back(static_cast<wchar_t>(0x000a));
+				chars.push_back(static_cast<wchar_t>(0x000b));
+				chars.push_back(static_cast<wchar_t>(0x000c));
+				chars.push_back(static_cast<wchar_t>(0x000d));
+				chars.push_back(static_cast<wchar_t>(0x000e));
+				chars.push_back(static_cast<wchar_t>(0x000f));
+				chars.push_back(static_cast<wchar_t>(0x0010));
+				chars.push_back(static_cast<wchar_t>(0x0011));
+				chars.push_back(static_cast<wchar_t>(0x0012));
+				chars.push_back(static_cast<wchar_t>(0x0013));
+				chars.push_back(static_cast<wchar_t>(0x0014));
+				chars.push_back(static_cast<wchar_t>(0x0015));
+				chars.push_back(static_cast<wchar_t>(0x0016));
+				chars.push_back(static_cast<wchar_t>(0x0017));
+				chars.push_back(static_cast<wchar_t>(0x0018));
+				chars.push_back(static_cast<wchar_t>(0x0019));
+				chars.push_back(static_cast<wchar_t>(0x001a));
+				chars.push_back(static_cast<wchar_t>(0x001b));
+				chars.push_back(static_cast<wchar_t>(0x001c));
+				chars.push_back(static_cast<wchar_t>(0x001d));
+				chars.push_back(static_cast<wchar_t>(0x001e));
+				chars.push_back(static_cast<wchar_t>(0x001f));
+				return chars;
+			}
+			static const vector<wchar_t> GetInvalidFilenameCharacters()
+			{
+				vector<wchar_t> chars;
+				chars.push_back(static_cast<wchar_t>(0x0022));
+				chars.push_back(static_cast<wchar_t>(0x003c));
+				chars.push_back(static_cast<wchar_t>(0x003e));
+				chars.push_back(static_cast<wchar_t>(0x007c));
+				chars.push_back(static_cast<wchar_t>(0x0000));
+				chars.push_back(static_cast<wchar_t>(0x0001));
+				chars.push_back(static_cast<wchar_t>(0x0002));
+				chars.push_back(static_cast<wchar_t>(0x0003));
+				chars.push_back(static_cast<wchar_t>(0x0004));
+				chars.push_back(static_cast<wchar_t>(0x0005));
+				chars.push_back(static_cast<wchar_t>(0x0006));
+				chars.push_back(static_cast<wchar_t>(0x0007));
+				chars.push_back(static_cast<wchar_t>(0x0008));
+				chars.push_back(static_cast<wchar_t>(0x0009));
+				chars.push_back(static_cast<wchar_t>(0x000a));
+				chars.push_back(static_cast<wchar_t>(0x000b));
+				chars.push_back(static_cast<wchar_t>(0x000c));
+				chars.push_back(static_cast<wchar_t>(0x000d));
+				chars.push_back(static_cast<wchar_t>(0x000e));
+				chars.push_back(static_cast<wchar_t>(0x000f));
+				chars.push_back(static_cast<wchar_t>(0x0010));
+				chars.push_back(static_cast<wchar_t>(0x0011));
+				chars.push_back(static_cast<wchar_t>(0x0012));
+				chars.push_back(static_cast<wchar_t>(0x0013));
+				chars.push_back(static_cast<wchar_t>(0x0014));
+				chars.push_back(static_cast<wchar_t>(0x0015));
+				chars.push_back(static_cast<wchar_t>(0x0016));
+				chars.push_back(static_cast<wchar_t>(0x0017));
+				chars.push_back(static_cast<wchar_t>(0x0018));
+				chars.push_back(static_cast<wchar_t>(0x0019));
+				chars.push_back(static_cast<wchar_t>(0x001a));
+				chars.push_back(static_cast<wchar_t>(0x001b));
+				chars.push_back(static_cast<wchar_t>(0x001c));
+				chars.push_back(static_cast<wchar_t>(0x001d));
+				chars.push_back(static_cast<wchar_t>(0x001e));
+				chars.push_back(static_cast<wchar_t>(0x001f));
+				chars.push_back(static_cast<wchar_t>(0x003a));
+				chars.push_back(static_cast<wchar_t>(0x002a));
+				chars.push_back(static_cast<wchar_t>(0x003f));
+				chars.push_back(static_cast<wchar_t>(0x005c));
+				chars.push_back(static_cast<wchar_t>(0x002f));
+				return chars;
+			}
+			static wstring Combine(wstring path1, wstring path2)
+			{
+				if (path1.size() == 0 && path2.size() == 0) {
+					return wstring(L"");
+				}
+
+				if (path1.size() == 0) {
+					return path2;
+				}
+
+				if (path2.size() == 0) {
+					return path1;
+				}
+
+				wstringstream path;
+				path << path1;
+				if (path1[path1.size() - 1] != ItsPath::PathSeparator) {
+					path << ItsPath::PathSeparator;
+				}
+				path << path2;
+
+				wstring ret = path.str();
+				return ret;
+			}
+			static bool Exists(wstring path)
+			{
+				return static_cast<bool>(PathFileExistsW(path.c_str()));
+			}
+		};
+
+		//
 		// struct: ItsError
 		//
 		struct ItsError
