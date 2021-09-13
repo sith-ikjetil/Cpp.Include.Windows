@@ -90,7 +90,7 @@ int wmain(int argc, wchar_t** argv)
     TestEventStop();
     
     if (g_eventThread.joinable()) { g_eventThread.join(); }
-
+    
     return EXIT_SUCCESS;
 }
 
@@ -108,6 +108,7 @@ void TestToNumber()
     wcout << L"ItsConvert::ToNumber<unsigned int>(L\"1234\") = " << ItsConvert::ToNumber<unsigned int>(L"1234") << endl;
     wcout << L"ItsConvert::ToNumber<long>(L\"-1234\") = " << ItsConvert::ToNumber<long>(L"-1234") << endl;
     wcout << L"ItsConvert::ToNumber<unsigned long>(L\"123456789\") = " << ItsConvert::ToNumber<unsigned long>(L"12346789") << endl;
+    wcout << L"ItsConvert::ToNumber<long long>(L\"12345678900\") = " << ItsConvert::ToNumber<long long>(L"12345678900") << endl;
     wcout << L"ItsConvert::ToNumber<float>(L\"-12.34\") = " << ItsConvert::ToNumber<float>(L"-12.34") << endl;
     wcout << L"ItsConvert::ToNumber<double>(L\"1.234\") = " << ItsConvert::ToNumber<double>(L"1.234") << endl;
     wcout << L"ItsConvert::ToNumber<short>(L\"1234\") = " << ItsConvert::ToNumber<short>(L"1234") << endl;
@@ -126,16 +127,17 @@ void TestToString()
     wcout << endl;
     
     wcout << L"## Test ToString ________________________________________________" << endl;
-    wcout << L"ItsConvert::ToString<int>(-1234) = \"" << ItsConvert::ToString<int>(-1234) << "\"" << endl;
-    wcout << L"ItsConvert::ToString<unsigned int>(1234) = \"" << ItsConvert::ToString<unsigned int>(1234) << "\"" << endl;
-    wcout << L"ItsConvert::ToString<long>(-1234) = \"" << ItsConvert::ToString<long>(-1234) << "\"" << endl;
-    wcout << L"ItsConvert::ToString<unsigned long>(123456789) = \"" << ItsConvert::ToString<unsigned long>(12346789) << "\"" << endl;
-    wcout << L"ItsConvert::ToString<float>(-12.34) = \"" << ItsConvert::ToString<float>(-12.34f) << "\"" << endl;
-    wcout << L"ItsConvert::ToString<double>(1.234) = \"" << ItsConvert::ToString<double>(1.234) << "\"" << endl;
-    wcout << L"ItsConvert::ToString<short>(1234) = \"" << ItsConvert::ToString<short>(1234) << "\"" << endl;
-    wcout << L"ItsConvert::ToString<unsigned short>(40001) = \"" << ItsConvert::ToString<unsigned short>(40001) << "\"" << endl;
-    wcout << L"ItsConvert::ToStringFormatted(256810246) = \"" << ItsConvert::ToStringFormatted(256810246) << "\"" << endl;
-    wcout << L"ItsConvert::ToStringFormatted(256810246, L\" \") = \"" << ItsConvert::ToStringFormatted(256810246, L" ") << "\"" << endl;
+    wcout << L"ItsConvert::ToString<int>(-1234) = \"" << ItsConvert::ToString<int>(-1234) << L"\"" << endl;
+    wcout << L"ItsConvert::ToString<unsigned int>(1234) = \"" << ItsConvert::ToString<unsigned int>(1234) << L"\"" << endl;
+    wcout << L"ItsConvert::ToString<long>(-1234) = \"" << ItsConvert::ToString<long>(-1234) << L"\"" << endl;
+    wcout << L"ItsConvert::ToString<unsigned long>(123456789) = \"" << ItsConvert::ToString<unsigned long>(12346789) << L"\"" << endl;
+    wcout << L"ItsConvert::ToString<long long>(12345678900) = \"" << ItsConvert::ToString<long long>(12345678900) << L"\"" << endl;
+    wcout << L"ItsConvert::ToString<float>(-12.34) = \"" << ItsConvert::ToString<float>(-12.34f) << L"\"" << endl;
+    wcout << L"ItsConvert::ToString<double>(1.234) = \"" << ItsConvert::ToString<double>(1.234) << L"\"" << endl;
+    wcout << L"ItsConvert::ToString<short>(1234) = \"" << ItsConvert::ToString<short>(1234) << L"\"" << endl;
+    wcout << L"ItsConvert::ToString<unsigned short>(40001) = \"" << ItsConvert::ToString<unsigned short>(40001) << L"\"" << endl;
+    wcout << L"ItsConvert::ToStringFormatted(256810246) = \"" << ItsConvert::ToStringFormatted(256810246) << L"\"" << endl;
+    wcout << L"ItsConvert::ToStringFormatted(256810246, L\" \") = \"" << ItsConvert::ToStringFormatted(256810246, L" ") << L"\"" << endl;
     wcout << endl;
 }
 
