@@ -342,6 +342,8 @@ void TestPath()
     wcout << L"Directory: " << ItsPath::GetDirectory(path) << endl;
     wcout << L"Filename: " << ItsPath::GetFilename(path) << endl;
     wcout << L"Extension: " << ItsPath::GetExtension(path) << endl;
+    wcout << L"Has Extension (.js): " << ((ItsPath::HasExtension(path, L".js")) ? L"true" : L"false") << endl;
+    wcout << L"Change Extension (.html to .js): " << ItsPath::ChangeExtension(path, L".js") << endl;
     wcout << L"Is valid path valid: " << ((ItsPath::IsPathValid(path)) ? L"true" : L"false") << endl;
     wcout << L"Is invalid path valid: " << ((ItsPath::IsPathValid(g_invalidPath)) ? L"true" : L"false") << endl;
 

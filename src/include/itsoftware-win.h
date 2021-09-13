@@ -151,9 +151,22 @@ namespace ItSoftware
 		// 
 		struct ItsPath
 		{
+		private:
+			static wstring NormalizePath(wstring path)
+			{
+				wstring aps;
+				aps += ItsPath::AlternatePathSeparator;
+
+				wstring ps;
+				ps += ItsPath::PathSeparator;
+
+				return ItsString::Replace(path, aps, ps);
+			}
+
 		public:
 			static const wchar_t VolumeSeparator = ':';
 			static const wchar_t PathSeparator = '\\';
+			static const wchar_t AlternatePathSeparator = '/';
 			static const wchar_t ExtensionSeparator = '.';
 			static const vector<wchar_t> GetInvalidPathCharacters()
 			{
@@ -220,6 +233,15 @@ namespace ItSoftware
 					return path1;
 				}
 
+				wstring aps;
+				aps += ItsPath::AlternatePathSeparator;
+
+				wstring ps;
+				ps += ItsPath::PathSeparator;
+
+				path1 = ItsPath::NormalizePath(path1);
+				path2 = ItsPath::NormalizePath(path2);
+
 				wstringstream path;
 				path << path1;
 				if (path1[path1.size() - 1] != ItsPath::PathSeparator) {
@@ -255,6 +277,8 @@ namespace ItSoftware
 					return wstring(L"");
 				}
 
+				path = ItsPath::NormalizePath(path);
+
 				auto i = path.find_last_of(ItsPath::PathSeparator);
 				if (i == std::wstring::npos) {
 					return wstring(L"");
@@ -270,6 +294,8 @@ namespace ItSoftware
 				if (path.find(ItsPath::PathSeparator) == -1) {
 					return wstring(L"");
 				}
+
+				path = ItsPath::NormalizePath(path);
 
 				auto i = path.rfind(ItsPath::PathSeparator);
 				if (i == std::wstring::npos) {
@@ -287,6 +313,8 @@ namespace ItSoftware
 					return wstring(L"");
 				}
 
+				path = ItsPath::NormalizePath(path);
+
 				auto i = path.rfind(ItsPath::ExtensionSeparator);
 				if (i == std::wstring::npos) {
 					return wstring(L"");
@@ -295,6 +323,10 @@ namespace ItSoftware
 			}
 			static bool IsPathValid(wstring path)
 			{
+				if (path.size() == 0) {
+					return false;
+				}
+
 				wstring volume = ItsPath::GetVolume(path);
 				wstring directory = ItsPath::GetDirectory(path);
 				wstring filename = ItsPath::GetFilename(path);
@@ -320,6 +352,54 @@ namespace ItSoftware
 
 				return true;
 			}
+			static bool HasExtension(wstring path, wstring extension)
+			{
+				if (path.size() == 0) {
+					return false;
+				}
+
+				wstring ext = ItsPath::GetExtension(path);
+				if (ext.size() == 0) {
+					return false;
+				}
+
+				return (ext == extension);
+			}
+			static wstring ChangeExtension(wstring path, wstring newExtension) 
+			{
+				if (path.size() == 0) {
+					return wstring(L"");
+				}
+
+				if (newExtension.size() == 0) {
+					return path;
+				}
+
+				path = ItsPath::NormalizePath(path);
+
+				if (path[path.size() - 1] == ItsPath::PathSeparator) {
+					return path;
+				}
+
+				wstring ext = ItsPath::GetExtension(path);
+				if (ext.size() == 0) {
+					if (newExtension[0] == ItsPath::ExtensionSeparator) {
+						return path + newExtension;
+					}
+					else {
+						return path + ItsPath::ExtensionSeparator + newExtension;
+					}
+				}
+
+				auto pe = path.rfind(ext);
+				if (pe == wstring::npos) {
+					return path;
+				}
+
+				wstring retVal = path.replace(pe, path.size()-pe, newExtension);
+				return retVal;
+			}
+
 		};
 
 		//
