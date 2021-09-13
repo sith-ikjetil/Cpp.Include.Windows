@@ -62,6 +62,7 @@ void TestCOM2()
 	//
 	ComRuntime runtime(ComApartment::ApartmentThreaded);
 
+	wcout << endl;
 	wcout << L"## Test COM 2 ItsMarshalPtr ________________________________________________" << endl;
 
 	CComPtr<ITestCOM> pIStaObject;

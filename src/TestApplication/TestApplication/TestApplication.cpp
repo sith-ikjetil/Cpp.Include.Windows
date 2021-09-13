@@ -208,8 +208,10 @@ void TestString()
 //
 void TestTimerStart()
 {
+    wcout << endl;
     wcout << L"## Test Timer Start ________________________________________________" << endl;
     wcout << L"Timer started..." << endl;
+    wcout << endl;
     g_timer.Start();
 }
 
@@ -222,8 +224,10 @@ void TestTimerStop()
 {
     g_timer.Stop();
 
+    wcout << endl;
     wcout << L"## Test Timer Stop ________________________________________________" << endl;
-    wcout << L"Time elapsed: " << ItsTime::RenderMsToFullString(g_timer.GetMilliseconds(), true) << endl << endl;
+    wcout << L"Time elapsed: " << ItsTime::RenderMsToFullString(g_timer.GetMilliseconds(), true) << endl;
+    wcout << endl;
 }
 
 //
@@ -233,7 +237,7 @@ void TestTimerStop()
 //
 void TestFileText()
 {
-
+    wcout << endl;
     wcout << L"## Test File Text ________________________________________________" << endl;
 
     ItsTextFile file{};
@@ -255,7 +259,8 @@ void TestFileText()
         return;
     }
 
-    wcout << L"ItsTextFile successfully written to: " << g_filenameText << endl << endl;
+    wcout << L"ItsTextFile successfully written to: " << g_filenameText << endl;
+    wcout << endl;
 }
 
 //
@@ -265,6 +270,7 @@ void TestFileText()
 //
 void TestFileBinary()
 {
+    wcout << endl;
     wcout << L"## Test File Binary ________________________________________________" << endl;
 
     ItsFile file{};
@@ -288,7 +294,8 @@ void TestFileBinary()
         return;
     }
 
-    wcout << L"ItsFile successfully written to: " << g_filenameBinary << endl << endl;
+    wcout << L"ItsFile successfully written to: " << g_filenameBinary << endl;
+    wcout << endl;
 }
 
 //
@@ -300,11 +307,13 @@ void TestEventStart()
 {
     g_event.Clear();
 
+    wcout << endl;
     wcout << L"## Test Event _________________________________________________" << endl;
     wcout << L"Event is cleared" << endl << endl;
     
     g_eventThread = thread([] {
         g_event.Wait(-1);
+        wcout << endl;
         wcout << L"## Test Event _________________________________________________" << endl;
         wcout << L"Event works as expected" << endl << endl;
         });
@@ -319,6 +328,7 @@ void TestEventStop()
 {
     g_event.Signal();
 
+    wcout << endl;
     wcout << L"## Test Event _________________________________________________" << endl;
     wcout << L"Event is Signaled" << endl << endl;
 }
@@ -330,6 +340,7 @@ void TestEventStop()
 //
 void TestPath()
 {
+    wcout << endl;
     wcout << L"## Test Path __________________________________________________" << endl;
    
     wstring path = ItsPath::Combine(g_path1, g_path2);

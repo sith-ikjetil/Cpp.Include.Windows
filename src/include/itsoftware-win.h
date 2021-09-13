@@ -472,6 +472,7 @@ namespace ItSoftware
 				if (hr == S_OK && pErrInfo)
 				{
 					pErrInfo->GetDescription(&bstr);
+					pErrInfo->Release();
 					return wstring(bstr.operator LPWSTR());
 				}
 				return wstring(L"");
