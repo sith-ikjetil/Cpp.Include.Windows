@@ -28,6 +28,7 @@ using ItSoftware::Win::ItsFileTextType;
 using ItSoftware::Win::ItsFile;
 using ItSoftware::Win::ItsEvent;
 using ItSoftware::Win::ItsPath;
+using ItSoftware::Win::ItsDirectory;
 using ItSoftware::ItsTime;
 
 //
@@ -51,6 +52,7 @@ void TestFileBinary();
 void TestEventStart();
 void TestEventStop();
 void TestPath();
+void TestDirectory();
 
 //
 // global variables
@@ -64,6 +66,7 @@ wstring g_path1(L"C:\\");
 wstring g_path2(L"Temp\\test.html");
 wstring g_validPath(L"C:\\Temp\\test.html");
 wstring g_invalidPath(L"C:\\?Temp\\test:\a.html");
+wstring g_directoryRoot(L"C:\\Temp");
 
 //
 // Function: main
@@ -85,6 +88,7 @@ int wmain(int argc, wchar_t** argv)
     TestFileText();
     TestFileBinary();
     TestPath();
+    TestDirectory();
     TestTimerStop();
 
     TestEventStop();
@@ -360,6 +364,38 @@ void TestPath()
     wcout << L"Change Extension (.html to .js): " << ItsPath::ChangeExtension(path, L".js") << endl;
     wcout << L"Is valid path valid: " << ((ItsPath::IsPathValid(path)) ? L"true" : L"false") << endl;
     wcout << L"Is invalid path valid: " << ((ItsPath::IsPathValid(g_invalidPath)) ? L"true" : L"false") << endl;
+
+    wcout << endl;
+}
+
+void TestDirectory()
+{
+    wcout << endl;
+    wcout << L"## Test Directory _______________________________________________" << endl;
+
+    auto result = ItsDirectory::GetDirectories(g_directoryRoot);
+    if (result.size() > 0) {
+        wcout << L"Directory: " << g_directoryRoot << " found " << result.size() << L" sub-directories" << endl;
+        for (auto r : result) {
+            wcout << L"Directory Found: " << r << endl;
+        }
+    }
+
+    auto result2 = ItsDirectory::GetFiles(g_directoryRoot);
+    if (result2.size() > 0) {
+        wcout << L"Directory: " << g_directoryRoot << " found " << result2.size() << L" files" << endl;
+        for (auto r : result2) {
+            wcout << L"File Found: " << r << endl;
+        }
+    }
+
+    auto result3 = ItsDirectory::GetLogicalDrives();
+    if (result3.size() > 0) {
+        wcout << L"Drives found: " << result3.size() << endl;
+        for (auto r : result3) {
+            wcout << L"Drive found: " << r << endl;
+        }
+    }
 
     wcout << endl;
 }

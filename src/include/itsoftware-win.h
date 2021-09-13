@@ -151,7 +151,11 @@ namespace ItSoftware
 		// 
 		struct ItsPath
 		{
-		private:
+		public:
+			static const wchar_t VolumeSeparator = ':';
+			static const wchar_t PathSeparator = '\\';
+			static const wchar_t AlternatePathSeparator = '/';
+			static const wchar_t ExtensionSeparator = '.';
 			static wstring NormalizePath(wstring path)
 			{
 				wstring aps;
@@ -162,12 +166,6 @@ namespace ItSoftware
 
 				return ItsString::Replace(path, aps, ps);
 			}
-
-		public:
-			static const wchar_t VolumeSeparator = ':';
-			static const wchar_t PathSeparator = '\\';
-			static const wchar_t AlternatePathSeparator = '/';
-			static const wchar_t ExtensionSeparator = '.';
 			static const vector<wchar_t> GetInvalidPathCharacters()
 			{
 				vector<wchar_t> chars;
@@ -867,6 +865,119 @@ namespace ItSoftware
 		typedef unique_handle<hbrush_handle_traits> unique_hbrush_handle;
 		typedef unique_handle<hfont_handle_traits> unique_hfont_handle;
 		typedef unique_handle<hicon_handle_traits> unique_hicon_handle;
+
+		//
+		// 
+		// 
+		struct ItsDirectory
+		{
+		public:
+			static bool CreateDirectory(wstring path)
+			{
+				return ::CreateDirectoryW(path.c_str(), nullptr);
+			}
+			static bool RemoveDirectory(wstring path)
+			{
+				return ::RemoveDirectoryW(path.c_str());
+			}
+			static bool SetCurrentDirectory(wstring path)
+			{
+				return ::SetCurrentDirectoryW(path.c_str());
+			}
+			static vector<wstring> GetDirectories(wstring path) {
+				if (path.size() == 0) {
+					return vector<wstring>();
+				}
+
+				path = ItsPath::NormalizePath(path);
+				if (path[path.size() - 1] != ItsPath::PathSeparator)
+				{
+					if (path[path.size() - 1] != L'*') {
+						path += ItsPath::PathSeparator;
+						path += L"*";
+					}
+				}
+				else {
+					path += L'*';
+				}
+
+				WIN32_FIND_DATAW wfd{ 0 };
+				vector<wstring> dirs;
+				HANDLE h = ::FindFirstFile(path.c_str(), &wfd);
+				if (h != INVALID_HANDLE_VALUE) {
+					if (wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+						if (wcscmp(wfd.cFileName, L".") != 0 &&
+							wcscmp(wfd.cFileName, L"..") != 0)
+						{
+							dirs.push_back(wfd.cFileName);
+						}
+					}
+					while (::FindNextFile(h, &wfd)) {
+						if (wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+							if (wcscmp(wfd.cFileName, L".") != 0 &&
+								wcscmp(wfd.cFileName, L"..") != 0)
+							{
+								dirs.push_back(wfd.cFileName);
+							}
+						}
+					}
+					::FindClose(h);
+				}
+
+				return dirs;
+			}
+			static vector<wstring> GetFiles(wstring path) {
+				if (path.size() == 0) {
+					return vector<wstring>();
+				}
+
+				path = ItsPath::NormalizePath(path);
+				if (path[path.size() - 1] != ItsPath::PathSeparator)
+				{
+					if (path[path.size() - 1] != L'*') {
+						path += ItsPath::PathSeparator;
+						path += L"*";
+					}
+				}
+				else {
+					path += L'*';
+				}
+
+				WIN32_FIND_DATAW wfd{ 0 };
+				vector<wstring> dirs;
+				HANDLE h = ::FindFirstFile(path.c_str(), &wfd);
+				if (h != INVALID_HANDLE_VALUE) {
+					if (!(wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+						dirs.push_back(wfd.cFileName);
+					}
+					while (::FindNextFile(h, &wfd)) {
+						if (!(wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {	
+							dirs.push_back(wfd.cFileName);
+						}
+					}
+					::FindClose(h);
+				}
+
+				return dirs;
+			}
+			static vector<wchar_t> GetLogicalDrives()
+			{
+				const wchar_t wszDrives[27] = L"ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+				vector<wchar_t> d;
+
+				DWORD dw = ::GetLogicalDrives();
+				
+				for (DWORD i = 0; i < 26; i++) {
+					DWORD dwBit = pow(2,(i));
+					DWORD dwResult = dw & dwBit;
+					if (dwResult) {
+						d.push_back(wszDrives[i]);
+					}
+				}
+
+				return d;
+			}
+		};
 
 		//
 		// class: ItsEvent
