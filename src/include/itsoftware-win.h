@@ -923,7 +923,7 @@ namespace ItSoftware
 				WIN32_FIND_DATAW wfd{ 0 };
 				vector<wstring> dirs;
 				unique_findhandle_handle h(::FindFirstFile(path.c_str(), &wfd));
-				if (h != INVALID_HANDLE_VALUE) {
+				if (h.IsValid()) {
 					if (wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
 						if (wcscmp(wfd.cFileName, L".") != 0 &&
 							wcscmp(wfd.cFileName, L"..") != 0)
@@ -964,7 +964,7 @@ namespace ItSoftware
 				WIN32_FIND_DATAW wfd{ 0 };
 				vector<wstring> dirs;
 				unique_findhandle_handle h(::FindFirstFile(path.c_str(), &wfd));
-				if (h != INVALID_HANDLE_VALUE) {
+				if (h.IsValid()) {
 					if (!(wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
 						dirs.push_back(wfd.cFileName);
 					}
