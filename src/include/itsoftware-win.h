@@ -143,6 +143,48 @@ namespace ItSoftware
 		};
 
 		//
+		// struct: ItsGuid
+		//
+		struct ItsGuid
+		{
+		public:
+			static wstring CreateGuid()
+			{
+				GUID guid{ 0 };
+				HRESULT hr = CoCreateGuid(&guid);
+				if (FAILED(hr)) {
+					return wstring(L"");
+				}
+
+				return ItsGuid::ToString(guid);
+			}
+			static bool CreateGuid(GUID *pGuid)
+			{
+				HRESULT hr = CoCreateGuid(pGuid);
+				if (FAILED(hr)) {
+					return false;
+				}
+				return true;
+			}
+			static wstring ToString(GUID& guid) {
+				wstring format = L"{%08lX-%04X-%04x-%02X%02X-%02X%02X%02X%02X%02X%02X}";
+				return ItsGuid::ToString(guid, format);
+			}
+			static wstring ToString(GUID& guid, wstring format) {
+				wchar_t wcsBuffer[100];
+				memset(wcsBuffer, 0, 100);
+
+				wsprintf(wcsBuffer, format.c_str(),
+					// first copy...
+					guid.Data1, guid.Data2, guid.Data3,
+					guid.Data4[0], guid.Data4[1], guid.Data4[2], guid.Data4[3],
+					guid.Data4[4], guid.Data4[5], guid.Data4[6], guid.Data4[7]);
+
+				return wstring(wcsBuffer);
+			}
+		};
+
+		//
 		// struct: ItsPath
 		// 
 		struct ItsPath

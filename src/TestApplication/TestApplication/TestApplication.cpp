@@ -35,6 +35,8 @@ using ItSoftware::Win::ItsFile;
 using ItSoftware::Win::ItsEvent;
 using ItSoftware::Win::ItsPath;
 using ItSoftware::Win::ItsDirectory;
+using ItSoftware::Win::ItsGuid;
+using ItSoftware::Win::ItsError;
 using ItSoftware::ItsTime;
 using ItSoftware::ItsConvert;
 using ItSoftware::ItsString;
@@ -63,6 +65,7 @@ void TestEventStart();
 void TestEventStop();
 void TestPath();
 void TestDirectory();
+void TestGuid();
 
 //
 // global variables
@@ -100,6 +103,7 @@ int wmain(int argc, wchar_t* argv[])
     TestFileBinary();
     TestPath();
     TestDirectory();
+    TestGuid();
     TestTimerStop();
 
     TestEventStop();
@@ -426,6 +430,23 @@ void TestDirectory()
     }
 
     wcout << L"Successfully removed: " << cdir << endl;
+
+    wcout << endl;
+}
+
+void TestGuid()
+{
+    wcout << endl;
+    wcout << L"## Test Guid ______________________________________________" << endl;
+    wcout << L"Guid1: " << ItsGuid::CreateGuid() << endl;
+    GUID guid{ 0 };
+    if (ItsGuid::CreateGuid(&guid))
+    {
+        wcout << L"Guid2: " << ItsGuid::ToString(guid) << endl;
+    }
+    else {
+        wcout << L"Guid2 Error: " << ItsError::GetLastErrorDescription() << endl;
+    }
 
     wcout << endl;
 }
