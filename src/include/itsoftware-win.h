@@ -158,13 +158,20 @@ namespace ItSoftware
 			static const wchar_t ExtensionSeparator = '.';
 			static wstring NormalizePath(wstring path)
 			{
+				if (path.size() == 0) {
+					return wstring(L"");
+				}
+
 				wstring aps;
 				aps += ItsPath::AlternatePathSeparator;
 
 				wstring ps;
 				ps += ItsPath::PathSeparator;
 
-				return ItsString::Replace(path, aps, ps);
+				path = ItsString::Replace(path, aps, ps);
+
+				return path;
+			
 			}
 			static const vector<wchar_t> GetInvalidPathCharacters()
 			{
