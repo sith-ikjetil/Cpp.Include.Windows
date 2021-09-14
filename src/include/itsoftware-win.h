@@ -693,6 +693,24 @@ namespace ItSoftware
 			}
 		};
 
+
+		//
+		// FINDHANDLE traits
+		//
+		struct handle_findhandle_traits
+		{
+			typedef HANDLE pointer;
+			static auto invalid() noexcept -> pointer
+			{
+				return nullptr;
+			}
+
+			static auto close(pointer value) noexcept -> void
+			{
+				::FindClose(value);
+			}
+		};
+
 		//
 		// HWND traits
 		//
@@ -857,6 +875,7 @@ namespace ItSoftware
 		// unique_xxx_handle typedefs
 		//
 		typedef unique_handle<handle_handle_traits> unique_handle_handle;
+		typedef unique_handle<handle_findhandle_traits> unique_findhandle_handle;
 		typedef unique_handle<hwnd_handle_traits> unique_hwnd_handle;
 		typedef unique_handle<hbitmap_handle_traits> unique_hbitmap_handle;
 		typedef unique_handle<hmenu_handle_traits> unique_hmenu_handle;
@@ -903,7 +922,7 @@ namespace ItSoftware
 
 				WIN32_FIND_DATAW wfd{ 0 };
 				vector<wstring> dirs;
-				HANDLE h = ::FindFirstFile(path.c_str(), &wfd);
+				unique_findhandle_handle h(::FindFirstFile(path.c_str(), &wfd));
 				if (h != INVALID_HANDLE_VALUE) {
 					if (wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
 						if (wcscmp(wfd.cFileName, L".") != 0 &&
@@ -921,7 +940,6 @@ namespace ItSoftware
 							}
 						}
 					}
-					::FindClose(h);
 				}
 
 				return dirs;
@@ -945,7 +963,7 @@ namespace ItSoftware
 
 				WIN32_FIND_DATAW wfd{ 0 };
 				vector<wstring> dirs;
-				HANDLE h = ::FindFirstFile(path.c_str(), &wfd);
+				unique_findhandle_handle h(::FindFirstFile(path.c_str(), &wfd));
 				if (h != INVALID_HANDLE_VALUE) {
 					if (!(wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
 						dirs.push_back(wfd.cFileName);
@@ -955,7 +973,6 @@ namespace ItSoftware
 							dirs.push_back(wfd.cFileName);
 						}
 					}
-					::FindClose(h);
 				}
 
 				return dirs;

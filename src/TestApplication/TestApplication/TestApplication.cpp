@@ -67,11 +67,12 @@ wstring g_path2(L"Temp\\test.html");
 wstring g_validPath(L"C:\\Temp\\test.html");
 wstring g_invalidPath(L"C:\\?Temp\\test:\a.html");
 wstring g_directoryRoot(L"C:\\Temp");
+wstring g_creatDir(L"C:\\Temp\\CREATDIR");
 
 //
 // Function: main
 //
-int wmain(int argc, wchar_t** argv)
+int wmain(int argc, wchar_t* argv[])
 {
     wcout << "### Cpp.Include.Windows - Test Application ###" << endl << endl;
     
@@ -396,6 +397,25 @@ void TestDirectory()
             wcout << L"Drive found: " << r << endl;
         }
     }
+
+    auto cdir = g_creatDir;
+    bool bResult = ItsDirectory::CreateDirectory(cdir);
+    if (!bResult) {
+        wcout << L"Error creating: " << cdir << endl;
+        wcout << endl;
+        return;
+    }
+
+    wcout << L"Successfully created: " << cdir << endl;
+
+    bResult = ItsDirectory::RemoveDirectory(cdir);
+    if (!bResult) {
+        wcout << L"Error removing: " << cdir << endl;
+        wcout << endl;
+        return;
+    }
+
+    wcout << L"Successfully removed: " << cdir << endl;
 
     wcout << endl;
 }
