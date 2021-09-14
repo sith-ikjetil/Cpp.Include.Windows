@@ -10,6 +10,8 @@
 //
 #include <iostream>
 #include <thread>
+#include <vector>
+#include <string>
 #include "../../include/itsoftware.h"
 #include "../../include/itsoftware-com.h"
 #include "../../include/itsoftware-exceptions.h"
@@ -21,6 +23,10 @@
 using std::wcout;
 using std::endl;
 using std::thread;
+using std::vector;
+using std::wstring;
+using std::unique_ptr;
+using std::make_unique;
 using ItSoftware::Win::ItsTimer;
 using ItSoftware::Win::ItsTextFile;
 using ItSoftware::Win::ItsFileOpenCreation;
@@ -30,6 +36,10 @@ using ItSoftware::Win::ItsEvent;
 using ItSoftware::Win::ItsPath;
 using ItSoftware::Win::ItsDirectory;
 using ItSoftware::ItsTime;
+using ItSoftware::ItsConvert;
+using ItSoftware::ItsString;
+using ItSoftware::ItsRandom;
+using ItSoftware::ItsDateTime;
 
 //
 // extern

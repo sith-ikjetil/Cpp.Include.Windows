@@ -27,6 +27,9 @@ using std::endl;
 using std::thread;
 using std::mutex;
 using std::lock_guard;
+using std::vector;
+using std::unique_ptr;
+using std::make_unique;
 
 //
 // function prototypes

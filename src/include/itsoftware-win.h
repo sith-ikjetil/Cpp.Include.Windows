@@ -23,12 +23,6 @@
 #pragma warning(disable: 4244)
 
 //
-// using namespace
-//
-using namespace ItSoftware;
-using namespace ItSoftware::Exceptions;
-
-//
 // namespace
 //
 namespace ItSoftware
@@ -41,6 +35,8 @@ namespace ItSoftware
 		using std::unique_ptr;
 		using std::vector;
 		using std::wstring;
+		using std::make_unique;
+		using ItSoftware::ItsString;
 
 		//
 		// struct: ItsTimer
@@ -546,6 +542,9 @@ namespace ItSoftware
 
 			void operator=(HANDLE handle)
 			{
+				if (this->m_value != Traits::invalid()) {
+					this->close();
+				}
 				m_value = static_cast<typename Traits::pointer>(handle);
 			}
 
@@ -559,6 +558,9 @@ namespace ItSoftware
 
 			void operator=(HWND handle)
 			{
+				if (this->m_value != Traits::invalid()) {
+					this->close();
+				}
 				m_value = static_cast<typename Traits::pointer>(handle);
 			}
 
@@ -572,6 +574,9 @@ namespace ItSoftware
 
 			void operator=(HBITMAP handle)
 			{
+				if (this->m_value != Traits::invalid()) {
+					this->close();
+				}
 				m_value = static_cast<typename Traits::pointer>(handle);
 			}
 
@@ -598,6 +603,9 @@ namespace ItSoftware
 
 			void operator=(HMENU handle)
 			{
+				if (this->m_value != Traits::invalid()) {
+					this->close();
+				}
 				m_value = static_cast<typename Traits::pointer>(handle);
 			}
 
@@ -611,6 +619,9 @@ namespace ItSoftware
 
 			void operator=(HIMAGELIST handle)
 			{
+				if (this->m_value != Traits::invalid()) {
+					this->close();
+				}
 				m_value = static_cast<typename Traits::pointer>(handle);
 			}
 
@@ -624,6 +635,9 @@ namespace ItSoftware
 
 			void operator=(HRGN handle)
 			{
+				if (this->m_value != Traits::invalid()) {
+					this->close();
+				}
 				m_value = static_cast<typename Traits::pointer>(handle);
 			}
 
@@ -637,6 +651,9 @@ namespace ItSoftware
 
 			void operator=(HBRUSH handle)
 			{
+				if (this->m_value != Traits::invalid()) {
+					this->close();
+				}
 				m_value = static_cast<typename Traits::pointer>(handle);
 			}
 
@@ -650,6 +667,9 @@ namespace ItSoftware
 
 			void operator=(HFONT handle)
 			{
+				if (this->m_value != Traits::invalid()) {
+					this->close();
+				}
 				m_value = static_cast<typename Traits::pointer>(handle);
 			}
 
@@ -663,6 +683,9 @@ namespace ItSoftware
 
 			void operator=(HICON handle)
 			{
+				if (this->m_value != Traits::invalid()) {
+					this->close();
+				}
 				m_value = static_cast<typename Traits::pointer>(handle);
 			}
 

@@ -23,11 +23,6 @@
 #include "itsoftware-exceptions.h"
 
 //
-// using namespace
-//
-using namespace ItSoftware::Exceptions;
-
-//
 // namespace
 //
 namespace ItSoftware
@@ -40,6 +35,9 @@ namespace ItSoftware
 	using std::vector;
 	using std::stringstream;
 	using std::wstringstream;
+	using ItSoftware::Exceptions::ItsException;
+	using ItSoftware::Exceptions::ItsArgumentException;
+	using ItSoftware::Exceptions::ItsArgumentNullException;
 
 	// 
 	// Macros
