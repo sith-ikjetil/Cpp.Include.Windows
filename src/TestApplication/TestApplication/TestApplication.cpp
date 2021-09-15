@@ -43,6 +43,8 @@ using ItSoftware::ItsConvert;
 using ItSoftware::ItsString;
 using ItSoftware::ItsRandom;
 using ItSoftware::ItsDateTime;
+using ItSoftware::ItsLog;
+using ItSoftware::ItsLogType;
 
 //
 // extern
@@ -67,6 +69,7 @@ void TestEventStop();
 void TestPath();
 void TestDirectory();
 void TestGuid();
+void TestLog();
 
 //
 // global variables
@@ -105,6 +108,7 @@ int wmain(int argc, wchar_t* argv[])
     TestPath();
     TestDirectory();
     TestGuid();
+    TestLog();
     TestTimerStop();
 
     TestEventStop();
@@ -356,7 +360,7 @@ void TestEventStop()
 //
 // Function: TestPath
 //
-// (i) Tests path
+// (i): Test ItsPath
 //
 void TestPath()
 {
@@ -384,6 +388,11 @@ void TestPath()
     wcout << endl;
 }
 
+//
+// Function: TestDirectory
+//
+// (i): Test ItsDirectory
+//
 void TestDirectory()
 {
     wcout << endl;
@@ -435,6 +444,11 @@ void TestDirectory()
     wcout << endl;
 }
 
+//
+// Function: TestGuid
+//
+// (i): Test ItsGuid
+//
 void TestGuid()
 {
     wcout << endl;
@@ -455,6 +469,27 @@ void TestGuid()
         wcout << L"Guid2 Error: " << ItsError::GetLastErrorDescription() << endl;
     }
 
+
+    wcout << endl;
+}
+
+//
+// Function: TestLog
+//
+// (i): Test ItsLog
+//
+void TestLog()
+{
+    wcout << endl;
+    wcout << L"## Test Log _________________________________________________" << endl;
+
+    ItsLog log;
+    log.LogInformation(L"This is an information log item");
+    log.LogWarning(L"This is an warning log item");
+    log.LogError(L"This is an error log item");
+    log.LogOther(L"This is an other log item");
+    log.LogDebug(L"This is an debug log item");
+    wcout << log.ToString();
 
     wcout << endl;
 }

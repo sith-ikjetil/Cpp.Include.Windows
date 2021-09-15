@@ -35,6 +35,8 @@ namespace ItSoftware
 	using std::vector;
 	using std::stringstream;
 	using std::wstringstream;
+	using std::ends;
+	using std::endl;
 	using ItSoftware::Exceptions::ItsException;
 	using ItSoftware::Exceptions::ItsArgumentException;
 	using ItSoftware::Exceptions::ItsArgumentNullException;
@@ -1015,4 +1017,130 @@ namespace ItSoftware
 		}
 	};
 
+	enum class ItsLogType
+	{
+		Information,
+		Warning,
+		Error,
+		Other,
+		Debug
+	};
+
+	struct ItsLogItem 
+	{
+		ItsLogType Type;
+		wstring	Description;
+		tm When;
+	};
+
+	struct ItsLog
+	{
+	private:
+		vector<ItsLogItem> m_items;
+	public:
+		void LogInformation(wstring description)
+		{
+			ItsLogItem item;
+			item.When = ItsDateTime::Now().TM();
+			item.Description = description;
+			item.Type = ItsLogType::Information;
+
+			this->m_items.push_back(item);
+		}
+
+		void LogWarning(wstring description)
+		{
+			ItsLogItem item;
+			item.When = ItsDateTime::Now().TM();
+			item.Description = description;
+			item.Type = ItsLogType::Warning;
+
+			this->m_items.push_back(item);
+		}
+
+		void LogError(wstring description)
+		{
+			ItsLogItem item;
+			item.When = ItsDateTime::Now().TM();
+			item.Description = description;
+			item.Type = ItsLogType::Error;
+
+			this->m_items.push_back(item);
+		}
+
+		void LogOther(wstring description)
+		{
+			ItsLogItem item;
+			item.When = ItsDateTime::Now().TM();
+			item.Description = description;
+			item.Type = ItsLogType::Other;
+
+			this->m_items.push_back(item);
+		}
+
+		void LogDebug(wstring description)
+		{
+			ItsLogItem item;
+			item.When = ItsDateTime::Now().TM();
+			item.Description = description;
+			item.Type = ItsLogType::Debug;
+
+			this->m_items.push_back(item);
+		}
+
+		vector<ItsLogItem> GetItems() 
+		{
+			vector<ItsLogItem> copy;
+			
+			for (auto i : this->m_items)
+			{
+				copy.push_back(i);
+			}
+
+			return copy;
+		}
+
+		void Clear()
+		{
+			this->m_items.clear();
+		}
+
+		wstring LogTypeToString(ItsLogType t)
+		{
+			wstring type;
+			switch (t)
+			{
+			case ItsLogType::Information:
+				type = L"Information";
+				break;
+			case ItsLogType::Warning:
+				type = L"Warning";
+				break;
+			case ItsLogType::Error:
+				type = L"Error";
+				break;
+			case ItsLogType::Other:
+				type = L"Other";
+				break;
+			case ItsLogType::Debug:
+				type = L"Debug";
+				break;
+			default:
+				type = L"<UNKNOWN>";
+				break;
+			}
+			return type;
+		}
+
+		wstring ToString()
+		{
+			wstringstream ss;
+			for (auto i : this->m_items) {
+				ss << std::setiosflags(std::ios::left) << std::setw(12) << this->LogTypeToString(i.Type) << ItsDateTime(i.When).ToString() << L" " << i.Description << endl;
+			}
+			ss << ends;
+
+			return ss.str();
+		}
+	};
 }// namespace ItSoftware
