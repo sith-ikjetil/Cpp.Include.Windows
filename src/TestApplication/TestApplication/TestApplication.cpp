@@ -37,6 +37,7 @@ using ItSoftware::Win::ItsPath;
 using ItSoftware::Win::ItsDirectory;
 using ItSoftware::Win::ItsGuid;
 using ItSoftware::Win::ItsError;
+using ItSoftware::Win::ItsGuidFormat;
 using ItSoftware::ItsTime;
 using ItSoftware::ItsConvert;
 using ItSoftware::ItsString;
@@ -439,14 +440,21 @@ void TestGuid()
     wcout << endl;
     wcout << L"## Test Guid ______________________________________________" << endl;
     wcout << L"Guid1: " << ItsGuid::CreateGuid() << endl;
+    
     GUID guid{ 0 };
     if (ItsGuid::CreateGuid(&guid))
     {
-        wcout << L"Guid2: " << ItsGuid::ToString(guid) << endl;
+        ItsGuidFormat fmt;
+        wcout << L"Guid2 RegistryFormat: " << ItsGuid::ToString(guid,fmt.RegistryFormat) << endl;
+        wcout << L"Guid2 RegistryFormatStripped: " << ItsGuid::ToString(guid, fmt.RegistryFormatStripped) << endl;
+        wcout << L"Guid2 ConstFormat: " << ItsGuid::ToString(guid,fmt.ConstFormat) << endl;
+        wcout << L"Guid2 CompactFormat: " << ItsGuid::ToString(guid,fmt.CompactFormat) << endl;
+        wcout << L"Guid2 PrefixedCompactFormat: " << ItsGuid::ToString(guid,fmt.PrefixedCompactFormat) << endl;
     }
     else {
         wcout << L"Guid2 Error: " << ItsError::GetLastErrorDescription() << endl;
     }
+
 
     wcout << endl;
 }

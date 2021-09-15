@@ -143,6 +143,17 @@ namespace ItSoftware
 		};
 
 		//
+		//
+		//
+		struct ItsGuidFormat {
+			const wstring RegistryFormat{ L"{%08lX-%04X-%04x-%02X%02X-%02X%02X%02X%02X%02X%02X}" };
+			const wstring RegistryFormatStripped{ L"%08lX-%04X-%04x-%02X%02X-%02X%02X%02X%02X%02X%02X" };
+			const wstring ConstFormat{ L"{ 0x%lx, 0x%x, 0x%x, { 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x } }" };
+			const wstring CompactFormat{ L"%08lX%04X%04x%02X%02X%02X%02X%02X%02X%02X%02X" };
+			const wstring PrefixedCompactFormat{ L"GUID%08lX%04X%04x%02X%02X%02X%02X%02X%02X%02X%02X" };
+		};
+
+		//
 		// struct: ItsGuid
 		//
 		struct ItsGuid
@@ -167,8 +178,8 @@ namespace ItSoftware
 				return true;
 			}
 			static wstring ToString(GUID& guid) {
-				wstring format = L"{%08lX-%04X-%04x-%02X%02X-%02X%02X%02X%02X%02X%02X}";
-				return ItsGuid::ToString(guid, format);
+				ItsGuidFormat fmt;
+				return ItsGuid::ToString(guid, fmt.RegistryFormat);
 			}
 			static wstring ToString(GUID& guid, wstring format) {
 				wchar_t wcsBuffer[100];
