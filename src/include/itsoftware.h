@@ -488,6 +488,43 @@ namespace ItSoftware
 	//
 	struct ItsConvert
 	{
+		static wstring ToDataSizeString(size_t size, int digits) 
+		{
+			if (digits < 0)
+			{
+				digits = 0;
+			}
+			else if (digits > 3)
+			{
+				digits = 3;
+			}
+
+			wstringstream ss;
+			double dSize = (double)size;
+
+			int index = 0;
+			while (dSize >= 1024)
+			{
+				dSize /= 1024;
+				index++;
+			}
+
+			vector<wstring> szSize{ L"B", L"KB", L"MB", L"GB", L"TB", L"PB", L"EB", L"ZB", L"YB", L"BB", L"GP" };
+
+			size_t tst = (size_t)dSize;
+			ss << tst;
+			if (digits > 0) {
+				double t = dSize - tst;
+				wstring ws = ItsConvert::ToString<double>(t);
+				ss << ws.substr(1, digits+1);
+			}
+			ss << L" ";
+			ss << ((index > (szSize.size() - 1) || index < 0) ? L"?" : szSize[index]);
+			ss << ends;
+
+			return ss.str();
+		}
+
 #pragma warning(disable:4244)
 		template<typename Numeric>
 		static Numeric ToNumber(const wstring& str)

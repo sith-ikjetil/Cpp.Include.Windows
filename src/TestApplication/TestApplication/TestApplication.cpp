@@ -127,8 +127,8 @@ int wmain(int argc, wchar_t* argv[])
 void TestToNumber()
 {
     wcout << endl;
-    
     wcout << L"## Test ToNumber ________________________________________________" << endl;
+
     wcout << L"ItsConvert::ToNumber<int>(L\"-1234\") = " << ItsConvert::ToNumber<int>(L"-1234") << endl;
     wcout << L"ItsConvert::ToNumber<unsigned int>(L\"1234\") = " << ItsConvert::ToNumber<unsigned int>(L"1234") << endl;
     wcout << L"ItsConvert::ToNumber<long>(L\"-1234\") = " << ItsConvert::ToNumber<long>(L"-1234") << endl;
@@ -150,8 +150,8 @@ void TestToNumber()
 void TestToString()
 {
     wcout << endl;
-    
     wcout << L"## Test ToString ________________________________________________" << endl;
+
     wcout << L"ItsConvert::ToString<int>(-1234) = \"" << ItsConvert::ToString<int>(-1234) << L"\"" << endl;
     wcout << L"ItsConvert::ToString<unsigned int>(1234) = \"" << ItsConvert::ToString<unsigned int>(1234) << L"\"" << endl;
     wcout << L"ItsConvert::ToString<long>(-1234) = \"" << ItsConvert::ToString<long>(-1234) << L"\"" << endl;
@@ -163,6 +163,9 @@ void TestToString()
     wcout << L"ItsConvert::ToString<unsigned short>(40001) = \"" << ItsConvert::ToString<unsigned short>(40001) << L"\"" << endl;
     wcout << L"ItsConvert::ToStringFormatted(256810246) = \"" << ItsConvert::ToStringFormatted(256810246) << L"\"" << endl;
     wcout << L"ItsConvert::ToStringFormatted(256810246, L\" \") = \"" << ItsConvert::ToStringFormatted(256810246, L" ") << L"\"" << endl;
+    wcout << L"ItsConvert::ToDataSizeString(200100400, 0) = \"" << ItsConvert::ToDataSizeString(200100400, 0) << L"\"" << endl;
+    wcout << L"ItsConvert::ToDataSizeString(200100400, 2) = \"" << ItsConvert::ToDataSizeString(200100400, 2) << L"\"" << endl;
+    
     wcout << endl;
 }
 
@@ -174,8 +177,8 @@ void TestToString()
 void TestRandom()
 {
     wcout << endl;
-    
     wcout << L"## Test Random _________________________________________________" << endl;
+
     wcout << L"ItsRandom<long>(10'000, 1'000'000) = " << ItsRandom<long>(10'000, 1'000'000) << endl;
     wcout << L"ItsRandom<long>(10'000, 1'000'000) = " << ItsRandom<long>(10'000, 1'000'000) << endl;
     wcout << L"ItsRandom<float>(1, 10) = " << ItsRandom<float>(1, 10) << endl;
@@ -194,11 +197,12 @@ void TestRandom()
 void TestTime()
 {
     wcout << endl;
-
     wcout << L"## Test Time ___________________________________________________" << endl;
+
     wcout << L"ItsTime::RenderMsToFullString(92481379, false)" << L" = " << ItsTime::RenderMsToFullString(92481379, false) << endl;
     wcout << L"ItsTime::RenderMsToFullString(92481379, true)" << L" = " << ItsTime::RenderMsToFullString(92481379, true) << endl;
     wcout << L"ItsDateTime::Now().ToString(\"s\")" << L" = " << ItsDateTime::Now().ToString() << endl;
+    
     wcout << endl;
 }
 
@@ -209,11 +213,11 @@ void TestTime()
 //
 void TestString()
 {
+    wcout << endl;
+    wcout << L"## Test String ________________________________________________" << endl;
+
     wstring test(L"Ab12Cd");
     wstring testTrim(L"  Ab12Cd  ");
-    wcout << endl;
-
-    wcout << L"## Test String ________________________________________________" << endl;
     wcout << L"test = \"" << test << "\"" << endl;
     wcout << L"testTrim = \"" << testTrim << "\"" << endl;
     wcout << L"ItsString::Left(test,4) = \"" << ItsString::Left(test, 4) << "\"" << endl;
@@ -241,9 +245,12 @@ void TestTimerStart()
 {
     wcout << endl;
     wcout << L"## Test Timer Start ________________________________________________" << endl;
+    
+    g_timer.Start();
+
     wcout << L"Timer started..." << endl;
     wcout << endl;
-    g_timer.Start();
+
 }
 
 //
@@ -253,10 +260,11 @@ void TestTimerStart()
 //
 void TestTimerStop()
 {
-    g_timer.Stop();
-
     wcout << endl;
     wcout << L"## Test Timer Stop ________________________________________________" << endl;
+
+    g_timer.Stop();
+
     wcout << L"Time elapsed: " << ItsTime::RenderMsToFullString(g_timer.GetMilliseconds(), true) << endl;
     wcout << endl;
 }
