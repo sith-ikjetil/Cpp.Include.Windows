@@ -1,3 +1,10 @@
+///////////////////////////////////////////////////////////////////
+//: Title        : itsoftware-exceptions.cpp
+//: Product:     : Cpp.Include.Windows
+//: Date         : 2020-05-01
+//: Author       : "Kjetil Kristoffer Solberg" <post@ikjetil.no>
+//: Version      : 1.0.0.0
+//: Descriptions : Implementation of Cpp.Include.Windows.
 #pragma once
 //
 // #include Windows Headers

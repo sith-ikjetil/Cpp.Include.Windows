@@ -87,7 +87,7 @@ wstring g_directoryRoot(L"C:\\Temp");
 wstring g_creatDir(L"C:\\Temp\\CREATDIR");
 
 //
-// Function: main
+// Function: wmain
 //
 int wmain(int argc, wchar_t* argv[])
 {
@@ -121,7 +121,7 @@ int wmain(int argc, wchar_t* argv[])
 //
 // Function: TestToNumber
 //
-// (i) Test numerics as string converted to primitive data types.
+// (i): Test numerics as string converted to primitive data types.
 //
 void TestToNumber()
 {
@@ -144,7 +144,7 @@ void TestToNumber()
 //
 // Function: TestToString
 //
-// (i) Tests primitive data types to string. I.e. numeric types.
+// (i): Tests primitive data types to string. I.e. numeric types.
 //
 void TestToString()
 {
@@ -168,7 +168,7 @@ void TestToString()
 //
 // Function: TestRandom
 //
-// (i) Test random integers and floats.
+// (i): Test random integers and floats.
 //
 void TestRandom()
 {
@@ -188,7 +188,7 @@ void TestRandom()
 //
 // Function: TestTime
 //
-// (i) Test rendering of time in milliseconds.
+// (i): Test rendering of time in milliseconds.
 //
 void TestTime()
 {
@@ -204,7 +204,7 @@ void TestTime()
 //
 // Function: TestString
 //
-// (i) Test string manipulation routines.
+// (i): Test string manipulation routines.
 //
 void TestString()
 {
@@ -228,7 +228,7 @@ void TestString()
 //
 // Function: TestTimerStart
 //
-// (i) Starts timer
+// (i): Starts timer
 //
 void TestTimerStart()
 {
@@ -242,7 +242,7 @@ void TestTimerStart()
 //
 // Function: TestTimerStop
 //
-// (i) Stops timer
+// (i): Stops timer
 //
 void TestTimerStop()
 {
@@ -257,7 +257,7 @@ void TestTimerStop()
 //
 // Function: TestFileText
 //
-// (i) Tests files
+// (i): Tests files
 //
 void TestFileText()
 {
@@ -290,7 +290,7 @@ void TestFileText()
 //
 // Function: TestFileBinary
 //
-// (i) Tests files
+// (i): Tests files
 //
 void TestFileBinary()
 {
@@ -325,7 +325,7 @@ void TestFileBinary()
 //
 // Function: TestEventStart
 //
-// (i) Start testing event
+// (i): Start testing event
 //
 void TestEventStart()
 {
@@ -346,7 +346,7 @@ void TestEventStart()
 //
 // Function: TestEventStop
 //
-// (i) Stop testing event.
+// (i): Stop testing event.
 //
 void TestEventStop()
 {

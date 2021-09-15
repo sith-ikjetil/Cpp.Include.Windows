@@ -1,3 +1,10 @@
+///////////////////////////////////////////////////////////////////
+//: Title        : itsoftware-com.cpp
+//: Product:     : Cpp.Include.Windows
+//: Date         : 2020-05-01
+//: Author       : "Kjetil Kristoffer Solberg" <post@ikjetil.no>
+//: Version      : 1.0.0.0
+//: Descriptions : Implementation of Cpp.Include.Windows. Uses Shlwapi.lib.
 #pragma once
 //
 // #include
@@ -10,7 +17,7 @@
 //
 // #define
 //
-#define ERRMSGBUFFERSIZE 256
+#define ERRMSGBUFFERSIZE 512
 
 //
 // namespace
