@@ -264,12 +264,78 @@ namespace ItSoftware
 	};
 
 	//
+	// enum ItsExpandDirection
+	//
+	// (i): Where text in expanded string input text should be aligned.
+	//
+	enum class ItsExpandDirection
+	{
+		Left,
+		Middle,
+		Right
+	};
+
+	//
 	// struct: ItsString
 	//
 	// (i): Misc. string routines in one place.
 	//
 	struct ItsString
 	{
+		static wstring WidthExpand(wstring source, size_t width, wchar_t fill, ItsExpandDirection direction)
+		{
+			if (source.size() == 0) {
+				return wstring(L"");
+			}
+			if (width <= 0) {
+				return wstring(L"");
+			}
+
+			if (source.size() >= width) {
+				return source.substr(0, width);
+			}
+
+			wstringstream result;
+			if (direction == ItsExpandDirection::Left) 
+			{
+				for (size_t i = 0; i < (width - source.size()); i++)
+				{
+					result << fill;
+				}
+				result << source;
+			}
+			else if (direction == ItsExpandDirection::Middle)
+			{
+				for (size_t i = 0; i < ((width - source.size()) / 2); i++)
+				{
+					result << fill;
+				}
+
+				result << source;
+
+				for (size_t i = result.str().size(); i < width; i++)
+				{
+					result << fill;
+				}
+			}
+			else if (direction == ItsExpandDirection::Right) 
+			{
+				result << source;
+
+				for (size_t i = 0; i < (width - source.size()); i++)
+				{
+					result << fill;
+				}
+			}
+			else {
+				return wstring(L"");
+			}
+
+			result << ends;
+
+			return result.str();
+		}
+
 		static vector<wstring> Split( wstring data, wstring token )
 		{
 			vector<wstring> output;

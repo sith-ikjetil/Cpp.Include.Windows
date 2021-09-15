@@ -41,6 +41,7 @@ using ItSoftware::Win::ItsGuidFormat;
 using ItSoftware::ItsTime;
 using ItSoftware::ItsConvert;
 using ItSoftware::ItsString;
+using ItSoftware::ItsExpandDirection;
 using ItSoftware::ItsRandom;
 using ItSoftware::ItsDateTime;
 using ItSoftware::ItsLog;
@@ -222,6 +223,12 @@ void TestString()
     wcout << L"ItsString::ToUpperCase(test) = \"" << ItsString::ToUpperCase(test) << "\"" << endl;
     wcout << L"ItsString::Trim(testTrim) = \"" << ItsString::Trim(testTrim) << "\"" << endl;
 
+    wstring name(L"Kjetil");
+    wcout << L"ItsString::WidthExpand (ItsExpandDirection:Left,Middle,Right) Below" << endl;
+    wcout << ItsString::WidthExpand(name, 30, '_', ItsExpandDirection::Left) << endl;
+    wcout << ItsString::WidthExpand(name, 30, '_', ItsExpandDirection::Middle) << endl;
+    wcout << ItsString::WidthExpand(name, 30, '_', ItsExpandDirection::Right) << endl;
+    
     wcout << endl;
 }
 
