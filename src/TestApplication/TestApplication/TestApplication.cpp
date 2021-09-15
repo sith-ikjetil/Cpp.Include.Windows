@@ -16,7 +16,6 @@
 #include "../../include/itsoftware-com.h"
 #include "../../include/itsoftware-exceptions.h"
 #include "../../include/itsoftware-win.h"
-#include "../../include/itsoftware-win.cpp"
 
 //
 // using
@@ -268,7 +267,7 @@ void TestFileText()
         return;
     }
 
-    bResult = file.WriteText(L"Small step for man. Large leap for mankind.");
+    bResult = file.WriteText(L"Small step for man." + ItsTextFile::LineDelimiterUnix() + L"Large leap for mankind.");
     if (!bResult) {
         wcout << L"ItsTextFile WriteText failed" << endl << endl;
         return;
