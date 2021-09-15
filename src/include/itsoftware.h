@@ -82,6 +82,8 @@ namespace ItSoftware
 		//
 		// struct: UTF8
 		//
+		// (i): UTF8 wrappers routines.
+		//
 		struct UTF8
 		{
 
@@ -128,11 +130,10 @@ namespace ItSoftware
 	//
 	// struct: ItsTime
 	//
+	// (i): Split milliseconds or render milliseconds to a friendly string.
+	//
 	struct ItsTime
 	{
-		//
-		// Split ms to its parts
-		//
 		static void SplitMsToHourMinuteSeconds( size_t time_ms, size_t* part_hours, size_t* part_minutes, size_t* part_seconds, size_t* part_ms )
 		{
 			size_t seconds = time_ms / 1000;
@@ -258,6 +259,8 @@ namespace ItSoftware
 	//
 	// struct: ItsString
 	//
+	// (i): Misc. string routines in one place.
+	//
 	struct ItsString
 	{
 		static vector<wstring> Split( wstring data, wstring token )
@@ -274,42 +277,37 @@ namespace ItSoftware
 
 			return output;
 		}
-		// to lower case
+
 		static wstring ToLowerCase( wstring& s )
 		{
 			std::transform( s.begin( ), s.end( ), s.begin( ), tolower );
 			return s;
 		}
 
-		// to upper case
 		static wstring ToUpperCase( wstring& s )
 		{
 			std::transform( s.begin( ), s.end( ), s.begin( ), toupper );
 			return s;
 		}
 
-		// trim from left
 		static wstring TrimLeft( wstring& s, const wchar_t* t = L" \t\n\r\f\v" )
 		{
 			s.erase( 0, s.find_first_not_of( t ) );
 			return s;
 		}
 
-		// trim from right
 		static wstring TrimRight( wstring& s, const wchar_t* t = L" \t\n\r\f\v" )
 		{
 			s.erase( s.find_last_not_of( t ) + 1 );
 			return s;
 		}
 
-		// trim from left & right
 		static wstring Trim( wstring& s, const wchar_t* t = L" \t\n\r\f\v" )
 		{
 			wstring right = TrimRight(s, t);
 			return TrimLeft( right, t );
 		}
 
-		// left count chars
 		static wstring Left( wstring &s, unsigned int count )
 		{
 			if ( s.size( ) == 0 || count <= 0 )
@@ -332,7 +330,6 @@ namespace ItSoftware
 			return str;
 		}
 		
-		// mid index, count chars
 		static wstring Mid( wstring &s, size_t index, size_t count )
 		{
 			if ( s.size( ) == 0 || count <= 0 || index < 0 || index >= s.size( ) )
@@ -361,7 +358,6 @@ namespace ItSoftware
 			return str;
 		}
 		
-		// right count chars
 		static wstring Right( wstring &s, unsigned int count )
 		{
 			if ( s.size( ) == 0 || count <= 0 )
@@ -384,9 +380,7 @@ namespace ItSoftware
 			return str;
 		}
 
-		//
-		//
-		//
+
 		static wstring Replace( wstring& s, wstring& replace, wstring& replace_with )
 		{
 			if ( s.size( ) == 0 || replace.size( ) == 0 || replace.size( ) > s.size( ) )
@@ -416,6 +410,8 @@ namespace ItSoftware
 
 	//
 	// struct: ItsConvert
+	//
+	// (i): Misc. convertion routines in one place.
 	//
 	struct ItsConvert
 	{
@@ -676,6 +672,11 @@ namespace ItSoftware
 		}
 	};	
 	
+	//
+	// Function: ItsRandom
+	//
+	// (i): A random number wrapper.
+	//
 	template<typename Numeric, typename Generator = std::mt19937>
 	Numeric ItsRandom(Numeric from, Numeric to)
 	{
@@ -694,9 +695,11 @@ namespace ItSoftware
 	}
 
 	//
-	// class: ItsDateTime
+	// struct: ItsDateTime
 	//
-	class ItsDateTime
+	// (i): Represents a date and time.
+	//
+	struct ItsDateTime
 	{		
 	private:
 		tm m_tm;
@@ -1017,6 +1020,11 @@ namespace ItSoftware
 		}
 	};
 
+	//
+	// ItsLogType
+	//
+	// (i): Log type for ItsLogItem
+	//
 	enum class ItsLogType
 	{
 		Information,
@@ -1026,6 +1034,11 @@ namespace ItSoftware
 		Debug
 	};
 
+	//
+	// struct: ItsLogItem
+	//
+	// (i): Log item for ItsLog
+	//
 	struct ItsLogItem 
 	{
 		ItsLogType Type;
@@ -1033,6 +1046,11 @@ namespace ItSoftware
 		tm When;
 	};
 
+	//
+	// struct: ItsLog
+	//
+	// (i): CUstom application event log.
+	//
 	struct ItsLog
 	{
 	private:
