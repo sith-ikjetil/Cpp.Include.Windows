@@ -16,6 +16,7 @@
 #include "../../include/itsoftware-com.h"
 #include "../../include/itsoftware-exceptions.h"
 #include "../../include/itsoftware-win.h"
+#include "../../include/itsoftware-win.cpp"
 
 //
 // using
