@@ -1,10 +1,11 @@
+///////////////////////////////////////////////////////////////////
+//: Title        : itsoftware-win.cpp
+//: Product:     : Cpp.Include.Windows
+//: Date         : 2020-05-01
+//: Author       : "Kjetil Kristoffer Solberg" <post@ikjetil.no>
+//: Version      : 1.0.0.0
+//: Descriptions : Implementation of Cpp.Include.Windows. Uses Shlwapi.lib.
 #pragma once
-//
-// (i) When including this file, remember to in your Main.cpp file to include itsoftware-win.cpp.
-//
-// (i) uses: Shlwapi.lib
-//
-
 //
 // #include
 //
@@ -20,6 +21,9 @@
 #include "itsoftware-exceptions.h"
 #include <time.h>
 
+//
+// #pragma
+//
 #pragma warning(disable: 4244)
 
 //
@@ -40,6 +44,8 @@ namespace ItSoftware
 
 		//
 		// struct: ItsTimer
+		//
+		// (i): Timer wrapper.
 		//
 		struct ItsTimer
 		{
@@ -143,7 +149,9 @@ namespace ItSoftware
 		};
 
 		//
+		// struct: ItsGuidFormat
 		//
+		// (i): Container for premade Guid format strings.
 		//
 		struct ItsGuidFormat {
 			const wstring RegistryFormat{ L"{%08lX-%04X-%04x-%02X%02X-%02X%02X%02X%02X%02X%02X}" };
@@ -155,6 +163,8 @@ namespace ItSoftware
 
 		//
 		// struct: ItsGuid
+		//
+		// (i): Wrapper for Guid generation and rendering.
 		//
 		struct ItsGuid
 		{
@@ -198,6 +208,8 @@ namespace ItSoftware
 		//
 		// struct: ItsPath
 		// 
+		// (i): Path routines.
+		//
 		struct ItsPath
 		{
 		public:
@@ -459,6 +471,8 @@ namespace ItSoftware
 		//
 		// struct: ItsError
 		//
+		// (i): System error description generation.
+		//
 		struct ItsError
 		{
 			//
@@ -534,7 +548,9 @@ namespace ItSoftware
 		};
 
 		//
-		// unique_handle
+		// class: unique_handle
+		//
+		// (i): Wrapper for many types of Windows handles.
 		//
 		template<typename Traits>
 		class unique_handle
@@ -969,8 +985,10 @@ namespace ItSoftware
 		typedef unique_handle<hicon_handle_traits> unique_hicon_handle;
 
 		//
+		// struct: ItsDirectory
 		// 
-		// 
+		// (i): Windows directory routines.
+		//
 		struct ItsDirectory
 		{
 		public:
@@ -1082,6 +1100,8 @@ namespace ItSoftware
 		//
 		// class: ItsEvent
 		//
+		// (i): Windows event wrapper.
+		//
 		class ItsEvent
 		{
 		private:
@@ -1145,6 +1165,9 @@ namespace ItSoftware
 			FileEnd
 		};
 
+		//
+		// enum: ItsFileTextType
+		//
 		enum class ItsFileTextType
 		{
 			Ansi,
@@ -1153,6 +1176,11 @@ namespace ItSoftware
 			Unicode
 		};
 
+		//
+		// class: ItsFileBase
+		//
+		// (i): ItsFile and ItsTextFile base class.
+		//
 		class ItsFileBase
 		{
 		private:
@@ -1284,6 +1312,11 @@ namespace ItSoftware
 			}
 		};
 
+		//
+		// struct: ItsTextFileInfo
+		//
+		// (i): Information for ItsTextFile.
+		//
 		struct ItsTextFileInfo
 		{
 			const wstring LineDelimiterWindows = L"\r\n";
@@ -1294,6 +1327,8 @@ namespace ItSoftware
 
 		//
 		// class: ItsTextFile
+		//
+		// (i): Wrapper for text file on Windows.
 		//
 		class ItsTextFile : public ItsFileBase
 		{
@@ -1830,6 +1865,8 @@ namespace ItSoftware
 		//
 		// class: ItsFile
 		//
+		// (i): Wrapper for a file on Windows.
+		//
 		class ItsFile : public ItsFileBase
 		{
 		private:
@@ -1964,6 +2001,8 @@ namespace ItSoftware
 
 		//
 		// struct: ItsWin
+		//
+		// (i): Misc Windows routines.
 		//
 		struct ItsWin
 		{
@@ -3369,6 +3408,8 @@ namespace ItSoftware
 #pragma warning(error: 26812)
 		//
 		// class: ItsRegistry
+		//
+		// (i): Windows registry routines.
 		//
 		class ItsRegistry
 		{
