@@ -12,6 +12,7 @@
 #include <thread>
 #include <vector>
 #include <string>
+#include <limits>
 #include "../../include/itsoftware.h"
 #include "../../include/itsoftware-com.h"
 #include "../../include/itsoftware-exceptions.h"
@@ -169,7 +170,9 @@ void TestToString()
     wcout << L"ItsConvert::ToDataSizeString(200100400, 2) = \"" << ItsConvert::ToDataSizeString(200100400, 2) << L"\"" << endl;
     wcout << L"ItsConvert::ToDataSizeString(9807804606, 3) = \"" << ItsConvert::ToDataSizeString(9807804606, 3, ItsDataSizeStringType::IEC) << L"\"" << endl;
     wcout << L"ItsConvert::ToDataSizeString(1000, 3) = \"" << ItsConvert::ToDataSizeString(1000, 3, ItsDataSizeStringType::IEC) << L"\"" << endl;
-
+    wcout << L"ItsConvert::ToDataSizeString(size_t max, 2) = \"" << ItsConvert::ToDataSizeString(SIZE_MAX, 2) << L"\"" << endl;
+    wcout << L"ItsConvert::ToDataSizeString(size_t max, 2) = \"" << ItsConvert::ToDataSizeString(SIZE_MAX, 2, ItsDataSizeStringType::IEC) << L"\"" << endl;
+    
     wcout << endl;
 }
 
