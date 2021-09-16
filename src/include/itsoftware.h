@@ -482,13 +482,31 @@ namespace ItSoftware
 	};
 
 	//
+	// enum: DataSizeStringType
+	//
+	// (i): Enum for string representation of ToDataSizeString ItsConvert function.
+	//
+	enum class ItsDataSizeStringType {
+		Recommended,
+		IEC
+	};
+
+	//
 	// struct: ItsConvert
 	//
 	// (i): Misc. convertion routines in one place.
 	//
 	struct ItsConvert
 	{
-		static wstring ToDataSizeString(size_t size, int digits) 
+		static wstring ToDataSizeString(size_t size)
+		{
+			return ItsConvert::ToDataSizeString(size, 0);
+		}
+		static wstring ToDataSizeString(size_t size, int digits)
+		{
+			return ItsConvert::ToDataSizeString(size, digits, ItsDataSizeStringType::Recommended);
+		}
+		static wstring ToDataSizeString(size_t size, int digits, ItsDataSizeStringType type)
 		{
 			if (digits < 0)
 			{
@@ -509,14 +527,26 @@ namespace ItSoftware
 				index++;
 			}
 
-			vector<wstring> szSize{ L"B", L"KB", L"MB", L"GB", L"TB", L"PB", L"EB", L"ZB", L"YB", L"BB", L"GP" };
-
+			vector<wstring> szSize;
+			if (type == ItsDataSizeStringType::IEC) {
+				szSize = { L"Bi", L"KiB", L"MiB", L"GiB", L"TiB", L"PiB", L"EiB", L"ZiB", L"YiB", L"BB", L"GP" };
+			}
+			else {//(type == ItsDataSizeStringType::Recommended) { // defaults to this notation
+				szSize = { L"B", L"KB", L"MB", L"GB", L"TB", L"PB", L"EB", L"ZB", L"YB", L"BB", L"GP" };
+			}
+	
 			size_t tst = (size_t)dSize;
 			ss << tst;
 			if (digits > 0) {
 				double t = dSize - tst;
 				wstring ws = ItsConvert::ToString<double>(t);
-				ss << ws.substr(1, digits+1);
+				if (ws[0] == '0' && t != 0.0) {
+					ws += L"000";
+				}
+				else {
+					ws += L".000";
+				}
+				ss << ws.substr(1, static_cast<size_t>(digits)+1);
 			}
 			ss << L" ";
 			ss << ((index > (szSize.size() - 1) || index < 0) ? L"?" : szSize[index]);

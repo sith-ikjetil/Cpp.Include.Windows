@@ -46,6 +46,7 @@ using ItSoftware::ItsRandom;
 using ItSoftware::ItsDateTime;
 using ItSoftware::ItsLog;
 using ItSoftware::ItsLogType;
+using ItSoftware::ItsDataSizeStringType;
 
 //
 // extern
@@ -165,7 +166,9 @@ void TestToString()
     wcout << L"ItsConvert::ToStringFormatted(256810246, L\" \") = \"" << ItsConvert::ToStringFormatted(256810246, L" ") << L"\"" << endl;
     wcout << L"ItsConvert::ToDataSizeString(200100400, 0) = \"" << ItsConvert::ToDataSizeString(200100400, 0) << L"\"" << endl;
     wcout << L"ItsConvert::ToDataSizeString(200100400, 2) = \"" << ItsConvert::ToDataSizeString(200100400, 2) << L"\"" << endl;
-    
+    wcout << L"ItsConvert::ToDataSizeString(9807804606, 3) = \"" << ItsConvert::ToDataSizeString(9807804606, 3, ItsDataSizeStringType::IEC) << L"\"" << endl;
+    wcout << L"ItsConvert::ToDataSizeString(1000, 3) = \"" << ItsConvert::ToDataSizeString(1000, 3, ItsDataSizeStringType::IEC) << L"\"" << endl;
+
     wcout << endl;
 }
 
