@@ -53,6 +53,7 @@ extern HWND g_hWndMainThread;
 extern bool g_bThread1Fin;
 extern bool g_bThread2Fin;
 extern bool g_bThread3Fin;
+extern void PrintTestHeader(wstring text);
 
 //
 // main
@@ -72,8 +73,7 @@ void TestCOM2()
 	//
 	ComRuntime runtime(ComApartment::ApartmentThreaded);
 
-	wcout << endl;
-	wcout << L"## Test COM 2 ItsMarshalPtr ________________________________________________" << endl;
+	PrintTestHeader(L"## Test COM 2 ItsMarshalPtr ");
 
 	CComPtr<ITestCOM> pIStaObject;
 	HRESULT hr = pIStaObject.CoCreateInstance(CLSID_TestCOM);

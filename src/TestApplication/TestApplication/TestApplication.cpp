@@ -75,6 +75,8 @@ void TestDirectory();
 void TestGuid();
 void TestLog();
 void TestDateTime();
+void ExitFn();
+void PrintTestHeader(wstring txt);
 
 //
 // global variables
@@ -92,11 +94,22 @@ wstring g_directoryRoot(L"C:\\Temp");
 wstring g_creatDir(L"C:\\Temp\\CREATDIR");
 
 //
+// Function: ExitFn
+//
+// (i): Print exit message.
+// 
+void ExitFn()
+{
+    wcout << L"> Test Application - Exited <" << endl;
+}
+// 
 // Function: wmain
 //
 int wmain(int argc, wchar_t* argv[])
 {
-    wcout << "### Cpp.Include.Windows - Test Application ###" << endl << endl;
+    atexit(ExitFn);
+
+    wcout << L"> Test Application - Started <" << endl;
 
     TestTimerStart();
     TestEventStart();
@@ -123,14 +136,24 @@ int wmain(int argc, wchar_t* argv[])
 }
 
 //
+// Function: PrintTestHeader
+//
+// (i): Prints a tests header.
+//
+void PrintTestHeader(wstring txt)
+{
+    wcout << endl;
+    wcout << ItsString::WidthExpand(txt, 80, '_', ItsExpandDirection::Right) << endl;
+}
+
+//
 // Function: TestToNumber
 //
 // (i): Test numerics as string converted to primitive data types.
 //
 void TestToNumber()
 {
-    wcout << endl;
-    wcout << L"## Test ToNumber ________________________________________________" << endl;
+    PrintTestHeader(L"## Test ItsConvert::ToNumber ");
 
     wcout << LR"(ItsConvert::ToNumber<int>(L"-1234") = )" << ItsConvert::ToNumber<int>(L"-1234") << endl;
     wcout << LR"(ItsConvert::ToNumber<unsigned int>(L"1234") = )" << ItsConvert::ToNumber<unsigned int>(L"1234") << endl;
@@ -152,8 +175,7 @@ void TestToNumber()
 //
 void TestToString()
 {
-    wcout << endl;
-    wcout << L"## Test ToString ________________________________________________" << endl;
+    PrintTestHeader(L"## Test ItsConvert::ToString ");
 
     wcout << LR"(ItsConvert::ToString<int>(-1234) = ")" << ItsConvert::ToString<int>(-1234) << LR"(")" << endl;
     wcout << LR"(ItsConvert::ToString<unsigned int>(1234) = ")" << ItsConvert::ToString<unsigned int>(1234) << LR"(")" << endl;
@@ -184,8 +206,7 @@ void TestToString()
 //
 void TestRandom()
 {
-    wcout << endl;
-    wcout << L"## Test Random _________________________________________________" << endl;
+    PrintTestHeader(L"## Test ItsRandom ");
 
     wcout << L"ItsRandom<long>(10'000, 1'000'000) = " << ItsRandom<long>(10'000, 1'000'000) << endl;
     wcout << L"ItsRandom<long>(10'000, 1'000'000) = " << ItsRandom<long>(10'000, 1'000'000) << endl;
@@ -204,8 +225,7 @@ void TestRandom()
 //
 void TestTime()
 {
-    wcout << endl;
-    wcout << L"## Test Time ___________________________________________________" << endl;
+    PrintTestHeader(L"## Test ItsTime ");
 
     wcout << L"ItsTime::RenderMsToFullString(92481379, false)" << L" = " << ItsTime::RenderMsToFullString(92481379, false) << endl;
     wcout << L"ItsTime::RenderMsToFullString(92481379, true)" << L" = " << ItsTime::RenderMsToFullString(92481379, true) << endl;
@@ -221,8 +241,7 @@ void TestTime()
 //
 void TestString()
 {
-    wcout << endl;
-    wcout << L"## Test String ________________________________________________" << endl;
+    PrintTestHeader(L"## Test ItsString ");
 
     wstring test(L"Ab12Cd");
     wstring testTrim(L"  Ab12Cd  ");
@@ -251,14 +270,12 @@ void TestString()
 //
 void TestTimerStart()
 {
-    wcout << endl;
-    wcout << L"## Test Timer Start ________________________________________________" << endl;
-    
+    PrintTestHeader(L"## Test ItsTimer::Start ");
+
     g_timer.Start();
-
     wcout << L"Timer started..." << endl;
+    
     wcout << endl;
-
 }
 
 //
@@ -268,8 +285,7 @@ void TestTimerStart()
 //
 void TestTimerStop()
 {
-    wcout << endl;
-    wcout << L"## Test Timer Stop ________________________________________________" << endl;
+    PrintTestHeader(L"## Test ItsTimer::Stop ");
 
     g_timer.Stop();
 
@@ -284,8 +300,7 @@ void TestTimerStop()
 //
 void TestFileText()
 {
-    wcout << endl;
-    wcout << L"## Test File Text ________________________________________________" << endl;
+    PrintTestHeader(L"## Test ItsTextFile ");
 
     ItsTextFile file{};
     bool bResult = file.OpenOrCreateText(g_filenameText, L"rw", L"", ItsFileOpenCreation::CreateAlways, ItsFileTextType::UTF8NoBOM);
@@ -317,8 +332,7 @@ void TestFileText()
 //
 void TestFileBinary()
 {
-    wcout << endl;
-    wcout << L"## Test File Binary ________________________________________________" << endl;
+    PrintTestHeader(L"## Test ItsFile ");
 
     ItsFile file{};
     bool bResult = file.OpenOrCreate(g_filenameBinary, L"rw", L"", ItsFileOpenCreation::CreateAlways);
@@ -354,14 +368,12 @@ void TestEventStart()
 {
     g_event.Clear();
 
-    wcout << endl;
-    wcout << L"## Test Event Start _________________________________________________" << endl;
+    PrintTestHeader(L"## Test ItsEvent Start "); 
     wcout << L"Event is cleared" << endl << endl;
     
     g_eventThread = thread([] {
         g_event.Wait(-1);
-        wcout << endl;
-        wcout << L"## Test Event Completed ___________________________________________" << endl;
+        PrintTestHeader(L"## Test ItsEvent Completed ");
         wcout << L"Event works as expected" << endl << endl;
         });
 }
@@ -375,9 +387,10 @@ void TestEventStop()
 {
     g_event.Signal();
 
+    PrintTestHeader(L"## Test ItsEvent Stop ");
+    wcout << L"Event is Signaled" << endl;
+    
     wcout << endl;
-    wcout << L"## Test Event Stop ________________________________________________" << endl;
-    wcout << L"Event is Signaled" << endl << endl;
 }
 
 //
@@ -387,9 +400,8 @@ void TestEventStop()
 //
 void TestPath()
 {
-    wcout << endl;
-    wcout << L"## Test Path __________________________________________________" << endl;
-   
+    PrintTestHeader(L"## Test ItsPath ");
+
     wstring path = ItsPath::Combine(g_path1, g_path2);
     if (ItsPath::Exists(path)) {
         wcout << L"Path: " << path << L" Exists" << endl;
@@ -418,8 +430,7 @@ void TestPath()
 //
 void TestDirectory()
 {
-    wcout << endl;
-    wcout << L"## Test Directory _______________________________________________" << endl;
+    PrintTestHeader(L"## Test ItsDirectory ");
 
     auto result = ItsDirectory::GetDirectories(g_directoryRoot);
     if (result.size() > 0) {
@@ -474,8 +485,8 @@ void TestDirectory()
 //
 void TestGuid()
 {
-    wcout << endl;
-    wcout << L"## Test Guid ______________________________________________" << endl;
+    PrintTestHeader(L"## Test ItsGuid ");
+
     wcout << L"Guid1: " << ItsGuid::CreateGuid() << endl;
     
     GUID guid{ 0 };
@@ -503,8 +514,7 @@ void TestGuid()
 //
 void TestLog()
 {
-    wcout << endl;
-    wcout << L"## Test Log _________________________________________________" << endl;
+    PrintTestHeader(L"## Test ItsLog ");
 
     ItsLog log;
     log.LogInformation(L"This is an information log item");
@@ -524,8 +534,7 @@ void TestLog()
 //
 void TestDateTime()
 {
-    wcout << endl;
-    wcout << L"## Test DateTime ____________________________________________" << endl;
+    PrintTestHeader(L"## Test ItsDateTime ");
 
     auto now = ItsDateTime::Now();
     wcout << "ItsDateTime.Now(): " << now.ToString() << endl;
