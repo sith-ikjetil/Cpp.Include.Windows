@@ -131,15 +131,15 @@ void TestToNumber()
     wcout << endl;
     wcout << L"## Test ToNumber ________________________________________________" << endl;
 
-    wcout << L"ItsConvert::ToNumber<int>(L\"-1234\") = " << ItsConvert::ToNumber<int>(L"-1234") << endl;
-    wcout << L"ItsConvert::ToNumber<unsigned int>(L\"1234\") = " << ItsConvert::ToNumber<unsigned int>(L"1234") << endl;
-    wcout << L"ItsConvert::ToNumber<long>(L\"-1234\") = " << ItsConvert::ToNumber<long>(L"-1234") << endl;
-    wcout << L"ItsConvert::ToNumber<unsigned long>(L\"123456789\") = " << ItsConvert::ToNumber<unsigned long>(L"12346789") << endl;
-    wcout << L"ItsConvert::ToNumber<long long>(L\"12345678900\") = " << ItsConvert::ToNumber<long long>(L"12345678900") << endl;
-    wcout << L"ItsConvert::ToNumber<float>(L\"-12.34\") = " << ItsConvert::ToNumber<float>(L"-12.34") << endl;
-    wcout << L"ItsConvert::ToNumber<double>(L\"1.234\") = " << ItsConvert::ToNumber<double>(L"1.234") << endl;
-    wcout << L"ItsConvert::ToNumber<short>(L\"1234\") = " << ItsConvert::ToNumber<short>(L"1234") << endl;
-    wcout << L"ItsConvert::ToNumber<unsigned short>(L\"40001\") = " << ItsConvert::ToNumber<unsigned short>(L"40001") << endl;
+    wcout << LR"(ItsConvert::ToNumber<int>(L"-1234") = )" << ItsConvert::ToNumber<int>(L"-1234") << endl;
+    wcout << LR"(ItsConvert::ToNumber<unsigned int>(L"1234") = )" << ItsConvert::ToNumber<unsigned int>(L"1234") << endl;
+    wcout << LR"(ItsConvert::ToNumber<long>(L"-1234") = )" << ItsConvert::ToNumber<long>(L"-1234") << endl;
+    wcout << LR"(ItsConvert::ToNumber<unsigned long>(L"123456789") = )" << ItsConvert::ToNumber<unsigned long>(L"12346789") << endl;
+    wcout << LR"(ItsConvert::ToNumber<long long>(L"12345678900") = )" << ItsConvert::ToNumber<long long>(L"12345678900") << endl;
+    wcout << LR"(ItsConvert::ToNumber<float>(L"-12.34") = )" << ItsConvert::ToNumber<float>(L"-12.34") << endl;
+    wcout << LR"(ItsConvert::ToNumber<double>(L"1.234") = )" << ItsConvert::ToNumber<double>(L"1.234") << endl;
+    wcout << LR"(ItsConvert::ToNumber<short>(L"1234") = )" << ItsConvert::ToNumber<short>(L"1234") << endl;
+    wcout << LR"(ItsConvert::ToNumber<unsigned short>(L"40001") = )" << ItsConvert::ToNumber<unsigned short>(L"40001") << endl;
 
     wcout << endl;
 }
@@ -154,24 +154,24 @@ void TestToString()
     wcout << endl;
     wcout << L"## Test ToString ________________________________________________" << endl;
 
-    wcout << L"ItsConvert::ToString<int>(-1234) = \"" << ItsConvert::ToString<int>(-1234) << L"\"" << endl;
-    wcout << L"ItsConvert::ToString<unsigned int>(1234) = \"" << ItsConvert::ToString<unsigned int>(1234) << L"\"" << endl;
-    wcout << L"ItsConvert::ToString<long>(-1234) = \"" << ItsConvert::ToString<long>(-1234) << L"\"" << endl;
-    wcout << L"ItsConvert::ToString<unsigned long>(123456789) = \"" << ItsConvert::ToString<unsigned long>(12346789) << L"\"" << endl;
-    wcout << L"ItsConvert::ToString<long long>(12345678900) = \"" << ItsConvert::ToString<long long>(12345678900) << L"\"" << endl;
-    wcout << L"ItsConvert::ToString<float>(-12.34) = \"" << ItsConvert::ToString<float>(-12.34f) << L"\"" << endl;
-    wcout << L"ItsConvert::ToString<double>(1.234) = \"" << ItsConvert::ToString<double>(1.234) << L"\"" << endl;
-    wcout << L"ItsConvert::ToString<short>(1234) = \"" << ItsConvert::ToString<short>(1234) << L"\"" << endl;
-    wcout << L"ItsConvert::ToString<unsigned short>(40001) = \"" << ItsConvert::ToString<unsigned short>(40001) << L"\"" << endl;
-    wcout << L"ItsConvert::ToStringFormatted(256810246) = \"" << ItsConvert::ToStringFormatted(256810246) << L"\"" << endl;
-    wcout << L"ItsConvert::ToStringFormatted(256810246, L\" \") = \"" << ItsConvert::ToStringFormatted(256810246, L" ") << L"\"" << endl;
-    wcout << L"ItsConvert::ToDataSizeString(1024, 2) = \"" << ItsConvert::ToDataSizeString(1024, 2) << L"\"" << endl;
-    wcout << L"ItsConvert::ToDataSizeString(200100400, 0) = \"" << ItsConvert::ToDataSizeString(200100400, 0) << L"\"" << endl;
-    wcout << L"ItsConvert::ToDataSizeString(200100400, 2) = \"" << ItsConvert::ToDataSizeString(200100400, 2) << L"\"" << endl;
-    wcout << L"ItsConvert::ToDataSizeString(9807804606, 3) = \"" << ItsConvert::ToDataSizeString(9807804606, 3, ItsDataSizeStringType::IEC) << L"\"" << endl;
-    wcout << L"ItsConvert::ToDataSizeString(1000, 3) = \"" << ItsConvert::ToDataSizeString(1000, 3, ItsDataSizeStringType::IEC) << L"\"" << endl;
-    wcout << L"ItsConvert::ToDataSizeString(size_t max, 2) = \"" << ItsConvert::ToDataSizeString(SIZE_MAX, 2) << L"\"" << endl;
-    wcout << L"ItsConvert::ToDataSizeString(size_t max, 2) = \"" << ItsConvert::ToDataSizeString(SIZE_MAX, 2, ItsDataSizeStringType::IEC) << L"\"" << endl;
+    wcout << LR"(ItsConvert::ToString<int>(-1234) = ")" << ItsConvert::ToString<int>(-1234) << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToString<unsigned int>(1234) = ")" << ItsConvert::ToString<unsigned int>(1234) << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToString<long>(-1234) = ")" << ItsConvert::ToString<long>(-1234) << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToString<unsigned long>(123456789) = ")" << ItsConvert::ToString<unsigned long>(12346789) << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToString<long long>(12345678900) = ")" << ItsConvert::ToString<long long>(12345678900) << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToString<float>(-12.34) = ")" << ItsConvert::ToString<float>(-12.34f) << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToString<double>(1.234) = ")" << ItsConvert::ToString<double>(1.234) << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToString<short>(1234) = ")" << ItsConvert::ToString<short>(1234) << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToString<unsigned short>(40001) = ")" << ItsConvert::ToString<unsigned short>(40001) << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToStringFormatted(256810246) = ")" << ItsConvert::ToStringFormatted(256810246) << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToStringFormatted(256810246, L" " = ")" << ItsConvert::ToStringFormatted(256810246, L" ") << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToDataSizeString(1024, 2) = ")" << ItsConvert::ToDataSizeString(1024, 2) << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToDataSizeString(200100400, 0) = ")" << ItsConvert::ToDataSizeString(200100400, 0) << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToDataSizeString(200100400, 2) = ")" << ItsConvert::ToDataSizeString(200100400, 2) << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToDataSizeString(9807804606, 3) = ")" << ItsConvert::ToDataSizeString(9807804606, 3, ItsDataSizeStringType::IEC) << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToDataSizeString(1000, 3) = ")" << ItsConvert::ToDataSizeString(1000, 3, ItsDataSizeStringType::IEC) << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToDataSizeString(size_t max, 2) = ")" << ItsConvert::ToDataSizeString(SIZE_MAX, 2) << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToDataSizeString(size_t max, 2) = ")" << ItsConvert::ToDataSizeString(SIZE_MAX, 2, ItsDataSizeStringType::IEC) << LR"(")" << endl;
     
     wcout << endl;
 }
@@ -225,14 +225,14 @@ void TestString()
 
     wstring test(L"Ab12Cd");
     wstring testTrim(L"  Ab12Cd  ");
-    wcout << L"test = \"" << test << "\"" << endl;
-    wcout << L"testTrim = \"" << testTrim << "\"" << endl;
-    wcout << L"ItsString::Left(test,4) = \"" << ItsString::Left(test, 4) << "\"" << endl;
-    wcout << L"ItsString::Right(test,4) = \"" << ItsString::Right(test, 4) << "\"" << endl;
-    wcout << L"ItsString::Mid(test,2,2) = \"" << ItsString::Mid(test, 2, 2) << "\"" << endl;
-    wcout << L"ItsString::ToLowerCase(test) = \"" << ItsString::ToLowerCase(test) << "\"" << endl;
-    wcout << L"ItsString::ToUpperCase(test) = \"" << ItsString::ToUpperCase(test) << "\"" << endl;
-    wcout << L"ItsString::Trim(testTrim) = \"" << ItsString::Trim(testTrim) << "\"" << endl;
+    wcout << LR"(test = ")" << test << LR"(")" << endl;
+    wcout << LR"(testTrim = ")" << testTrim << LR"(")" << endl;
+    wcout << LR"(ItsString::Left(test,4) = ")" << ItsString::Left(test, 4) << LR"(")" << endl;
+    wcout << LR"(ItsString::Right(test,4) = ")" << ItsString::Right(test, 4) << LR"(")" << endl;
+    wcout << LR"(ItsString::Mid(test,2,2) = ")" << ItsString::Mid(test, 2, 2) << LR"(")" << endl;
+    wcout << LR"(ItsString::ToLowerCase(test) = ")" << ItsString::ToLowerCase(test) << LR"(")" << endl;
+    wcout << LR"(ItsString::ToUpperCase(test) = ")" << ItsString::ToUpperCase(test) << LR"(")" << endl;
+    wcout << LR"(ItsString::Trim(testTrim) = ")" << ItsString::Trim(testTrim) << LR"(")" << endl;
 
     wstring name(L"Kjetil");
     wcout << L"ItsString::WidthExpand (ItsExpandDirection:Left,Middle,Right) Below" << endl;
