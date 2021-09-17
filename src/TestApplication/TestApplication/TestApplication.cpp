@@ -102,6 +102,7 @@ void ExitFn()
 {
     wcout << L"> Test Application - Exited <" << endl;
 }
+
 // 
 // Function: wmain
 //
