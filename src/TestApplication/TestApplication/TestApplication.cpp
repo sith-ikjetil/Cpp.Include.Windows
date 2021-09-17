@@ -48,6 +48,7 @@ using ItSoftware::ItsDateTime;
 using ItSoftware::ItsLog;
 using ItSoftware::ItsLogType;
 using ItSoftware::ItsDataSizeStringType;
+using ItSoftware::ItsDateTime;
 
 //
 // extern
@@ -73,6 +74,7 @@ void TestPath();
 void TestDirectory();
 void TestGuid();
 void TestLog();
+void TestDateTime();
 
 //
 // global variables
@@ -95,10 +97,9 @@ wstring g_creatDir(L"C:\\Temp\\CREATDIR");
 int wmain(int argc, wchar_t* argv[])
 {
     wcout << "### Cpp.Include.Windows - Test Application ###" << endl << endl;
-    
-    TestEventStart();
 
     TestTimerStart();
+    TestEventStart();
     TestToNumber();
     TestToString();
     TestRandom();
@@ -112,11 +113,11 @@ int wmain(int argc, wchar_t* argv[])
     TestDirectory();
     TestGuid();
     TestLog();
-    TestTimerStop();
-
+    TestDateTime();
     TestEventStop();
     
     if (g_eventThread.joinable()) { g_eventThread.join(); }
+    TestTimerStop();
     
     return EXIT_SUCCESS;
 }
@@ -354,13 +355,13 @@ void TestEventStart()
     g_event.Clear();
 
     wcout << endl;
-    wcout << L"## Test Event _________________________________________________" << endl;
+    wcout << L"## Test Event Start _________________________________________________" << endl;
     wcout << L"Event is cleared" << endl << endl;
     
     g_eventThread = thread([] {
         g_event.Wait(-1);
         wcout << endl;
-        wcout << L"## Test Event _________________________________________________" << endl;
+        wcout << L"## Test Event Completed ___________________________________________" << endl;
         wcout << L"Event works as expected" << endl << endl;
         });
 }
@@ -375,7 +376,7 @@ void TestEventStop()
     g_event.Signal();
 
     wcout << endl;
-    wcout << L"## Test Event _________________________________________________" << endl;
+    wcout << L"## Test Event Stop ________________________________________________" << endl;
     wcout << L"Event is Signaled" << endl << endl;
 }
 
@@ -512,6 +513,34 @@ void TestLog()
     log.LogOther(L"This is an other log item");
     log.LogDebug(L"This is an debug log item");
     wcout << log.ToString();
+
+    wcout << endl;
+}
+
+//
+// Function: TestDateTime
+//
+// (i): Test ItsDateTime
+//
+void TestDateTime()
+{
+    wcout << endl;
+    wcout << L"## Test DateTime ____________________________________________" << endl;
+
+    auto now = ItsDateTime::Now();
+    wcout << "ItsDateTime.Now(): " << now.ToString() << endl;
+
+    now.AddDays(7);
+    now.AddHours(1);
+    now.AddMinutes(1);
+    now.AddSeconds(1);
+    wcout << "Added Days(7), Hours(1), Minutes(1) and Seconds(1): " << now.ToString() << endl;
+
+    now.SubtractDays(7);
+    now.SubtractHours(1);
+    now.SubtractMinutes(1);
+    now.SubtractSeconds(1);
+    wcout << "Subtracted Days(7), Hours(1), Minutes(1) and Seconds(1): " << now.ToString() << endl;
 
     wcout << endl;
 }
