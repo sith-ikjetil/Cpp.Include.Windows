@@ -23,9 +23,11 @@
 //
 using std::wcout;
 using std::endl;
+using std::ends;
 using std::thread;
 using std::vector;
 using std::wstring;
+using std::wstringstream;
 using std::unique_ptr;
 using std::make_unique;
 using ItSoftware::Win::ItsTimer;
@@ -252,9 +254,11 @@ void TestString()
     wstring test(L"Ab12Cd");
     wstring testTrim(L"  Ab12Cd  ");
     wstring testReplace(L"__ ABCDEF __");
+    wstring testSplit(L"A;BC;DEF;G");
     wcout << LR"(test = ")" << test << LR"(")" << endl;
     wcout << LR"(testTrim = ")" << testTrim << LR"(")" << endl;
     wcout << LR"(testReplace = ")" << testReplace << LR"(")" << endl;
+    wcout << LR"(testSplit = ")" << testSplit << LR"(")" << endl;
     wcout << LR"(ItsString::Left(test,4) = ")" << ItsString::Left(test, 4) << LR"(")" << endl;
     wcout << LR"(ItsString::Right(test,4) = ")" << ItsString::Right(test, 4) << LR"(")" << endl;
     wcout << LR"(ItsString::Mid(test,2,2) = ")" << ItsString::Mid(test, 2, 2) << LR"(")" << endl;
@@ -263,6 +267,15 @@ void TestString()
     wcout << LR"(ItsString::Trim(testTrim) = ")" << ItsString::Trim(testTrim) << LR"(")" << endl;
     wcout << LR"(ItsString::Replace(testReplace) = ")" << ItsString::Replace(testReplace, L"__", L"##") << endl;
    
+    auto vs = ItsString::Split(testSplit, L";");
+    wstringstream ss;
+    for (auto s : vs)
+    {
+        ss << s << L" ";
+    }
+    ss << ends;
+    wcout << LR"(ItsString::Split(testSplit,L";") = )" << ss.str() << endl;
+
     wstring name(L"Kjetil");
     wcout << L"ItsString::WidthExpand (ItsExpandDirection:Left,Middle,Right) Below" << endl;
     wcout << ItsString::WidthExpand(name, 30, '_', ItsExpandDirection::Left) << endl;
