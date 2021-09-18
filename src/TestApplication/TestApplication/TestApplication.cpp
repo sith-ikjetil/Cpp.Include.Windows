@@ -49,6 +49,8 @@ using ItSoftware::ItsLog;
 using ItSoftware::ItsLogType;
 using ItSoftware::ItsDataSizeStringType;
 using ItSoftware::ItsDateTime;
+using ItSoftware::ItsID;
+using ItSoftware::ItsCreateIDOptions;
 
 //
 // extern
@@ -75,6 +77,7 @@ void TestDirectory();
 void TestGuid();
 void TestLog();
 void TestDateTime();
+void TestID();
 void ExitFn();
 void PrintTestHeader(wstring txt);
 
@@ -129,6 +132,7 @@ int wmain(int argc, wchar_t* argv[])
     TestGuid();
     TestLog();
     TestDateTime();
+    TestID();
     TestEventStop();
     
     if (g_eventThread.joinable()) { g_eventThread.join(); }
@@ -554,6 +558,27 @@ void TestDateTime()
     wcout << L"Subtracted Days(7), Hours(1), Minutes(1) and Seconds(1): " << now.ToString() << endl;
 
     wcout << L"Custom: " << now.ToString(L"dd.MM.yyyy HH:mm:ss") << endl;
+
+    wcout << endl;
+}
+
+//
+// Function: TestID
+//
+// (i): Tests ItsID.
+//
+void TestID()
+{
+    PrintTestHeader(L"## Test ItsID ");
+
+    wcout << L"ID (12): " << ItsID::CreateID(12, ItsCreateIDOptions::LowerAndUpperCase, false) << endl;
+    wcout << L"ID (10): " << ItsID::CreateID(10, ItsCreateIDOptions::LowerAndUpperCase, true) << endl;
+    wcout << L"ID (8) : " << ItsID::CreateID(8, ItsCreateIDOptions::UpperCase, false) << endl;
+    wcout << L"ID (6) : " << ItsID::CreateID(6, ItsCreateIDOptions::UpperCase, true) << endl;
+    wcout << L"ID (14): " << ItsID::CreateID(14, ItsCreateIDOptions::LowerCase, false) << endl;
+    wcout << L"ID (16): " << ItsID::CreateID(16, ItsCreateIDOptions::LowerCase, true) << endl;
+    wcout << L"ID (64): " << ItsID::CreateID(64, ItsCreateIDOptions::LowerAndUpperCase, false) << endl;
+    wcout << L"ID (64): " << ItsID::CreateID(64, ItsCreateIDOptions::LowerAndUpperCase, true) << endl;
 
     wcout << endl;
 }
