@@ -351,37 +351,37 @@ namespace ItSoftware
 			return output;
 		}
 
-		static wstring ToLowerCase( wstring& s )
+		static wstring ToLowerCase( wstring s )
 		{
 			std::transform( s.begin( ), s.end( ), s.begin( ), tolower );
 			return s;
 		}
 
-		static wstring ToUpperCase( wstring& s )
+		static wstring ToUpperCase( wstring s )
 		{
 			std::transform( s.begin( ), s.end( ), s.begin( ), toupper );
 			return s;
 		}
 
-		static wstring TrimLeft( wstring& s, const wchar_t* t = L" \t\n\r\f\v" )
+		static wstring TrimLeft( wstring s, const wchar_t* t = L" \t\n\r\f\v" )
 		{
 			s.erase( 0, s.find_first_not_of( t ) );
 			return s;
 		}
 
-		static wstring TrimRight( wstring& s, const wchar_t* t = L" \t\n\r\f\v" )
+		static wstring TrimRight( wstring s, const wchar_t* t = L" \t\n\r\f\v" )
 		{
 			s.erase( s.find_last_not_of( t ) + 1 );
 			return s;
 		}
 
-		static wstring Trim( wstring& s, const wchar_t* t = L" \t\n\r\f\v" )
+		static wstring Trim( wstring s, const wchar_t* t = L" \t\n\r\f\v" )
 		{
 			wstring right = TrimRight(s, t);
 			return TrimLeft( right, t );
 		}
 
-		static wstring Left( wstring &s, unsigned int count )
+		static wstring Left( wstring s, unsigned int count )
 		{
 			if ( s.size( ) == 0 || count <= 0 )
 			{
@@ -403,7 +403,7 @@ namespace ItSoftware
 			return str;
 		}
 		
-		static wstring Mid( wstring &s, size_t index, size_t count )
+		static wstring Mid( wstring s, size_t index, size_t count )
 		{
 			if ( s.size( ) == 0 || count <= 0 || index < 0 || index >= s.size( ) )
 			{
@@ -431,7 +431,7 @@ namespace ItSoftware
 			return str;
 		}
 		
-		static wstring Right( wstring &s, unsigned int count )
+		static wstring Right( wstring s, unsigned int count )
 		{
 			if ( s.size( ) == 0 || count <= 0 )
 			{
@@ -454,30 +454,33 @@ namespace ItSoftware
 		}
 
 
-		static wstring Replace( wstring& s, wstring& replace, wstring& replace_with )
+		static wstring Replace( wstring s, wstring replace, wstring replace_with )
 		{
 			if ( s.size( ) == 0 || replace.size( ) == 0 || replace.size( ) > s.size( ) )
 			{
 				return wstring( L"" );
 			}
 
-			wstringstream ss;
-			size_t index = s.find( replace );
+			wstring retVal = s;
+			size_t index = retVal.find( replace );
 			if ( index == wstring::npos )
 			{
-				return s;
+				return retVal;
 			}
 			while ( index != wstring::npos )
 			{
-				ss << ItsString::Left( s, (int)index );
+				wstringstream ss;
+				ss << ItsString::Left( retVal, (int)index );
 				ss << replace_with;
-				ss << ItsString::Right( s, (int)(s.size( ) - index - replace.size( )) );
+				ss << ItsString::Right( retVal, (int)(retVal.size( ) - index - replace.size( )) );
+				ss << ends;
+				
+				retVal = ss.str();
 
-				index = s.find( replace, index + replace.size( ) );
+				index = retVal.find( replace, index + replace.size( ) );
 			}
 
-			wstring str = ss.str( );
-			return str;
+			return retVal;
 		}
 	};
 
@@ -1258,6 +1261,11 @@ namespace ItSoftware
 			return copy;
 		}
 
+		size_t Count()
+		{
+			return this->m_items.size();
+		}
+
 		void Clear()
 		{
 			this->m_items.clear();
@@ -1290,11 +1298,30 @@ namespace ItSoftware
 			return type;
 		}
 
-		wstring ToString()
+		wstring ToFriendlyString()
 		{
 			wstringstream ss;
 			for (auto i : this->m_items) {
-				ss << std::setiosflags(std::ios::left) << std::setw(12) << this->LogTypeToString(i.Type) << ItsDateTime(i.When).ToString() << L" " << i.Description << endl;
+				ss << std::setiosflags(std::ios::left) << std::setw(12) << this->LogTypeToString(i.Type) << ItsDateTime(i.When).ToString() << " " << i.Description << endl;
+			}
+			ss << ends;
+
+			return ss.str();
+		}
+
+		wstring ToString()
+		{
+			wstringstream ss;
+			wstring nl1(L"\r\n");
+			wstring nl2(L"\n");
+			wstring s1(L";");
+			wstring rep_nl(L" ");
+			wstring rep_s(L",");
+			for (auto i : this->m_items) {
+				auto description = ItsString::Replace(i.Description, nl1, rep_nl);
+				description = ItsString::Replace(description, nl2, rep_nl);
+				description = ItsString::Replace(description, s1, rep_s);
+				ss << this->LogTypeToString(i.Type) << L";" << ItsDateTime(i.When).ToString(L"s") << L";" << description << endl;
 			}
 			ss << ends;
 

@@ -251,15 +251,18 @@ void TestString()
 
     wstring test(L"Ab12Cd");
     wstring testTrim(L"  Ab12Cd  ");
+    wstring testReplace(L"__ ABCDEF __");
     wcout << LR"(test = ")" << test << LR"(")" << endl;
     wcout << LR"(testTrim = ")" << testTrim << LR"(")" << endl;
+    wcout << LR"(testReplace = ")" << testReplace << LR"(")" << endl;
     wcout << LR"(ItsString::Left(test,4) = ")" << ItsString::Left(test, 4) << LR"(")" << endl;
     wcout << LR"(ItsString::Right(test,4) = ")" << ItsString::Right(test, 4) << LR"(")" << endl;
     wcout << LR"(ItsString::Mid(test,2,2) = ")" << ItsString::Mid(test, 2, 2) << LR"(")" << endl;
     wcout << LR"(ItsString::ToLowerCase(test) = ")" << ItsString::ToLowerCase(test) << LR"(")" << endl;
     wcout << LR"(ItsString::ToUpperCase(test) = ")" << ItsString::ToUpperCase(test) << LR"(")" << endl;
     wcout << LR"(ItsString::Trim(testTrim) = ")" << ItsString::Trim(testTrim) << LR"(")" << endl;
-
+    wcout << LR"(ItsString::Replace(testReplace) = ")" << ItsString::Replace(testReplace, L"__", L"##") << endl;
+   
     wstring name(L"Kjetil");
     wcout << L"ItsString::WidthExpand (ItsExpandDirection:Left,Middle,Right) Below" << endl;
     wcout << ItsString::WidthExpand(name, 30, '_', ItsExpandDirection::Left) << endl;
@@ -528,7 +531,12 @@ void TestLog()
     log.LogError(L"This is an error log item");
     log.LogOther(L"This is an other log item");
     log.LogDebug(L"This is an debug log item");
-    wcout << log.ToString();
+    
+    wcout << L"__ ToFriendlyString __" << endl;
+    wcout << log.ToFriendlyString() << endl;
+
+    wcout << L"__ ToString __" << endl;
+    wcout << log.ToString() << endl;
 
     wcout << endl;
 }
