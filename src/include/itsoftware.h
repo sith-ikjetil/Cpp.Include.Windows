@@ -942,7 +942,7 @@ namespace ItSoftware
 			if ( h < 10 )
 			{
 				str_hh = L"0";
-				str_hh += str_m;
+				str_hh += str_h;
 			}
 			else
 			{

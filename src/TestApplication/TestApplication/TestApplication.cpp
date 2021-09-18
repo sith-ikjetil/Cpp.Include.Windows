@@ -100,6 +100,7 @@ wstring g_creatDir(L"C:\\Temp\\CREATDIR");
 // 
 void ExitFn()
 {
+    wcout << endl;
     wcout << L"> Test Application - Exited <" << endl;
 }
 
@@ -538,19 +539,21 @@ void TestDateTime()
     PrintTestHeader(L"## Test ItsDateTime ");
 
     auto now = ItsDateTime::Now();
-    wcout << "ItsDateTime.Now(): " << now.ToString() << endl;
+    wcout << L"ItsDateTime.Now(): " << now.ToString() << endl;
 
     now.AddDays(7);
     now.AddHours(1);
     now.AddMinutes(1);
     now.AddSeconds(1);
-    wcout << "Added Days(7), Hours(1), Minutes(1) and Seconds(1): " << now.ToString() << endl;
+    wcout << L"Added Days(7), Hours(1), Minutes(1) and Seconds(1): " << now.ToString() << endl;
 
     now.SubtractDays(7);
     now.SubtractHours(1);
     now.SubtractMinutes(1);
     now.SubtractSeconds(1);
-    wcout << "Subtracted Days(7), Hours(1), Minutes(1) and Seconds(1): " << now.ToString() << endl;
+    wcout << L"Subtracted Days(7), Hours(1), Minutes(1) and Seconds(1): " << now.ToString() << endl;
+
+    wcout << L"Custom: " << now.ToString(L"dd.MM.yyyy HH:mm:ss") << endl;
 
     wcout << endl;
 }
