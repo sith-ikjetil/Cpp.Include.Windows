@@ -63,25 +63,25 @@ extern void TestCOM2();
 //
 // Function Prototypes
 //
-void TestToNumber();
-void TestToString();
-void TestRandom();
-void TestTime();
-void TestString();
-void TestTimerStart();
-void TestTimerStop();
-void TestFileText();
-void TestFileBinary();
-void TestEventStart();
-void TestEventStop();
-void TestPath();
-void TestDirectory();
-void TestGuid();
-void TestLog();
-void TestDateTime();
-void TestID();
+void TestItsConvert();
+void TestItsRandom();
+void TestItsTime();
+void TestItsString();
+void TestItsTimerStart();
+void TestItsTimerStop();
+void TestItsTextFile();
+void TestItsFile();
+void TestItsEventStart();
+void TestItsEventStop();
+void TestItsPath();
+void TestItsDirectory();
+void TestItsGuid();
+void TestItsLog();
+void TestItsDateTime();
+void TestItsID();
 void ExitFn();
 void PrintTestHeader(wstring txt);
+void PrintTestSubHeader(wstring txt);
 
 //
 // global variables
@@ -90,6 +90,7 @@ ItsTimer g_timer;
 ItsEvent g_event;
 wstring g_filenameText(L"D:\\ItsTextFile.txt");
 wstring g_filenameBinary(L"D:\\ItsFile.bin");
+wstring g_filenameBinaryCopyTo(L"D:\\ItsFileCopy.bin");
 thread g_eventThread;
 wstring g_path1(L"C:\\");
 wstring g_path2(L"Temp\\test.html");
@@ -118,27 +119,26 @@ int wmain(int argc, wchar_t* argv[])
 
     wcout << L"> Test Application - Started <" << endl;
 
-    TestTimerStart();
-    TestEventStart();
-    TestToNumber();
-    TestToString();
-    TestRandom();
-    TestTime();
-    TestString();
+    TestItsTimerStart();
+    TestItsEventStart();
+    TestItsConvert();
+    TestItsRandom();
+    TestItsTime();
+    TestItsString();
     TestCOM1();
     TestCOM2();
-    TestFileText();
-    TestFileBinary();
-    TestPath();
-    TestDirectory();
-    TestGuid();
-    TestLog();
-    TestDateTime();
-    TestID();
-    TestEventStop();
+    TestItsTextFile();
+    TestItsFile();
+    TestItsPath();
+    TestItsDirectory();
+    TestItsGuid();
+    TestItsLog();
+    TestItsDateTime();
+    TestItsID();
+    TestItsEventStop();
     
     if (g_eventThread.joinable()) { g_eventThread.join(); }
-    TestTimerStop();
+    TestItsTimerStop();
     
     return EXIT_SUCCESS;
 }
@@ -155,14 +155,26 @@ void PrintTestHeader(wstring txt)
 }
 
 //
+// Function: PrintTestSubHeader
+//
+// (i): Prints a tests sub header.
+//
+void PrintTestSubHeader(wstring txt)
+{
+    wcout << endl;
+    wcout << L"__ " << txt << L" __" << endl;
+}
+
+//
 // Function: TestToNumber
 //
 // (i): Test numerics as string converted to primitive data types.
 //
-void TestToNumber()
+void TestItsConvert()
 {
-    PrintTestHeader(L"## Test ItsConvert::ToNumber ");
+    PrintTestHeader(L"## Test ItsConvert ");
 
+    PrintTestSubHeader(L"ToNumber");
     wcout << LR"(ItsConvert::ToNumber<int>(L"-1234") = )" << ItsConvert::ToNumber<int>(L"-1234") << endl;
     wcout << LR"(ItsConvert::ToNumber<unsigned int>(L"1234") = )" << ItsConvert::ToNumber<unsigned int>(L"1234") << endl;
     wcout << LR"(ItsConvert::ToNumber<long>(L"-1234") = )" << ItsConvert::ToNumber<long>(L"-1234") << endl;
@@ -173,18 +185,7 @@ void TestToNumber()
     wcout << LR"(ItsConvert::ToNumber<short>(L"1234") = )" << ItsConvert::ToNumber<short>(L"1234") << endl;
     wcout << LR"(ItsConvert::ToNumber<unsigned short>(L"40001") = )" << ItsConvert::ToNumber<unsigned short>(L"40001") << endl;
 
-    wcout << endl;
-}
-
-//
-// Function: TestToString
-//
-// (i): Tests primitive data types to string. I.e. numeric types.
-//
-void TestToString()
-{
-    PrintTestHeader(L"## Test ItsConvert::ToString ");
-
+    PrintTestSubHeader(L"ToString");
     wcout << LR"(ItsConvert::ToString<int>(-1234) = ")" << ItsConvert::ToString<int>(-1234) << LR"(")" << endl;
     wcout << LR"(ItsConvert::ToString<unsigned int>(1234) = ")" << ItsConvert::ToString<unsigned int>(1234) << LR"(")" << endl;
     wcout << LR"(ItsConvert::ToString<long>(-1234) = ")" << ItsConvert::ToString<long>(-1234) << LR"(")" << endl;
@@ -194,8 +195,12 @@ void TestToString()
     wcout << LR"(ItsConvert::ToString<double>(1.234) = ")" << ItsConvert::ToString<double>(1.234) << LR"(")" << endl;
     wcout << LR"(ItsConvert::ToString<short>(1234) = ")" << ItsConvert::ToString<short>(1234) << LR"(")" << endl;
     wcout << LR"(ItsConvert::ToString<unsigned short>(40001) = ")" << ItsConvert::ToString<unsigned short>(40001) << LR"(")" << endl;
+    
+    PrintTestSubHeader(L"ToStringFormatted");
     wcout << LR"(ItsConvert::ToStringFormatted(256810246) = ")" << ItsConvert::ToStringFormatted(256810246) << LR"(")" << endl;
     wcout << LR"(ItsConvert::ToStringFormatted(256810246, L" " = ")" << ItsConvert::ToStringFormatted(256810246, L" ") << LR"(")" << endl;
+    
+    PrintTestSubHeader(L"ToDataSizeString");
     wcout << LR"(ItsConvert::ToDataSizeString(1024, 2) = ")" << ItsConvert::ToDataSizeString(1024, 2) << LR"(")" << endl;
     wcout << LR"(ItsConvert::ToDataSizeString(200100400, 0) = ")" << ItsConvert::ToDataSizeString(200100400, 0) << LR"(")" << endl;
     wcout << LR"(ItsConvert::ToDataSizeString(200100400, 2) = ")" << ItsConvert::ToDataSizeString(200100400, 2) << LR"(")" << endl;
@@ -212,7 +217,7 @@ void TestToString()
 //
 // (i): Test random integers and floats.
 //
-void TestRandom()
+void TestItsRandom()
 {
     PrintTestHeader(L"## Test ItsRandom ");
 
@@ -231,13 +236,16 @@ void TestRandom()
 //
 // (i): Test rendering of time in milliseconds.
 //
-void TestTime()
+void TestItsTime()
 {
     PrintTestHeader(L"## Test ItsTime ");
-
+    
+    PrintTestSubHeader(L"RenderMsToFullString");
     wcout << L"ItsTime::RenderMsToFullString(92481379, false)" << L" = " << ItsTime::RenderMsToFullString(92481379, false) << endl;
     wcout << L"ItsTime::RenderMsToFullString(92481379, true)" << L" = " << ItsTime::RenderMsToFullString(92481379, true) << endl;
-    wcout << L"ItsDateTime::Now().ToString(\"s\")" << L" = " << ItsDateTime::Now().ToString() << endl;
+    
+    PrintTestSubHeader(L"Now + ToString");
+    wcout << L"ItsDateTime::Now().ToString()" << L" = " << ItsDateTime::Now().ToString() << endl;
     
     wcout << endl;
 }
@@ -247,7 +255,7 @@ void TestTime()
 //
 // (i): Test string manipulation routines.
 //
-void TestString()
+void TestItsString()
 {
     PrintTestHeader(L"## Test ItsString ");
 
@@ -290,7 +298,7 @@ void TestString()
 //
 // (i): Starts timer
 //
-void TestTimerStart()
+void TestItsTimerStart()
 {
     PrintTestHeader(L"## Test ItsTimer::Start ");
 
@@ -305,7 +313,7 @@ void TestTimerStart()
 //
 // (i): Stops timer
 //
-void TestTimerStop()
+void TestItsTimerStop()
 {
     PrintTestHeader(L"## Test ItsTimer::Stop ");
 
@@ -320,7 +328,7 @@ void TestTimerStop()
 //
 // (i): Tests files
 //
-void TestFileText()
+void TestItsTextFile()
 {
     PrintTestHeader(L"## Test ItsTextFile ");
 
@@ -352,7 +360,7 @@ void TestFileText()
 //
 // (i): Tests files
 //
-void TestFileBinary()
+void TestItsFile()
 {
     PrintTestHeader(L"## Test ItsFile ");
 
@@ -378,6 +386,22 @@ void TestFileBinary()
     }
 
     wcout << L"ItsFile successfully written to: " << g_filenameBinary << endl;
+
+    size_t size{ 0 };
+    if (ItsFile::GetFileSize(g_filenameBinary, &size)) {
+        wcout << L"File " << g_filenameBinary << " size: " << size << endl;
+    }
+    else {
+        wcout << L"Error retrieving file size." << endl;
+    }
+
+    if (ItsFile::Copy(g_filenameBinary, g_filenameBinaryCopyTo, false)) {
+        wcout << L"File " << g_filenameBinary << " successfully copied to " << g_filenameBinaryCopyTo << endl;
+    }
+    else {
+        wcout << L"Error copying file." << endl;
+    }
+
     wcout << endl;
 }
 
@@ -386,18 +410,20 @@ void TestFileBinary()
 //
 // (i): Start testing event
 //
-void TestEventStart()
+void TestItsEventStart()
 {
     g_event.Clear();
 
     PrintTestHeader(L"## Test ItsEvent Start "); 
-    wcout << L"Event is cleared" << endl << endl;
+    wcout << L"Event is cleared" << endl;
     
     g_eventThread = thread([] {
         g_event.Wait(-1);
         PrintTestHeader(L"## Test ItsEvent Completed ");
         wcout << L"Event works as expected" << endl << endl;
         });
+
+    wcout << endl;
 }
 
 //
@@ -405,7 +431,7 @@ void TestEventStart()
 //
 // (i): Stop testing event.
 //
-void TestEventStop()
+void TestItsEventStop()
 {
     g_event.Signal();
 
@@ -420,7 +446,7 @@ void TestEventStop()
 //
 // (i): Test ItsPath
 //
-void TestPath()
+void TestItsPath()
 {
     PrintTestHeader(L"## Test ItsPath ");
 
@@ -450,7 +476,7 @@ void TestPath()
 //
 // (i): Test ItsDirectory
 //
-void TestDirectory()
+void TestItsDirectory()
 {
     PrintTestHeader(L"## Test ItsDirectory ");
 
@@ -505,7 +531,7 @@ void TestDirectory()
 //
 // (i): Test ItsGuid
 //
-void TestGuid()
+void TestItsGuid()
 {
     PrintTestHeader(L"## Test ItsGuid ");
 
@@ -534,7 +560,7 @@ void TestGuid()
 //
 // (i): Test ItsLog
 //
-void TestLog()
+void TestItsLog()
 {
     PrintTestHeader(L"## Test ItsLog ");
 
@@ -545,10 +571,10 @@ void TestLog()
     log.LogOther(L"This is an other log item");
     log.LogDebug(L"This is an debug log item");
     
-    wcout << L"__ ToFriendlyString __" << endl;
+    PrintTestSubHeader(L"ToFriendlyString");
     wcout << log.ToFriendlyString() << endl;
 
-    wcout << L"__ ToString __" << endl;
+    PrintTestSubHeader(L"ToString");
     wcout << log.ToString() << endl;
 
     wcout << endl;
@@ -559,7 +585,7 @@ void TestLog()
 //
 // (i): Test ItsDateTime
 //
-void TestDateTime()
+void TestItsDateTime()
 {
     PrintTestHeader(L"## Test ItsDateTime ");
 
@@ -588,7 +614,7 @@ void TestDateTime()
 //
 // (i): Tests ItsID.
 //
-void TestID()
+void TestItsID()
 {
     PrintTestHeader(L"## Test ItsID ");
 
