@@ -175,39 +175,66 @@ void TestItsConvert()
     PrintTestHeader(L"## Test ItsConvert ");
 
     PrintTestSubHeader(L"ToNumber");
-    wcout << LR"(ItsConvert::ToNumber<int>(L"-1234") = )" << ItsConvert::ToNumber<int>(L"-1234") << endl;
-    wcout << LR"(ItsConvert::ToNumber<unsigned int>(L"1234") = )" << ItsConvert::ToNumber<unsigned int>(L"1234") << endl;
-    wcout << LR"(ItsConvert::ToNumber<long>(L"-1234") = )" << ItsConvert::ToNumber<long>(L"-1234") << endl;
-    wcout << LR"(ItsConvert::ToNumber<unsigned long>(L"123456789") = )" << ItsConvert::ToNumber<unsigned long>(L"12346789") << endl;
-    wcout << LR"(ItsConvert::ToNumber<long long>(L"12345678900") = )" << ItsConvert::ToNumber<long long>(L"12345678900") << endl;
-    wcout << LR"(ItsConvert::ToNumber<float>(L"-12.34") = )" << ItsConvert::ToNumber<float>(L"-12.34") << endl;
-    wcout << LR"(ItsConvert::ToNumber<double>(L"1.234") = )" << ItsConvert::ToNumber<double>(L"1.234") << endl;
-    wcout << LR"(ItsConvert::ToNumber<short>(L"1234") = )" << ItsConvert::ToNumber<short>(L"1234") << endl;
-    wcout << LR"(ItsConvert::ToNumber<unsigned short>(L"40001") = )" << ItsConvert::ToNumber<unsigned short>(L"40001") << endl;
+    wcout << LR"(ItsConvert::ToNumber<int>(L"-1234"))" << endl;
+    wcout << L"> " << ItsConvert::ToNumber<int>(L"-1234") << endl;
+    wcout << LR"(ItsConvert::ToNumber<unsigned int>(L"1234"))" << endl;
+    wcout << L"> " << ItsConvert::ToNumber<unsigned int>(L"1234") << endl;
+    wcout << LR"(ItsConvert::ToNumber<long>(L"-1234"))" << endl;
+    wcout << L"> " << ItsConvert::ToNumber<long>(L"-1234") << endl;
+    wcout << LR"(ItsConvert::ToNumber<unsigned long>(L"123456789"))" << endl;
+    wcout << L"> " << ItsConvert::ToNumber<unsigned long>(L"12346789") << endl;
+    wcout << LR"(ItsConvert::ToNumber<long long>(L"12345678900"))" << endl;
+    wcout << L"> " << ItsConvert::ToNumber<long long>(L"12345678900") << endl;
+    wcout << LR"(ItsConvert::ToNumber<float>(L"-12.34"))" << endl;
+    wcout << L"> " << ItsConvert::ToNumber<float>(L"-12.34") << endl;
+    wcout << LR"(ItsConvert::ToNumber<double>(L"1.234"))" << endl;
+    wcout << L"> " << ItsConvert::ToNumber<double>(L"1.234") << endl;
+    wcout << LR"(ItsConvert::ToNumber<short>(L"1234"))" << endl;
+    wcout << L"> " << ItsConvert::ToNumber<short>(L"1234") << endl;
+    wcout << LR"(ItsConvert::ToNumber<unsigned short>(L"40001"))" << endl;
+    wcout << L"> " << ItsConvert::ToNumber<unsigned short>(L"40001") << endl;
 
     PrintTestSubHeader(L"ToString");
-    wcout << LR"(ItsConvert::ToString<int>(-1234) = ")" << ItsConvert::ToString<int>(-1234) << LR"(")" << endl;
-    wcout << LR"(ItsConvert::ToString<unsigned int>(1234) = ")" << ItsConvert::ToString<unsigned int>(1234) << LR"(")" << endl;
-    wcout << LR"(ItsConvert::ToString<long>(-1234) = ")" << ItsConvert::ToString<long>(-1234) << LR"(")" << endl;
-    wcout << LR"(ItsConvert::ToString<unsigned long>(123456789) = ")" << ItsConvert::ToString<unsigned long>(12346789) << LR"(")" << endl;
-    wcout << LR"(ItsConvert::ToString<long long>(12345678900) = ")" << ItsConvert::ToString<long long>(12345678900) << LR"(")" << endl;
-    wcout << LR"(ItsConvert::ToString<float>(-12.34) = ")" << ItsConvert::ToString<float>(-12.34f) << LR"(")" << endl;
-    wcout << LR"(ItsConvert::ToString<double>(1.234) = ")" << ItsConvert::ToString<double>(1.234) << LR"(")" << endl;
-    wcout << LR"(ItsConvert::ToString<short>(1234) = ")" << ItsConvert::ToString<short>(1234) << LR"(")" << endl;
-    wcout << LR"(ItsConvert::ToString<unsigned short>(40001) = ")" << ItsConvert::ToString<unsigned short>(40001) << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToString<int>(-1234))" << endl;
+    wcout << LR"(> ")" << ItsConvert::ToString<int>(-1234) << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToString<unsigned int>(1234))" << endl;
+    wcout << LR"(> ")" << ItsConvert::ToString<unsigned int>(1234) << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToString<long>(-1234))" << endl;
+    wcout << LR"(> ")" << ItsConvert::ToString<long>(-1234) << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToString<unsigned long>(123456789))" << endl;
+    wcout << LR"(> ")" << ItsConvert::ToString<unsigned long>(12346789) << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToString<long long>(12345678900))" << endl;
+    wcout << LR"(> ")" << ItsConvert::ToString<long long>(12345678900) << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToString<float>(-12.34))" << endl;
+    wcout << LR"(> ")" << ItsConvert::ToString<float>(-12.34f) << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToString<double>(1.234))" << endl;
+    wcout << LR"(> ")" << ItsConvert::ToString<double>(1.234) << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToString<short>(1234)" << endl;
+    wcout << LR"(> ")" << ItsConvert::ToString<short>(1234) << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToString<unsigned short>(40001)" << endl;
+    wcout << LR"(> ")" << ItsConvert::ToString<unsigned short>(40001) << LR"(")" << endl;
     
     PrintTestSubHeader(L"ToStringFormatted");
-    wcout << LR"(ItsConvert::ToStringFormatted(256810246) = ")" << ItsConvert::ToStringFormatted(256810246) << LR"(")" << endl;
-    wcout << LR"(ItsConvert::ToStringFormatted(256810246, L' ') = ")" << ItsConvert::ToStringFormatted(256810246, L' ') << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToStringFormatted(256810246))" << endl;
+    wcout << LR"(> ")" << ItsConvert::ToStringFormatted(256810246) << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToStringFormatted(256810246, L' '))" << endl;
+    wcout << LR"(> ")" << ItsConvert::ToStringFormatted(256810246, L' ') << LR"(")" << endl;
     
     PrintTestSubHeader(L"ToDataSizeString");
-    wcout << LR"(ItsConvert::ToDataSizeString(1024, 2) = ")" << ItsConvert::ToDataSizeString(1024, 2) << LR"(")" << endl;
-    wcout << LR"(ItsConvert::ToDataSizeString(200100400, 0) = ")" << ItsConvert::ToDataSizeString(200100400, 0) << LR"(")" << endl;
-    wcout << LR"(ItsConvert::ToDataSizeString(200100400, 2) = ")" << ItsConvert::ToDataSizeString(200100400, 2) << LR"(")" << endl;
-    wcout << LR"(ItsConvert::ToDataSizeString(9807804606, 3) = ")" << ItsConvert::ToDataSizeString(9807804606, 3, ItsDataSizeStringType::IEC) << LR"(")" << endl;
-    wcout << LR"(ItsConvert::ToDataSizeString(1000, 3) = ")" << ItsConvert::ToDataSizeString(1000, 3, ItsDataSizeStringType::IEC) << LR"(")" << endl;
-    wcout << LR"(ItsConvert::ToDataSizeString(size_t max, 2) = ")" << ItsConvert::ToDataSizeString(SIZE_MAX, 2) << LR"(")" << endl;
-    wcout << LR"(ItsConvert::ToDataSizeString(size_t max, 2) = ")" << ItsConvert::ToDataSizeString(SIZE_MAX, 2, ItsDataSizeStringType::IEC) << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToDataSizeString(1024, 2))" << endl;
+    wcout << LR"(> ")" << ItsConvert::ToDataSizeString(1024, 2) << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToDataSizeString(200100400, 0))" << endl;
+    wcout << LR"(> ")" << ItsConvert::ToDataSizeString(200100400, 0) << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToDataSizeString(200100400, 2))" << endl;
+    wcout << LR"(> ")" << ItsConvert::ToDataSizeString(200100400, 2) << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToDataSizeString(9807804606, 3))" << endl;
+    wcout << LR"(> ")" << ItsConvert::ToDataSizeString(9807804606, 3, ItsDataSizeStringType::IEC) << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToDataSizeString(1000, 3))" << endl;
+    wcout << LR"(> ")" << ItsConvert::ToDataSizeString(1000, 3, ItsDataSizeStringType::IEC) << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToDataSizeString(size_t max, 2))" << endl;
+    wcout << LR"(> ")" << ItsConvert::ToDataSizeString(SIZE_MAX, 2) << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToDataSizeString(size_t max, 2))" << endl;
+    wcout << LR"(> ")" << ItsConvert::ToDataSizeString(SIZE_MAX, 2, ItsDataSizeStringType::IEC) << LR"(")" << endl;
     
     wcout << endl;
 }
@@ -221,12 +248,18 @@ void TestItsRandom()
 {
     PrintTestHeader(L"## Test ItsRandom ");
 
-    wcout << L"ItsRandom<long>(10'000, 1'000'000) = " << ItsRandom<long>(10'000, 1'000'000) << endl;
-    wcout << L"ItsRandom<long>(10'000, 1'000'000) = " << ItsRandom<long>(10'000, 1'000'000) << endl;
-    wcout << L"ItsRandom<float>(1, 10) = " << ItsRandom<float>(1, 10) << endl;
-    wcout << L"ItsRandom<float>(1, 10) = " << ItsRandom<float>(1, 10) << endl;
-    wcout << L"ItsRandom<double>(1, 2) = " << ItsRandom<double>(1, 2) << endl;
-    wcout << L"ItsRandom<double>(1, 2) = " << ItsRandom<double>(1, 2) << endl;
+    wcout << L"ItsRandom<long>(10'000, 1'000'000)" << endl;
+    wcout << L"> " << ItsRandom<long>(10'000, 1'000'000) << endl;
+    wcout << L"ItsRandom<long>(10'000, 1'000'000)" << endl;
+    wcout << L"> " << ItsRandom<long>(10'000, 1'000'000) << endl;
+    wcout << L"ItsRandom<float>(1, 10)" << endl;
+    wcout << L"> " << ItsRandom<float>(1, 10) << endl;
+    wcout << L"ItsRandom<float>(1, 10)" << endl;
+    wcout << L"> " << ItsRandom<float>(1, 10) << endl;
+    wcout << L"ItsRandom<double>(1, 2)" << endl;
+    wcout << L"> " << ItsRandom<double>(1, 2) << endl;
+    wcout << L"ItsRandom<double>(1, 2)" << endl;
+    wcout << L"> " << ItsRandom<double>(1, 2) << endl;
 
     wcout << endl;
 }
@@ -241,11 +274,16 @@ void TestItsTime()
     PrintTestHeader(L"## Test ItsTime ");
     
     PrintTestSubHeader(L"RenderMsToFullString");
-    wcout << L"ItsTime::RenderMsToFullString(92481379, false)" << L" = " << ItsTime::RenderMsToFullString(92481379, false) << endl;
-    wcout << L"ItsTime::RenderMsToFullString(92481379, true)" << L" = " << ItsTime::RenderMsToFullString(92481379, true) << endl;
+    wcout << L"ItsTime::RenderMsToFullString(92481379, false)" << endl;
+    wcout << LR"(> ")" << ItsTime::RenderMsToFullString(92481379, false) << LR"(")" << endl;
+    wcout << L"ItsTime::RenderMsToFullString(92481379, true)" << endl;
+    wcout << LR"(> ")" << ItsTime::RenderMsToFullString(92481379, true) << LR"(")" << endl;
     
     PrintTestSubHeader(L"Now + ToString");
-    wcout << L"ItsDateTime::Now().ToString()" << L" = " << ItsDateTime::Now().ToString() << endl;
+    wcout << L"ItsDateTime::Now().ToString()" << endl;
+    wcout << LR"(> ")" << ItsDateTime::Now().ToString() << LR"(")" << endl;
+    wcout << LR"(ItsDateTime.Now().ToString("s"))" << endl;
+    wcout << LR"(> ")" << ItsDateTime::Now().ToString(L"s") << LR"(")" << endl;
     
     wcout << endl;
 }
@@ -551,22 +589,28 @@ void TestItsGuid()
 {
     PrintTestHeader(L"## Test ItsGuid ");
 
-    wcout << L"Guid1: " << ItsGuid::CreateGuid() << endl;
+    wcout << L"ItsGuid::CreateGuid()" << endl;
+    wcout << LR"(> ")" << ItsGuid::CreateGuid() << LR"(")" << endl;
     
     GUID guid{ 0 };
     if (ItsGuid::CreateGuid(&guid))
     {
         ItsGuidFormat fmt;
-        wcout << L"Guid2 RegistryFormat: " << ItsGuid::ToString(guid,fmt.RegistryFormat) << endl;
-        wcout << L"Guid2 RegistryFormatStripped: " << ItsGuid::ToString(guid, fmt.RegistryFormatStripped) << endl;
-        wcout << L"Guid2 ConstFormat: " << ItsGuid::ToString(guid,fmt.ConstFormat) << endl;
-        wcout << L"Guid2 CompactFormat: " << ItsGuid::ToString(guid,fmt.CompactFormat) << endl;
-        wcout << L"Guid2 PrefixedCompactFormat: " << ItsGuid::ToString(guid,fmt.PrefixedCompactFormat) << endl;
+        wcout << L"ItsGuid::ToString(guid,fmt.RegistryFormat)" << endl;
+        wcout << LR"(> ")" << ItsGuid::ToString(guid, fmt.RegistryFormat) << LR"(")" << endl;
+        wcout << L"ItsGuid::ToString(guid, fmt.RegistryFormatStripped)" << endl;
+        wcout << LR"(> ")" << ItsGuid::ToString(guid, fmt.RegistryFormatStripped) << LR"(")" << endl;
+        wcout << L"ItsGuid::ToString(guid,fmt.ConstFormat)" << endl;
+        wcout << LR"(> ")" << ItsGuid::ToString(guid, fmt.ConstFormat) << LR"(")" << endl;
+        wcout << L"ItsGuid::ToString(guid,fmt.CompactFormat)" << endl;
+        wcout << LR"(> ")" << ItsGuid::ToString(guid, fmt.CompactFormat) << LR"(")" << endl;
+        wcout << L"ItsGuid::ToString(guid,fmt.PrefixedCompactFormat)" << endl;
+        wcout << LR"(> ")" << ItsGuid::ToString(guid, fmt.PrefixedCompactFormat) << LR"(")" << endl;
     }
     else {
-        wcout << L"Guid2 Error: " << ItsError::GetLastErrorDescription() << endl;
+        wcout << L"ERROR: ItsGuid::CreateGuid(&guid)" << endl;
+        wcout << L"> " << ItsError::GetLastErrorDescription() << endl;
     }
-
 
     wcout << endl;
 }
@@ -634,14 +678,22 @@ void TestItsID()
 {
     PrintTestHeader(L"## Test ItsID ");
 
-    wcout << L"ID (12): " << ItsID::CreateID(12, ItsCreateIDOptions::LowerAndUpperCase, false) << endl;
-    wcout << L"ID (10): " << ItsID::CreateID(10, ItsCreateIDOptions::LowerAndUpperCase, true) << endl;
-    wcout << L"ID (8) : " << ItsID::CreateID(8, ItsCreateIDOptions::UpperCase, false) << endl;
-    wcout << L"ID (6) : " << ItsID::CreateID(6, ItsCreateIDOptions::UpperCase, true) << endl;
-    wcout << L"ID (14): " << ItsID::CreateID(14, ItsCreateIDOptions::LowerCase, false) << endl;
-    wcout << L"ID (16): " << ItsID::CreateID(16, ItsCreateIDOptions::LowerCase, true) << endl;
-    wcout << L"ID (64): " << ItsID::CreateID(64, ItsCreateIDOptions::LowerAndUpperCase, false) << endl;
-    wcout << L"ID (64): " << ItsID::CreateID(64, ItsCreateIDOptions::LowerAndUpperCase, true) << endl;
+    wcout << L"ItsID::CreateID(12, ItsCreateIDOptions::LowerAndUpperCase, false)" << endl;
+    wcout << LR"(> ")" << ItsID::CreateID(12, ItsCreateIDOptions::LowerAndUpperCase, false) << LR"(")" << endl;
+    wcout << L"ItsID::CreateID(10, ItsCreateIDOptions::LowerAndUpperCase, true)" << endl;
+    wcout << LR"(> ")" << ItsID::CreateID(10, ItsCreateIDOptions::LowerAndUpperCase, true) << LR"(")" << endl;
+    wcout << L"ItsID::CreateID(8, ItsCreateIDOptions::UpperCase, false)" << endl;
+    wcout << LR"(> ")" << ItsID::CreateID(8, ItsCreateIDOptions::UpperCase, false) << LR"(")" << endl;
+    wcout << L"ItsID::CreateID(6, ItsCreateIDOptions::UpperCase, true)" << endl;
+    wcout << LR"(> ")" << ItsID::CreateID(6, ItsCreateIDOptions::UpperCase, true) << LR"(")" << endl;
+    wcout << L"ItsID::CreateID(14, ItsCreateIDOptions::LowerCase, false)" << endl;
+    wcout << LR"(> ")" << ItsID::CreateID(14, ItsCreateIDOptions::LowerCase, false) << LR"(")" << endl;
+    wcout << L"ItsID::CreateID(16, ItsCreateIDOptions::LowerCase, true)" << endl;
+    wcout << LR"(> ")" << ItsID::CreateID(16, ItsCreateIDOptions::LowerCase, true) << LR"(")" << endl;
+    wcout << L"ItsID::CreateID(64, ItsCreateIDOptions::LowerAndUpperCase, false)" << endl;
+    wcout << LR"(> ")" << ItsID::CreateID(64, ItsCreateIDOptions::LowerAndUpperCase, false) << LR"(")" << endl;
+    wcout << L"ItsID::CreateID(64, ItsCreateIDOptions::LowerAndUpperCase, true)" << endl;
+    wcout << LR"(> ")" << ItsID::CreateID(64, ItsCreateIDOptions::LowerAndUpperCase, true) << LR"(")" << endl;
 
     wcout << endl;
 }
