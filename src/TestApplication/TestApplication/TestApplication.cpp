@@ -198,7 +198,7 @@ void TestItsConvert()
     
     PrintTestSubHeader(L"ToStringFormatted");
     wcout << LR"(ItsConvert::ToStringFormatted(256810246) = ")" << ItsConvert::ToStringFormatted(256810246) << LR"(")" << endl;
-    wcout << LR"(ItsConvert::ToStringFormatted(256810246, L" " = ")" << ItsConvert::ToStringFormatted(256810246, L" ") << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToStringFormatted(256810246, L' ') = ")" << ItsConvert::ToStringFormatted(256810246, L' ') << LR"(")" << endl;
     
     PrintTestSubHeader(L"ToDataSizeString");
     wcout << LR"(ItsConvert::ToDataSizeString(1024, 2) = ")" << ItsConvert::ToDataSizeString(1024, 2) << LR"(")" << endl;

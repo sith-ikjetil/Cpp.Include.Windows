@@ -628,7 +628,7 @@ namespace ItSoftware
 			return tos;
 		}
 
-		static wstring ToStringFormatted( size_t number, wstring thousandSep = L",")
+		static wstring ToStringFormatted( size_t number, wchar_t thousandSep = L',')
 		{
 			wstring txt = ItsConvert::ToString( number );
 			
