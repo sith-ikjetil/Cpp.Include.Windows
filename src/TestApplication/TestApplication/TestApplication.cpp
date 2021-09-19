@@ -375,21 +375,23 @@ void TestItsFile()
     DWORD dwWritten(0);
     bResult = file.Write(data.data(), static_cast<DWORD>(data.size()), &dwWritten);
     if (!bResult) {
-        wcout << L"ItsFile Write failed" << endl << endl;
-        return;
+        wcout << L"ItsFile Write failed" << endl;
+    }
+    else {
+        wcout << L"ItsFile successfully written to: " << g_filenameBinary << endl;
     }
 
     bResult = file.Close();
     if (!bResult) {
-        wcout << L"ItsFile Close failed" << endl << endl;
-        return;
+        wcout << L"ItsFile close failed" << endl;
     }
-
-    wcout << L"ItsFile successfully written to: " << g_filenameBinary << endl;
+    else {
+        wcout << L"ItsFile closed successfully" << endl;
+    }
 
     size_t size{ 0 };
     if (ItsFile::GetFileSize(g_filenameBinary, &size)) {
-        wcout << L"File " << g_filenameBinary << " size: " << size << endl;
+        wcout << L"File " << g_filenameBinary << L" is " << size << L" bytes in size" << endl;
     }
     else {
         wcout << L"Error retrieving file size." << endl;
@@ -399,7 +401,21 @@ void TestItsFile()
         wcout << L"File " << g_filenameBinary << " successfully copied to " << g_filenameBinaryCopyTo << endl;
     }
     else {
-        wcout << L"Error copying file." << endl;
+        wcout << L"Error copying file " << g_filenameBinary << L" to " << g_filenameBinaryCopyTo << endl;
+    }
+
+    if (!ItsFile::Exists(g_filenameBinaryCopyTo)) {
+        wcout << L"File " << g_filenameBinaryCopyTo << " does not exist" << endl;
+    }
+    else {
+        wcout << L"File " << g_filenameBinaryCopyTo << " exists" << endl;
+    }
+
+    if (ItsFile::Delete(g_filenameBinaryCopyTo)) {
+        wcout << L"File " << g_filenameBinaryCopyTo << " successfully deleted" << endl;
+    }
+    else {
+        wcout << L"Error deleting " << g_filenameBinaryCopyTo << endl;
     }
 
     wcout << endl;
