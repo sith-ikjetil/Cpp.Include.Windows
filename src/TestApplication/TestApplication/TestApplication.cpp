@@ -282,7 +282,7 @@ void TestItsTime()
     PrintTestSubHeader(L"Now + ToString");
     wcout << L"ItsDateTime::Now().ToString()" << endl;
     wcout << LR"(> ")" << ItsDateTime::Now().ToString() << LR"(")" << endl;
-    wcout << LR"(ItsDateTime.Now().ToString("s"))" << endl;
+    wcout << LR"(ItsDateTime.Now().ToString(L"s"))" << endl;
     wcout << LR"(> ")" << ItsDateTime::Now().ToString(L"s") << LR"(")" << endl;
     
     wcout << endl;
@@ -320,11 +320,11 @@ void TestItsString()
     ss << ends;
     wcout << LR"(> ")" << ss.str() << endl;
     wcout << LR"(ItsString::WidthExpand (L"Kjetil", 30, L'_', ItsExpandDirection:Left))" << endl;
-    wcout << LR"(> ")" << ItsString::WidthExpand(L"Kjetil", 30, L'_', ItsExpandDirection::Left) << endl;
+    wcout << LR"(> ")" << ItsString::WidthExpand(L"Kjetil", 30, L'_', ItsExpandDirection::Left) << LR"(")" << endl;
     wcout << LR"(ItsString::WidthExpand (L"Kjetil", 30, L'_', ItsExpandDirection:Middle))" << endl;
-    wcout << LR"(> ")" << ItsString::WidthExpand(L"Kjetil", 30, L'_', ItsExpandDirection::Middle) << endl;
+    wcout << LR"(> ")" << ItsString::WidthExpand(L"Kjetil", 30, L'_', ItsExpandDirection::Middle) << LR"(")" << endl;
     wcout << LR"(ItsString::WidthExpand (L"Kjetil", 30, L'_', ItsExpandDirection:Right))" << endl;
-    wcout << LR"(> ")" << ItsString::WidthExpand(L"Kjetil", 30, L'_', ItsExpandDirection::Right) << endl;
+    wcout << LR"(> ")" << ItsString::WidthExpand(L"Kjetil", 30, L'_', ItsExpandDirection::Right) << LR"(")" << endl;
     
     wcout << endl;
 }
