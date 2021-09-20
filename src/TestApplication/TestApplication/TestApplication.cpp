@@ -622,8 +622,11 @@ void TestItsGuid()
     wcout << LR"(> ")" << ItsGuid::CreateGuid() << LR"(")" << endl;
     
     GUID guid{ 0 };
+    wcout << L"ItsGuid::CreateGuid(&guid)" << endl;
     if (ItsGuid::CreateGuid(&guid))
     {
+        wcout << L"> Success" << endl;
+
         ItsGuidFormat fmt;
         wcout << L"ItsGuid::ToString(guid,fmt.RegistryFormat)" << endl;
         wcout << LR"(> ")" << ItsGuid::ToString(guid, fmt.RegistryFormat) << LR"(")" << endl;
@@ -637,8 +640,7 @@ void TestItsGuid()
         wcout << LR"(> ")" << ItsGuid::ToString(guid, fmt.PrefixedCompactFormat) << LR"(")" << endl;
     }
     else {
-        wcout << L"ERROR: ItsGuid::CreateGuid(&guid)" << endl;
-        wcout << L"> " << ItsError::GetLastErrorDescription() << endl;
+        wcout << L"> FAILED: " << ItsError::GetLastErrorDescription() << endl;
     }
 
     wcout << endl;
