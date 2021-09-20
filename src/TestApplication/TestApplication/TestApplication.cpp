@@ -297,36 +297,34 @@ void TestItsString()
 {
     PrintTestHeader(L"## Test ItsString ");
 
-    wstring test(L"Ab12Cd");
-    wstring testTrim(L"  Ab12Cd  ");
-    wstring testReplace(L"__ ABCDEF __");
-    wstring testSplit(L"A;BC;DEF;G");
-    wcout << LR"(test = ")" << test << LR"(")" << endl;
-    wcout << LR"(testTrim = ")" << testTrim << LR"(")" << endl;
-    wcout << LR"(testReplace = ")" << testReplace << LR"(")" << endl;
-    wcout << LR"(testSplit = ")" << testSplit << LR"(")" << endl;
-    wcout << LR"(ItsString::Left(test,4) = ")" << ItsString::Left(test, 4) << LR"(")" << endl;
-    wcout << LR"(ItsString::Right(test,4) = ")" << ItsString::Right(test, 4) << LR"(")" << endl;
-    wcout << LR"(ItsString::Mid(test,2,2) = ")" << ItsString::Mid(test, 2, 2) << LR"(")" << endl;
-    wcout << LR"(ItsString::ToLowerCase(test) = ")" << ItsString::ToLowerCase(test) << LR"(")" << endl;
-    wcout << LR"(ItsString::ToUpperCase(test) = ")" << ItsString::ToUpperCase(test) << LR"(")" << endl;
-    wcout << LR"(ItsString::Trim(testTrim) = ")" << ItsString::Trim(testTrim) << LR"(")" << endl;
-    wcout << LR"(ItsString::Replace(testReplace) = ")" << ItsString::Replace(testReplace, L"__", L"##") << endl;
-   
-    auto vs = ItsString::Split(testSplit, L";");
+    wcout << LR"(ItsString::Left(L"Ab12Cd",4))" << endl;
+    wcout << LR"(> ")" << ItsString::Left(L"Ab12Cd", 4) << LR"(")" << endl;
+    wcout << LR"(ItsString::Right(L"Ab12Cd",4))" << endl;
+    wcout << LR"(> ")" << ItsString::Right(L"Ab12Cd", 4) << LR"(")" << endl;
+    wcout << LR"(ItsString::Mid(L"Ab12Cd",2,2))" << endl;
+    wcout << LR"(> ")" << ItsString::Mid(L"Ab12Cd", 2, 2) << LR"(")" << endl;
+    wcout << LR"(ItsString::ToLowerCase(L"Ab12Cd"))" << endl;
+    wcout << LR"(> ")" << ItsString::ToLowerCase(L"Ab12Cd") << LR"(")" << endl;
+    wcout << LR"(ItsString::ToUpperCase(L"Ab12Cd"))" << endl;
+    wcout << LR"(> ")" << ItsString::ToUpperCase(L"Ab12Cd") << LR"(")" << endl;
+    wcout << LR"(ItsString::Trim(L"  Ab12Cd  "))" << endl;
+    wcout << LR"(> ")" << ItsString::Trim(L"  Ab12Cd  ") << LR"(")" << endl;
+    wcout << LR"(ItsString::Replace(L"__ ABCDEF __"))" << endl;
+    wcout << LR"(> ")" << ItsString::Replace(L"__ ABCDEF __", L"__", L"##") << LR"(")" << endl;
+    wcout << LR"(ItsString::Split(L"A;BC;DEF;G",L";"))" << endl;
+    auto vs = ItsString::Split(L"A;BC;DEF;G", L";");
     wstringstream ss;
-    for (auto s : vs)
-    {
+    for (auto s : vs) {
         ss << s << L" ";
     }
     ss << ends;
-    wcout << LR"(ItsString::Split(testSplit,L";") = )" << ss.str() << endl;
-
-    wstring name(L"Kjetil");
-    wcout << L"ItsString::WidthExpand (ItsExpandDirection:Left,Middle,Right) Below" << endl;
-    wcout << ItsString::WidthExpand(name, 30, '_', ItsExpandDirection::Left) << endl;
-    wcout << ItsString::WidthExpand(name, 30, '_', ItsExpandDirection::Middle) << endl;
-    wcout << ItsString::WidthExpand(name, 30, '_', ItsExpandDirection::Right) << endl;
+    wcout << LR"(> ")" << ss.str() << endl;
+    wcout << LR"(ItsString::WidthExpand (L"Kjetil", 30, L'_', ItsExpandDirection:Left))" << endl;
+    wcout << LR"(> ")" << ItsString::WidthExpand(L"Kjetil", 30, L'_', ItsExpandDirection::Left) << endl;
+    wcout << LR"(ItsString::WidthExpand (L"Kjetil", 30, L'_', ItsExpandDirection:Middle))" << endl;
+    wcout << LR"(> ")" << ItsString::WidthExpand(L"Kjetil", 30, L'_', ItsExpandDirection::Middle) << endl;
+    wcout << LR"(ItsString::WidthExpand (L"Kjetil", 30, L'_', ItsExpandDirection:Right))" << endl;
+    wcout << LR"(> ")" << ItsString::WidthExpand(L"Kjetil", 30, L'_', ItsExpandDirection::Right) << endl;
     
     wcout << endl;
 }
@@ -371,25 +369,33 @@ void TestItsTextFile()
     PrintTestHeader(L"## Test ItsTextFile ");
 
     ItsTextFile file{};
+    wcout << LR"(file.OpenOrCreateText(g_filenameText, L"rw", L"", ItsFileOpenCreation::CreateAlways, ItsFileTextType::UTF8NoBOM))" << endl;
     bool bResult = file.OpenOrCreateText(g_filenameText, L"rw", L"", ItsFileOpenCreation::CreateAlways, ItsFileTextType::UTF8NoBOM);
     if (!bResult) {
-        wcout << L"ItsTextFile OpenOrCreateText failed" << endl;
+        wcout << L"> FAILED: " << ItsError::GetLastErrorDescription() << endl;
+        wcout << endl;
         return;
     }
+    wcout << LR"(> Success opening or creating )" << g_filenameText << endl;
 
+    wcout << LR"(file.WriteText(L"Small step for man." + ItsTextFile::LineDelimiterUnix() + L"Large leap for mankind."))" << endl;
     bResult = file.WriteText(L"Small step for man." + ItsTextFile::LineDelimiterUnix() + L"Large leap for mankind.");
     if (!bResult) {
-        wcout << L"ItsTextFile WriteText failed" << endl << endl;
+        wcout << L"> FAILED: " << ItsError::GetLastErrorDescription() << endl;
+        wcout << endl;
         return;
     }
+    wcout << LR"(> Success)" << endl;
 
+    wcout << LR"(file.Close())" << endl;
     bResult = file.Close();
     if (!bResult) {
-        wcout << L"ItsTextFile Close failed" << endl << endl;
+        wcout << L"> FAILED: " << ItsError::GetLastErrorDescription() << endl;
+        wcout << endl;
         return;
     }
+    wcout << LR"(> Success)" << endl;
 
-    wcout << L"ItsTextFile successfully written to: " << g_filenameText << endl;
     wcout << endl;
 }
 
@@ -403,58 +409,66 @@ void TestItsFile()
     PrintTestHeader(L"## Test ItsFile ");
 
     ItsFile file{};
+    wcout << LR"(file.OpenOrCreate(g_filenameBinary, L"rw", L"", ItsFileOpenCreation::CreateAlways))" << endl;
     bool bResult = file.OpenOrCreate(g_filenameBinary, L"rw", L"", ItsFileOpenCreation::CreateAlways);
     if (!bResult) {
-        wcout << L"ItsFile OpenOrCreate failed" << endl;
+        wcout << L"> FAILED: " << ItsError::GetLastErrorDescription() << endl;
+        wcout << endl;
         return;
     }
+    wcout << L"> Success opening or creating " << g_filenameBinary << endl;
 
     vector<BYTE> data = {0x01, 0x02, 0x03, 0x04, 0x05 };
     DWORD dwWritten(0);
+    wcout << LR"(file.Write(data.data(), static_cast<DWORD>(data.size()), &dwWritten))" << endl;
     bResult = file.Write(data.data(), static_cast<DWORD>(data.size()), &dwWritten);
     if (!bResult) {
-        wcout << L"ItsFile Write failed" << endl;
-    }
-    else {
-        wcout << L"ItsFile successfully written to: " << g_filenameBinary << endl;
-    }
-
+        wcout << L"> FAILED: " << ItsError::GetLastErrorDescription() << endl;
+        return;
+    }   
+    wcout << L"> Success" << endl;
+    
+    wcout << LR"(file.Close())" << endl;
     bResult = file.Close();
     if (!bResult) {
-        wcout << L"ItsFile close failed" << endl;
+        wcout << L"> FAILED: " << ItsError::GetLastErrorDescription() << endl;
+        wcout << endl;
+        return;
     }
-    else {
-        wcout << L"ItsFile closed successfully" << endl;
-    }
-
+    wcout << L"> Success" << endl;
+    
     size_t size{ 0 };
-    if (ItsFile::GetFileSize(g_filenameBinary, &size)) {
-        wcout << L"File " << g_filenameBinary << L" is " << size << L" bytes in size" << endl;
+    wcout << LR"(ItsFile::GetFileSize(g_filenameBinary, &size))" << endl;
+    if (!ItsFile::GetFileSize(g_filenameBinary, &size)) {
+        wcout << L"> FAILED: " << ItsError::GetLastErrorDescription() << endl;
+        wcout << endl;
+        return;
     }
-    else {
-        wcout << L"Error retrieving file size." << endl;
-    }
+    wcout << L"> Success. File " << g_filenameBinary << L" is " << size << L" bytes in size" << endl;
 
-    if (ItsFile::Copy(g_filenameBinary, g_filenameBinaryCopyTo, false)) {
-        wcout << L"File " << g_filenameBinary << " successfully copied to " << g_filenameBinaryCopyTo << endl;
+    wcout << LR"(ItsFile::Copy(g_filenameBinary, g_filenameBinaryCopyTo, false))" << endl;
+    if (!ItsFile::Copy(g_filenameBinary, g_filenameBinaryCopyTo, false)) {
+        wcout << L"> FAILED: " << ItsError::GetLastErrorDescription() << endl;
+        wcout << endl;
+        return;
     }
-    else {
-        wcout << L"Error copying file " << g_filenameBinary << L" to " << g_filenameBinaryCopyTo << endl;
-    }
+    wcout << L"> Success. File " << g_filenameBinary << " successfully copied to " << g_filenameBinaryCopyTo << endl;
 
+    wcout << LR"(ItsFile::Exists(g_filenameBinaryCopyTo))" << endl;
     if (!ItsFile::Exists(g_filenameBinaryCopyTo)) {
-        wcout << L"File " << g_filenameBinaryCopyTo << " does not exist" << endl;
+        wcout << L"> File " << g_filenameBinaryCopyTo << " does not exist" << endl;
     }
     else {
-        wcout << L"File " << g_filenameBinaryCopyTo << " exists" << endl;
+        wcout << L"> File " << g_filenameBinaryCopyTo << " exists" << endl;
     }
 
-    if (ItsFile::Delete(g_filenameBinaryCopyTo)) {
-        wcout << L"File " << g_filenameBinaryCopyTo << " successfully deleted" << endl;
+    wcout << LR"(ItsFile::Delete(g_filenameBinaryCopyTo))" << endl;
+    if (!ItsFile::Delete(g_filenameBinaryCopyTo)) {
+        wcout << L"> FAILED: " << ItsError::GetLastErrorDescription() << endl;
+        wcout << endl;
+        return;
     }
-    else {
-        wcout << L"Error deleting " << g_filenameBinaryCopyTo << endl;
-    }
+    wcout << L"> Success. File " << g_filenameBinaryCopyTo << " successfully deleted" << endl;
 
     wcout << endl;
 }
@@ -506,21 +520,30 @@ void TestItsPath()
 
     wstring path = ItsPath::Combine(g_path1, g_path2);
     if (ItsPath::Exists(path)) {
-        wcout << L"Path: " << path << L" Exists" << endl;
+        wcout << L"> Path: " << path << L" exists" << endl;
     }
     else {
-        wcout << L"Path: " << path << L" Does not exist" << endl;
+        wcout << L"> Path: " << path << L" does not exist" << endl;
     }
 
-    wcout << L"Volume: " << ItsPath::GetVolume(path) << endl;
-    wcout << L"Directory: " << ItsPath::GetDirectory(path) << endl;
-    wcout << L"Filename: " << ItsPath::GetFilename(path) << endl;
-    wcout << L"Extension: " << ItsPath::GetExtension(path) << endl;
-    wcout << L"Has Extension (.html): " << ((ItsPath::HasExtension(path, L".html")) ? L"true" : L"false") << endl;
-    wcout << L"Has Extension (.js): " << ((ItsPath::HasExtension(path, L".js")) ? L"true" : L"false") << endl;
-    wcout << L"Change Extension (.html to .js): " << ItsPath::ChangeExtension(path, L".js") << endl;
-    wcout << L"Is valid path valid: " << ((ItsPath::IsPathValid(path)) ? L"true" : L"false") << endl;
-    wcout << L"Is invalid path valid: " << ((ItsPath::IsPathValid(g_invalidPath)) ? L"true" : L"false") << endl;
+    wcout << LR"(ItsPath::GetVolume(path))" << endl;
+    wcout << LR"(> ")" << ItsPath::GetVolume(path) << LR"(")" << endl;
+    wcout << LR"(ItsPath::GetDirectory(path))" << endl; 
+    wcout << LR"(> ")" << ItsPath::GetDirectory(path) << endl;
+    wcout << LR"(ItsPath::GetFilename(path))" << endl; 
+    wcout << LR"(> ")" << ItsPath::GetFilename(path) << endl;
+    wcout << LR"(ItsPath::GetExtension(path))" << endl; 
+    wcout << LR"(> ")" << ItsPath::GetExtension(path) << endl;
+    wcout << LR"(ItsPath::HasExtension(path, L".html"))" << endl; 
+    wcout << LR"(> ")" << ((ItsPath::HasExtension(path, L".html")) ? L"true" : L"false") << endl;
+    wcout << LR"(ItsPath::HasExtension(path, L".js"))" << endl; 
+    wcout << LR"(> ")" << ((ItsPath::HasExtension(path, L".js")) ? L"true" : L"false") << endl;
+    wcout << LR"(ItsPath::ChangeExtension(path,L".js"))" << endl; 
+    wcout << LR"(> ")" << ItsPath::ChangeExtension(path, L".js") << endl;
+    wcout << LR"(ItsPath::IsPathValid(path))" << endl; 
+    wcout << LR"(> ")" << ((ItsPath::IsPathValid(path)) ? L"true" : L"false") << endl;
+    wcout << LR"(ItsPath::IsPathValid(g_invalidPath))" << endl; 
+    wcout << LR"(> ")" << ((ItsPath::IsPathValid(g_invalidPath)) ? L"true" : L"false") << endl;
 
     wcout << endl;
 }
@@ -534,48 +557,54 @@ void TestItsDirectory()
 {
     PrintTestHeader(L"## Test ItsDirectory ");
 
+    wcout << LR"(ItsDirectory::GetDirectories(g_directoryRoot))" << endl;
     auto result = ItsDirectory::GetDirectories(g_directoryRoot);
     if (result.size() > 0) {
-        wcout << L"Directory: " << g_directoryRoot << " found " << result.size() << L" sub-directories" << endl;
+        wcout << L"> Success. Found " << result.size() << L" sub-directories under " << g_directoryRoot << endl;
         for (auto r : result) {
-            wcout << L"Directory Found: " << r << endl;
+            wcout << L">> " << r << endl;
         }
     }
+    else {
+        wcout << L"> FAILED. No directories found under " << g_directoryRoot << endl;
+    }
 
+    wcout << LR"(ItsDirectory::GetFiles(g_directoryRoot))" << endl;
     auto result2 = ItsDirectory::GetFiles(g_directoryRoot);
     if (result2.size() > 0) {
-        wcout << L"Directory: " << g_directoryRoot << " found " << result2.size() << L" files" << endl;
+        wcout << L"> Success. Found " << result2.size() << L" files under " << g_directoryRoot << endl;
         for (auto r : result2) {
-            wcout << L"File Found: " << r << endl;
+            wcout << L">> " << r << endl;
         }
     }
 
+    wcout << LR"(ItsDirectory::GetLogicalDrives())" << endl;
     auto result3 = ItsDirectory::GetLogicalDrives();
     if (result3.size() > 0) {
-        wcout << L"Drives found: " << result3.size() << endl;
+        wcout << L"> Success. Found " << result3.size() << L" drives" << endl;
         for (auto r : result3) {
-            wcout << L"Drive found: " << r << endl;
+            wcout << L">> " << r << endl;
         }
     }
 
     auto cdir = g_creatDir;
+    wcout << LR"(ItsDirectory::CreateDirectory(cdir))" << endl;
     bool bResult = ItsDirectory::CreateDirectory(cdir);
     if (!bResult) {
-        wcout << L"Error creating: " << cdir << endl;
+        wcout << L"> FAILED. Error: " << ItsError::GetLastErrorDescription() << endl;
         wcout << endl;
         return;
     }
+    wcout << L"> Success creating " << cdir << endl;
 
-    wcout << L"Successfully created: " << cdir << endl;
-
+    wcout << LR"(ItsDirectory::RemoveDirectory(cdir))" << endl;
     bResult = ItsDirectory::RemoveDirectory(cdir);
     if (!bResult) {
-        wcout << L"Error removing: " << cdir << endl;
+        wcout << L"> FAILED: " << ItsError::GetLastErrorDescription() << endl;;
         wcout << endl;
         return;
     }
-
-    wcout << L"Successfully removed: " << cdir << endl;
+    wcout << L"> Success removing directory " << cdir << endl;
 
     wcout << endl;
 }

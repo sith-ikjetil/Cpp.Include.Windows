@@ -783,7 +783,7 @@ namespace ItSoftware
 			typedef HANDLE pointer;
 			static auto invalid() noexcept -> pointer
 			{
-				return nullptr;
+				return INVALID_HANDLE_VALUE;
 			}
 
 			static auto close(pointer value) noexcept -> void
