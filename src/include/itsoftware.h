@@ -873,6 +873,53 @@ namespace ItSoftware
 			return ItsDateTime( tm2 );
 		}
 
+		bool operator==(const ItsDateTime& other)
+		{
+			if (this->m_tm.tm_year == other.m_tm.tm_year &&
+				this->m_tm.tm_mon == other.m_tm.tm_mon &&
+				this->m_tm.tm_mday == other.m_tm.tm_mday &&
+				this->m_tm.tm_hour == other.m_tm.tm_hour &&
+				this->m_tm.tm_min == other.m_tm.tm_min &&
+				this->m_tm.tm_sec == other.m_tm.tm_sec &&
+				this->m_tm.tm_wday == other.m_tm.tm_wday &&
+				this->m_tm.tm_isdst == other.m_tm.tm_isdst &&
+				this->m_tm.tm_yday == other.m_tm.tm_yday) {
+				return true;
+			}
+			return false;
+		}
+
+		bool operator!=(const ItsDateTime& other)
+		{
+			if (this->m_tm.tm_year == other.m_tm.tm_year &&
+				this->m_tm.tm_mon == other.m_tm.tm_mon &&
+				this->m_tm.tm_mday == other.m_tm.tm_mday &&
+				this->m_tm.tm_hour == other.m_tm.tm_hour &&
+				this->m_tm.tm_min == other.m_tm.tm_min &&
+				this->m_tm.tm_sec == other.m_tm.tm_sec &&
+				this->m_tm.tm_wday == other.m_tm.tm_wday &&
+				this->m_tm.tm_isdst == other.m_tm.tm_isdst &&
+				this->m_tm.tm_yday == other.m_tm.tm_yday) {
+				return false;
+			}
+			return true;
+		}
+
+		const ItsDateTime& operator=(const ItsDateTime& other)
+		{
+			this->m_tm.tm_year = other.m_tm.tm_year;
+			this->m_tm.tm_mon = other.m_tm.tm_mon;
+			this->m_tm.tm_mday = other.m_tm.tm_mday;
+			this->m_tm.tm_hour = other.m_tm.tm_hour;
+			this->m_tm.tm_min = other.m_tm.tm_min;
+			this->m_tm.tm_sec = other.m_tm.tm_sec;
+			this->m_tm.tm_wday = other.m_tm.tm_wday;
+			this->m_tm.tm_isdst = other.m_tm.tm_isdst;
+			this->m_tm.tm_yday = other.m_tm.tm_yday;
+			
+			return *this;
+		}
+
 		wstring ToString( )
 		{
 			wstringstream ss;
