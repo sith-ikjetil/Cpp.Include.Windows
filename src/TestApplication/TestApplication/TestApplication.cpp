@@ -538,21 +538,21 @@ void TestItsPath()
     wcout << LR"(ItsPath::GetVolume(path))" << endl;
     wcout << LR"(> ")" << ItsPath::GetVolume(path) << LR"(")" << endl;
     wcout << LR"(ItsPath::GetDirectory(path))" << endl; 
-    wcout << LR"(> ")" << ItsPath::GetDirectory(path) << endl;
+    wcout << LR"(> ")" << ItsPath::GetDirectory(path) << LR"(")" << endl;
     wcout << LR"(ItsPath::GetFilename(path))" << endl; 
-    wcout << LR"(> ")" << ItsPath::GetFilename(path) << endl;
+    wcout << LR"(> ")" << ItsPath::GetFilename(path) << LR"(")" << endl;
     wcout << LR"(ItsPath::GetExtension(path))" << endl; 
-    wcout << LR"(> ")" << ItsPath::GetExtension(path) << endl;
+    wcout << LR"(> ")" << ItsPath::GetExtension(path) << LR"(")" << endl;
     wcout << LR"(ItsPath::HasExtension(path, L".html"))" << endl; 
-    wcout << LR"(> ")" << ((ItsPath::HasExtension(path, L".html")) ? L"true" : L"false") << endl;
+    wcout << LR"(> )" << ((ItsPath::HasExtension(path, L".html")) ? L"true" : L"false") << endl;
     wcout << LR"(ItsPath::HasExtension(path, L".js"))" << endl; 
-    wcout << LR"(> ")" << ((ItsPath::HasExtension(path, L".js")) ? L"true" : L"false") << endl;
+    wcout << LR"(> )" << ((ItsPath::HasExtension(path, L".js")) ? L"true" : L"false") << endl;
     wcout << LR"(ItsPath::ChangeExtension(path,L".js"))" << endl; 
-    wcout << LR"(> ")" << ItsPath::ChangeExtension(path, L".js") << endl;
+    wcout << LR"(> ")" << ItsPath::ChangeExtension(path, L".js") << LR"(")" << endl;
     wcout << LR"(ItsPath::IsPathValid(path))" << endl; 
-    wcout << LR"(> ")" << ((ItsPath::IsPathValid(path)) ? L"true" : L"false") << endl;
+    wcout << LR"(> )" << ((ItsPath::IsPathValid(path)) ? L"true" : L"false") << endl;
     wcout << LR"(ItsPath::IsPathValid(g_invalidPath))" << endl; 
-    wcout << LR"(> ")" << ((ItsPath::IsPathValid(g_invalidPath)) ? L"true" : L"false") << endl;
+    wcout << LR"(> )" << ((ItsPath::IsPathValid(g_invalidPath)) ? L"true" : L"false") << endl;
 
     wcout << endl;
 }
