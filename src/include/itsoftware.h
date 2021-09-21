@@ -920,6 +920,10 @@ namespace ItSoftware
 			return *this;
 		}
 
+		explicit operator wstring() {
+			return this->ToString(L"s");
+		}
+
 		wstring ToString( )
 		{
 			wstringstream ss;
