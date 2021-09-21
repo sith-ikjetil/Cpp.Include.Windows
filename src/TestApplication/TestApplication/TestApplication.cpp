@@ -314,11 +314,20 @@ void TestItsString()
     wcout << LR"(ItsString::Split(L"A;BC;DEF;G",L";"))" << endl;
     auto vs = ItsString::Split(L"A;BC;DEF;G", L";");
     wstringstream ss;
+    ss << L"{";
+    bool bFirst{ true };
     for (auto s : vs) {
-        ss << s << L" ";
+        if (!bFirst) {
+            ss << L",";
+        }
+        ss << LR"(")" << s << LR"(")";
+        if (bFirst) {
+            bFirst = false;
+        }
     }
+    ss << L"}";
     ss << ends;
-    wcout << LR"(> ")" << ss.str() << endl;
+    wcout << LR"(> )" << ss.str() << endl;
     wcout << LR"(ItsString::WidthExpand (L"Kjetil", 30, L'_', ItsExpandDirection:Left))" << endl;
     wcout << LR"(> ")" << ItsString::WidthExpand(L"Kjetil", 30, L'_', ItsExpandDirection::Left) << LR"(")" << endl;
     wcout << LR"(ItsString::WidthExpand (L"Kjetil", 30, L'_', ItsExpandDirection:Middle))" << endl;
