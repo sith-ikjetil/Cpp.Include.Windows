@@ -227,13 +227,13 @@ void TestItsConvert()
     wcout << LR"(> ")" << ItsConvert::ToDataSizeString(200100400, 0) << LR"(")" << endl;
     wcout << LR"(ItsConvert::ToDataSizeString(200100400, 2))" << endl;
     wcout << LR"(> ")" << ItsConvert::ToDataSizeString(200100400, 2) << LR"(")" << endl;
-    wcout << LR"(ItsConvert::ToDataSizeString(9807804606, 3))" << endl;
+    wcout << LR"(ItsConvert::ToDataSizeString(9807804606, 3, ItsDataSizeStringType::IEC))" << endl;
     wcout << LR"(> ")" << ItsConvert::ToDataSizeString(9807804606, 3, ItsDataSizeStringType::IEC) << LR"(")" << endl;
-    wcout << LR"(ItsConvert::ToDataSizeString(1000, 3))" << endl;
+    wcout << LR"(ItsConvert::ToDataSizeString(1000, 3, ItsDataSizeStringType::IEC))" << endl;
     wcout << LR"(> ")" << ItsConvert::ToDataSizeString(1000, 3, ItsDataSizeStringType::IEC) << LR"(")" << endl;
     wcout << LR"(ItsConvert::ToDataSizeString(size_t max, 2))" << endl;
     wcout << LR"(> ")" << ItsConvert::ToDataSizeString(SIZE_MAX, 2) << LR"(")" << endl;
-    wcout << LR"(ItsConvert::ToDataSizeString(size_t max, 2))" << endl;
+    wcout << LR"(ItsConvert::ToDataSizeString(size_t max, 2, ItsDataSizeStringType::IEC))" << endl;
     wcout << LR"(> ")" << ItsConvert::ToDataSizeString(SIZE_MAX, 2, ItsDataSizeStringType::IEC) << LR"(")" << endl;
     
     wcout << endl;
