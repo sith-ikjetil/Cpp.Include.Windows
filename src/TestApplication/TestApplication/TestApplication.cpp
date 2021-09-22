@@ -149,7 +149,10 @@ int wmain(int argc, wchar_t* argv[])
 void PrintTestHeader(wstring txt)
 {
     wcout << endl;
-    wcout << ItsString::WidthExpand(txt, 80, '_', ItsExpandDirection::Right) << endl;
+
+    wstringstream ss;
+    ss << " " << txt << " ";
+    wcout << ItsString::WidthExpand(ss.str(), 80, '_', ItsExpandDirection::Middle) << endl;
 }
 
 //
@@ -170,7 +173,7 @@ void PrintTestSubHeader(wstring txt)
 //
 void TestItsConvert()
 {
-    PrintTestHeader(L"## Test ItsConvert ");
+    PrintTestHeader(L"ItsConvert");
 
     PrintTestSubHeader(L"ToNumber");
     wcout << LR"(ItsConvert::ToNumber<int>(L"-1234"))" << endl;
@@ -244,7 +247,7 @@ void TestItsConvert()
 //
 void TestItsRandom()
 {
-    PrintTestHeader(L"## Test ItsRandom ");
+    PrintTestHeader(L"ItsRandom");
 
     wcout << L"ItsRandom<long>(10'000, 1'000'000)" << endl;
     wcout << L"> " << ItsRandom<long>(10'000, 1'000'000) << endl;
@@ -269,7 +272,7 @@ void TestItsRandom()
 //
 void TestItsTime()
 {
-    PrintTestHeader(L"## Test ItsTime ");
+    PrintTestHeader(L"ItsTime");
     
     PrintTestSubHeader(L"RenderMsToFullString");
     wcout << L"ItsTime::RenderMsToFullString(92481379, false)" << endl;
@@ -293,7 +296,7 @@ void TestItsTime()
 //
 void TestItsString()
 {
-    PrintTestHeader(L"## Test ItsString ");
+    PrintTestHeader(L"ItsString");
 
     wcout << LR"(ItsString::Left(L"Ab12Cd",4))" << endl;
     wcout << LR"(> ")" << ItsString::Left(L"Ab12Cd", 4) << LR"(")" << endl;
@@ -344,7 +347,7 @@ void TestItsString()
 //
 void TestItsTimerStart()
 {
-    PrintTestHeader(L"## Test ItsTimer::Start ");
+    PrintTestHeader(L"ItsTimer Start");
 
     g_timer.Start();
     wcout << L"Timer started..." << endl;
@@ -359,7 +362,7 @@ void TestItsTimerStart()
 //
 void TestItsTimerStop()
 {
-    PrintTestHeader(L"## Test ItsTimer::Stop ");
+    PrintTestHeader(L"ItsTimer Stop");
 
     g_timer.Stop();
 
@@ -374,7 +377,7 @@ void TestItsTimerStop()
 //
 void TestItsTextFile()
 {
-    PrintTestHeader(L"## Test ItsTextFile ");
+    PrintTestHeader(L"ItsTextFile");
 
     ItsTextFile file{};
     wcout << LR"(file.OpenOrCreateText(g_filenameText, L"rw", L"", ItsFileOpenCreation::CreateAlways, ItsFileTextType::UTF8NoBOM))" << endl;
@@ -414,7 +417,7 @@ void TestItsTextFile()
 //
 void TestItsFile()
 {
-    PrintTestHeader(L"## Test ItsFile ");
+    PrintTestHeader(L"ItsFile");
 
     ItsFile file{};
     wcout << LR"(file.OpenOrCreate(g_filenameBinary, L"rw", L"", ItsFileOpenCreation::CreateAlways))" << endl;
@@ -490,12 +493,12 @@ void TestItsEventStart()
 {
     g_event.Clear();
 
-    PrintTestHeader(L"## Test ItsEvent Start "); 
+    PrintTestHeader(L"ItsEvent Start"); 
     wcout << L"Event is cleared" << endl;
     
     g_eventThread = thread([] {
         g_event.Wait(-1);
-        PrintTestHeader(L"## Test ItsEvent Completed ");
+        PrintTestHeader(L"ItsEvent Completed");
         wcout << L"Event works as expected" << endl << endl;
         });
 
@@ -511,7 +514,7 @@ void TestItsEventStop()
 {
     g_event.Signal();
 
-    PrintTestHeader(L"## Test ItsEvent Stop ");
+    PrintTestHeader(L"ItsEvent Stop");
     wcout << L"Event is Signaled" << endl;
     
     wcout << endl;
@@ -524,7 +527,7 @@ void TestItsEventStop()
 //
 void TestItsPath()
 {
-    PrintTestHeader(L"## Test ItsPath ");
+    PrintTestHeader(L"ItsPath");
 
     wstring path = ItsPath::Combine(g_path1, g_path2);
     if (ItsPath::Exists(path)) {
@@ -563,7 +566,7 @@ void TestItsPath()
 //
 void TestItsDirectory()
 {
-    PrintTestHeader(L"## Test ItsDirectory ");
+    PrintTestHeader(L"ItsDirectory");
 
     wcout << LR"(ItsDirectory::GetDirectories(g_directoryRoot))" << endl;
     auto result = ItsDirectory::GetDirectories(g_directoryRoot);
@@ -624,7 +627,7 @@ void TestItsDirectory()
 //
 void TestItsGuid()
 {
-    PrintTestHeader(L"## Test ItsGuid ");
+    PrintTestHeader(L"ItsGuid");
 
     wcout << L"ItsGuid::CreateGuid()" << endl;
     wcout << LR"(> ")" << ItsGuid::CreateGuid() << LR"(")" << endl;
@@ -661,7 +664,7 @@ void TestItsGuid()
 //
 void TestItsLog()
 {
-    PrintTestHeader(L"## Test ItsLog ");
+    PrintTestHeader(L"ItsLog");
 
     ItsLog log;
     log.LogInformation(L"This is an information log item");
@@ -686,7 +689,7 @@ void TestItsLog()
 //
 void TestItsDateTime()
 {
-    PrintTestHeader(L"## Test ItsDateTime ");
+    PrintTestHeader(L"ItsDateTime");
 
     auto now = ItsDateTime::Now();
     wcout << L"ItsDateTime.Now(): " << now.ToString() << endl;
@@ -715,7 +718,7 @@ void TestItsDateTime()
 //
 void TestItsID()
 {
-    PrintTestHeader(L"## Test ItsID ");
+    PrintTestHeader(L"ItsID");
 
     wcout << L"ItsID::CreateID(12, ItsCreateIDOptions::LowerAndUpperCase, false)" << endl;
     wcout << LR"(> ")" << ItsID::CreateID(12, ItsCreateIDOptions::LowerAndUpperCase, false) << LR"(")" << endl;
