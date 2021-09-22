@@ -310,7 +310,8 @@ namespace ItSoftware
 
 				wstringstream path;
 				path << path1;
-				if (path1[path1.size() - 1] != ItsPath::PathSeparator) {
+				if (path1[path1.size() - 1] != ItsPath::PathSeparator &&
+					path2[0] != ItsPath::PathSeparator) {
 					path << ItsPath::PathSeparator;
 				}
 				path << path2;
@@ -399,6 +400,10 @@ namespace ItSoftware
 
 				auto invalidPathChars = ItsPath::GetInvalidPathCharacters();
 				auto invalidFileChars = ItsPath::GetInvalidFilenameCharacters();
+
+				if (directory[directory.size() - 1] != ItsPath::PathSeparator) {
+					return false;
+				}
 
 				for (auto d: directory) {
 					for (auto i : invalidPathChars) {

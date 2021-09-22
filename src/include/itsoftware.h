@@ -42,7 +42,6 @@ namespace ItSoftware
 	using std::vector;
 	using std::stringstream;
 	using std::wstringstream;
-	using std::ends;
 	using std::endl;
 	using ItSoftware::Exceptions::ItsException;
 	using ItSoftware::Exceptions::ItsArgumentException;
@@ -331,9 +330,8 @@ namespace ItSoftware
 				return wstring(L"");
 			}
 
-			result << ends;
-
-			return result.str();
+			wstring retVal = result.str();
+			return retVal;
 		}
 
 		static vector<wstring> Split( wstring data, wstring token )
@@ -473,9 +471,9 @@ namespace ItSoftware
 				ss << ItsString::Left( retVal, (int)index );
 				ss << replace_with;
 				ss << ItsString::Right( retVal, (int)(retVal.size( ) - index - replace.size( )) );
-				ss << ends;
 				
-				retVal = ss.str();
+				wstring temp = ss.str();
+				retVal = temp;
 
 				index = retVal.find( replace, index + replace.size( ) );
 			}
@@ -553,9 +551,9 @@ namespace ItSoftware
 			}
 			ss << L" ";
 			ss << ((index > (szSize.size() - 1) || index < 0) ? L"?" : szSize[index]);
-			ss << ends;
-
-			return ss.str();
+			
+			wstring retVal = ss.str();
+			return retVal;
 		}
 
 #pragma warning(disable:4244)
@@ -1348,9 +1346,9 @@ namespace ItSoftware
 			for (auto i : this->m_items) {
 				ss << std::setiosflags(std::ios::left) << std::setw(12) << this->LogTypeToString(i.Type) << ItsDateTime(i.When).ToString() << " " << i.Description << endl;
 			}
-			ss << ends;
-
-			return ss.str();
+			
+			wstring retVal = ss.str();
+			return retVal;
 		}
 
 		wstring ToString()
@@ -1358,18 +1356,18 @@ namespace ItSoftware
 			wstringstream ss;
 			wstring nl1(L"\r\n");
 			wstring nl2(L"\n");
-			wstring s1(L";");
+			wstring s1(L":");
 			wstring rep_nl(L" ");
 			wstring rep_s(L",");
 			for (auto i : this->m_items) {
 				auto description = ItsString::Replace(i.Description, nl1, rep_nl);
 				description = ItsString::Replace(description, nl2, rep_nl);
 				description = ItsString::Replace(description, s1, rep_s);
-				ss << this->LogTypeToString(i.Type) << L";" << ItsDateTime(i.When).ToString(L"s") << L";" << description << endl;
+				ss << this->LogTypeToString(i.Type) << L" : " << ItsDateTime(i.When).ToString(L"s") << L" : " << description << endl;
 			}
-			ss << ends;
-
-			return ss.str();
+			
+			wstring retVal = ss.str();
+			return retVal;
 		}
 	};
 
@@ -1441,9 +1439,9 @@ namespace ItSoftware
 				id << data[j];
 
 			} while (++i < count);
-			id << ends;
-
-			return id.str();
+			
+			wstring retVal = id.str();
+			return retVal;
 		}
 	};
 }// namespace ItSoftware

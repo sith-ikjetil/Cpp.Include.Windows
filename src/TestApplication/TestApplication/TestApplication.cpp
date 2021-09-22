@@ -23,7 +23,6 @@
 //
 using std::wcout;
 using std::endl;
-using std::ends;
 using std::thread;
 using std::vector;
 using std::wstring;
@@ -326,8 +325,9 @@ void TestItsString()
         }
     }
     ss << L"}";
-    ss << ends;
-    wcout << LR"(> )" << ss.str() << endl;
+    
+    wstring temp = ss.str();
+    wcout << LR"(> )" << temp << endl;
     wcout << LR"(ItsString::WidthExpand (L"Kjetil", 30, L'_', ItsExpandDirection:Left))" << endl;
     wcout << LR"(> ")" << ItsString::WidthExpand(L"Kjetil", 30, L'_', ItsExpandDirection::Left) << LR"(")" << endl;
     wcout << LR"(ItsString::WidthExpand (L"Kjetil", 30, L'_', ItsExpandDirection:Middle))" << endl;
