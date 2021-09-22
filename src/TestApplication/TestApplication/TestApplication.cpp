@@ -186,14 +186,20 @@ void TestItsConvert()
     wcout << L"> " << ItsConvert::ToNumber<unsigned long>(L"12346789") << endl;
     wcout << LR"(ItsConvert::ToNumber<long long>(L"12345678900"))" << endl;
     wcout << L"> " << ItsConvert::ToNumber<long long>(L"12345678900") << endl;
+    wcout << LR"(ItsConvert::ToNumber<unsigned long long>(L"12345678900"))" << endl;
+    wcout << L"> " << ItsConvert::ToNumber<unsigned long long>(L"12345678900") << endl;
     wcout << LR"(ItsConvert::ToNumber<float>(L"-12.34"))" << endl;
     wcout << L"> " << ItsConvert::ToNumber<float>(L"-12.34") << endl;
     wcout << LR"(ItsConvert::ToNumber<double>(L"1.234"))" << endl;
     wcout << L"> " << ItsConvert::ToNumber<double>(L"1.234") << endl;
+    wcout << LR"(ItsConvert::ToNumber<long double>(L"1.234"))" << endl;
+    wcout << L"> " << ItsConvert::ToNumber<long double>(L"1.234") << endl;
     wcout << LR"(ItsConvert::ToNumber<short>(L"1234"))" << endl;
     wcout << L"> " << ItsConvert::ToNumber<short>(L"1234") << endl;
     wcout << LR"(ItsConvert::ToNumber<unsigned short>(L"40001"))" << endl;
     wcout << L"> " << ItsConvert::ToNumber<unsigned short>(L"40001") << endl;
+    wcout << LR"(ItsConvert::ToNumber<unsigned char>(L"101"))" << endl;
+    wcout << L"> " << ItsConvert::ToNumber<unsigned char>(L"101") << endl;
 
     PrintTestSubHeader(L"ToString");
     wcout << LR"(ItsConvert::ToString<int>(-1234))" << endl;
@@ -206,15 +212,21 @@ void TestItsConvert()
     wcout << LR"(> ")" << ItsConvert::ToString<unsigned long>(12346789) << LR"(")" << endl;
     wcout << LR"(ItsConvert::ToString<long long>(12345678900))" << endl;
     wcout << LR"(> ")" << ItsConvert::ToString<long long>(12345678900) << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToString<unsigned long long>(12345678900))" << endl;
+    wcout << LR"(> ")" << ItsConvert::ToString<unsigned long long>(12345678900) << LR"(")" << endl;
     wcout << LR"(ItsConvert::ToString<float>(-12.34))" << endl;
     wcout << LR"(> ")" << ItsConvert::ToString<float>(-12.34f) << LR"(")" << endl;
     wcout << LR"(ItsConvert::ToString<double>(1.234))" << endl;
     wcout << LR"(> ")" << ItsConvert::ToString<double>(1.234) << LR"(")" << endl;
-    wcout << LR"(ItsConvert::ToString<short>(1234)" << endl;
+    wcout << LR"(ItsConvert::ToString<long double>(1.234))" << endl;
+    wcout << LR"(> ")" << ItsConvert::ToString<long double>(1.234) << LR"(")" << endl;
+    wcout << LR"(ItsConvert::ToString<short>(1234))" << endl;
     wcout << LR"(> ")" << ItsConvert::ToString<short>(1234) << LR"(")" << endl;
-    wcout << LR"(ItsConvert::ToString<unsigned short>(40001)" << endl;
+    wcout << LR"(ItsConvert::ToString<unsigned short>(40001))" << endl;
     wcout << LR"(> ")" << ItsConvert::ToString<unsigned short>(40001) << LR"(")" << endl;
-    
+    wcout << LR"(ItsConvert::ToString<unsigned char>(101))" << endl;
+    wcout << LR"(> ")" << ItsConvert::ToString<unsigned char>(101) << LR"(")" << endl;
+
     PrintTestSubHeader(L"ToStringFormatted");
     wcout << LR"(ItsConvert::ToStringFormatted(256810246))" << endl;
     wcout << LR"(> ")" << ItsConvert::ToStringFormatted(256810246) << LR"(")" << endl;

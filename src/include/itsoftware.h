@@ -560,9 +560,21 @@ namespace ItSoftware
 		template<typename Numeric>
 		static Numeric ToNumber(const wstring& str)
 		{
-			if (std::is_same_v<Numeric, short>)
+			if (std::is_same_v<Numeric, char>) 
 			{
-				return (short)std::stoi(str);
+				return static_cast<char>(std::stoi(str));
+			}
+			else if (std::is_same_v<Numeric, unsigned char>)
+			{
+				return static_cast<unsigned char>(std::stoi(str));
+			}
+			else if (std::is_same_v<Numeric, short>)
+			{
+				return static_cast<short>(std::stoi(str));
+			}
+			else if (std::is_same_v<Numeric, unsigned short>)
+			{
+				return static_cast<unsigned short>(std::stoi(str));
 			}
 			else if (std::is_same_v<Numeric, float>)
 			{
@@ -571,6 +583,10 @@ namespace ItSoftware
 			else if (std::is_same_v<Numeric, double>)
 			{
 				return std::stod(str);
+			}
+			else if (std::is_same_v <Numeric, long double>)
+			{
+				return std::stold(str);
 			}
 			else if (std::is_same_v<Numeric, int>)
 			{
@@ -583,6 +599,18 @@ namespace ItSoftware
 			else if (std::is_same_v<Numeric, long long>)
 			{
 				return std::stoll(str);
+			}
+			else if (std::is_same_v<Numeric, unsigned int>)
+			{
+				return static_cast<unsigned int>(std::stoul(str));
+			}
+			else if (std::is_same_v<Numeric, unsigned long>)
+			{
+				return std::stoul(str);
+			}
+			else if (std::is_same_v<Numeric, unsigned long long>)
+			{
+				return std::stoull(str);
 			}
 
 			Numeric x = std::stoull(str);
@@ -619,6 +647,10 @@ namespace ItSoftware
 			else if (std::is_same_v<Numeric, double>)
 			{
 				ss << std::setprecision(std::numeric_limits<double>::digits10);
+			}
+			else if (std::is_same_v<Numeric, long double>)
+			{
+				ss << std::setprecision(std::numeric_limits<long double>::digits10);
 			}
 			ss << number;
 
