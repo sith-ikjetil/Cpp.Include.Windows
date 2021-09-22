@@ -49,7 +49,6 @@ using ItSoftware::ItsDateTime;
 using ItSoftware::ItsLog;
 using ItSoftware::ItsLogType;
 using ItSoftware::ItsDataSizeStringType;
-using ItSoftware::ItsDateTime;
 using ItSoftware::ItsID;
 using ItSoftware::ItsCreateIDOptions;
 
