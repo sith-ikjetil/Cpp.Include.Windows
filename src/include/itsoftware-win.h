@@ -2005,6 +2005,11 @@ namespace ItSoftware
 		};
 
 		//
+		// Variable: hCBTHook for ItsWin
+		//
+		static HHOOK g_hCBTHook = nullptr;
+
+		//
 		// struct: ItsWin
 		//
 		// (i): Misc Windows routines.
@@ -2013,11 +2018,6 @@ namespace ItSoftware
 		{
 		private:
 			//
-			// Variable: hCBTHook
-			//
-			static HHOOK hCBTHook;
-
-			//
 			// Function: CBTMsgBox
 			//
 			static LRESULT CALLBACK CBTMsgBox(int code, WPARAM wParam, LPARAM lParam)
@@ -2025,14 +2025,14 @@ namespace ItSoftware
 				if (HCBT_ACTIVATE != code || -1 == code)
 				{
 					// only when HCBT_ACTIVATE 
-					return CallNextHookEx(ItsWin::hCBTHook, code, wParam, lParam);
+					return CallNextHookEx(g_hCBTHook, code, wParam, lParam);
 				}
 
 				HWND hWnd = (HWND)wParam;
-				UnhookWindowsHookEx(ItsWin::hCBTHook);
+				UnhookWindowsHookEx(g_hCBTHook);
 				CenterToItsParentWindow(hWnd);
 
-				return CallNextHookEx(ItsWin::hCBTHook, code, wParam, lParam);
+				return CallNextHookEx(g_hCBTHook, code, wParam, lParam);
 			}
 
 		public:
@@ -2110,9 +2110,9 @@ namespace ItSoftware
 			{
 				if (hWnd != NULL)
 				{
-					ItsWin::hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
+					g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
 					MessageBox(hWnd, message.c_str(), title.c_str(), MB_OK | MB_ICONINFORMATION);
-					UnhookWindowsHookEx(ItsWin::hCBTHook);
+					UnhookWindowsHookEx(g_hCBTHook);
 				}
 				else
 				{
@@ -2144,9 +2144,9 @@ namespace ItSoftware
 				int result = 0;
 				if (hWnd != NULL)
 				{
-					ItsWin::hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
+					g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
 					result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONINFORMATION | MB_YESNO);
-					UnhookWindowsHookEx(ItsWin::hCBTHook);
+					UnhookWindowsHookEx(g_hCBTHook);
 				}
 				else
 				{
@@ -2180,9 +2180,9 @@ namespace ItSoftware
 				int result = 0;
 				if (hWnd != NULL)
 				{
-					ItsWin::hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
+					g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
 					result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONINFORMATION | MB_YESNOCANCEL);
-					UnhookWindowsHookEx(ItsWin::hCBTHook);
+					UnhookWindowsHookEx(g_hCBTHook);
 				}
 				else
 				{
@@ -2224,9 +2224,9 @@ namespace ItSoftware
 				int result = 0;
 				if (hWnd != NULL)
 				{
-					ItsWin::hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
+					g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
 					result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONINFORMATION | MB_ABORTRETRYIGNORE);
-					UnhookWindowsHookEx(ItsWin::hCBTHook);
+					UnhookWindowsHookEx(g_hCBTHook);
 				}
 				else
 				{
@@ -2271,9 +2271,9 @@ namespace ItSoftware
 			{
 				if (hWnd != NULL)
 				{
-					ItsWin::hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
+					g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
 					MessageBox(hWnd, message.c_str(), title.c_str(), MB_OK | MB_ICONWARNING);
-					UnhookWindowsHookEx(ItsWin::hCBTHook);
+					UnhookWindowsHookEx(g_hCBTHook);
 				}
 				else
 				{
@@ -2313,9 +2313,9 @@ namespace ItSoftware
 				int result = 0;
 				if (hWnd != NULL)
 				{
-					ItsWin::hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
+					g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
 					result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONWARNING | MB_YESNO);
-					UnhookWindowsHookEx(ItsWin::hCBTHook);
+					UnhookWindowsHookEx(g_hCBTHook);
 				}
 				else
 				{
@@ -2357,9 +2357,9 @@ namespace ItSoftware
 				int result = 0;
 				if (hWnd != NULL)
 				{
-					ItsWin::hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
+					g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
 					result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONWARNING | MB_YESNO);
-					UnhookWindowsHookEx(ItsWin::hCBTHook);
+					UnhookWindowsHookEx(g_hCBTHook);
 				}
 				else
 				{
@@ -2401,9 +2401,9 @@ namespace ItSoftware
 				int result = 0;
 				if (hWnd != NULL)
 				{
-					ItsWin::hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
+					g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
 					result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONWARNING | MB_ABORTRETRYIGNORE);
-					UnhookWindowsHookEx(ItsWin::hCBTHook);
+					UnhookWindowsHookEx(g_hCBTHook);
 				}
 				else
 				{
@@ -2448,9 +2448,9 @@ namespace ItSoftware
 			{
 				if (hWnd != NULL)
 				{
-					ItsWin::hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
+					g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
 					MessageBox(hWnd, message.c_str(), title.c_str(), MB_OK | MB_ICONHAND);
-					UnhookWindowsHookEx(ItsWin::hCBTHook);
+					UnhookWindowsHookEx(g_hCBTHook);
 				}
 				else
 				{
@@ -2482,9 +2482,9 @@ namespace ItSoftware
 				int result = 0;
 				if (hWnd != NULL)
 				{
-					ItsWin::hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
+					g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
 					result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONHAND | MB_YESNO);
-					UnhookWindowsHookEx(ItsWin::hCBTHook);
+					UnhookWindowsHookEx(g_hCBTHook);
 				}
 				else
 				{
@@ -2518,9 +2518,9 @@ namespace ItSoftware
 				int result = 0;
 				if (hWnd != NULL)
 				{
-					ItsWin::hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
+					g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
 					result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONHAND | MB_YESNOCANCEL);
-					UnhookWindowsHookEx(ItsWin::hCBTHook);
+					UnhookWindowsHookEx(g_hCBTHook);
 				}
 				else
 				{
@@ -2562,9 +2562,9 @@ namespace ItSoftware
 				int result = 0;
 				if (hWnd != NULL)
 				{
-					ItsWin::hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
+					g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
 					result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONHAND | MB_ABORTRETRYIGNORE);
-					UnhookWindowsHookEx(ItsWin::hCBTHook);
+					UnhookWindowsHookEx(g_hCBTHook);
 				}
 				else
 				{
@@ -2609,9 +2609,9 @@ namespace ItSoftware
 			{
 				if (hWnd != NULL)
 				{
-					ItsWin::hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
+					g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
 					MessageBox(hWnd, message.c_str(), title.c_str(), MB_OK | MB_ICONERROR);
-					UnhookWindowsHookEx(ItsWin::hCBTHook);
+					UnhookWindowsHookEx(g_hCBTHook);
 				}
 				else
 				{
@@ -2651,9 +2651,9 @@ namespace ItSoftware
 				int result = 0;
 				if (hWnd != NULL)
 				{
-					ItsWin::hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
+					g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
 					result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONERROR | MB_YESNO);
-					UnhookWindowsHookEx(ItsWin::hCBTHook);
+					UnhookWindowsHookEx(g_hCBTHook);
 				}
 				else
 				{
@@ -2695,9 +2695,9 @@ namespace ItSoftware
 				int result = 0;
 				if (hWnd != NULL)
 				{
-					ItsWin::hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
+					g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
 					result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONERROR | MB_YESNOCANCEL);
-					UnhookWindowsHookEx(ItsWin::hCBTHook);
+					UnhookWindowsHookEx(g_hCBTHook);
 				}
 				else
 				{
@@ -2739,9 +2739,9 @@ namespace ItSoftware
 				int result = 0;
 				if (hWnd != NULL)
 				{
-					ItsWin::hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
+					g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
 					result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONERROR | MB_ABORTRETRYIGNORE);
-					UnhookWindowsHookEx(ItsWin::hCBTHook);
+					UnhookWindowsHookEx(g_hCBTHook);
 				}
 				else
 				{
@@ -2787,9 +2787,9 @@ namespace ItSoftware
 				int result = 0;
 				if (hWnd != NULL)
 				{
-					ItsWin::hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
+					g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
 					result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONQUESTION | MB_YESNO);
-					UnhookWindowsHookEx(ItsWin::hCBTHook);
+					UnhookWindowsHookEx(g_hCBTHook);
 				}
 				else
 				{
@@ -2831,9 +2831,9 @@ namespace ItSoftware
 				int result = 0;
 				if (hWnd != NULL)
 				{
-					ItsWin::hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
+					g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
 					result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONQUESTION | MB_YESNOCANCEL);
-					UnhookWindowsHookEx(ItsWin::hCBTHook);
+					UnhookWindowsHookEx(g_hCBTHook);
 				}
 				else
 				{
@@ -2875,9 +2875,9 @@ namespace ItSoftware
 				int result = 0;
 				if (hWnd != NULL)
 				{
-					ItsWin::hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
+					g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
 					result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONQUESTION | MB_ABORTRETRYIGNORE);
-					UnhookWindowsHookEx(ItsWin::hCBTHook);
+					UnhookWindowsHookEx(g_hCBTHook);
 				}
 				else
 				{
@@ -2923,9 +2923,9 @@ namespace ItSoftware
 				int result = 0;
 				if (hWnd != NULL)
 				{
-					ItsWin::hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
+					g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
 					result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONSTOP | MB_YESNO);
-					UnhookWindowsHookEx(ItsWin::hCBTHook);
+					UnhookWindowsHookEx(g_hCBTHook);
 				}
 				else
 				{
@@ -2967,9 +2967,9 @@ namespace ItSoftware
 				int result = 0;
 				if (hWnd != NULL)
 				{
-					ItsWin::hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
+					g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
 					result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONSTOP | MB_YESNOCANCEL);
-					UnhookWindowsHookEx(ItsWin::hCBTHook);
+					UnhookWindowsHookEx(g_hCBTHook);
 				}
 				else
 				{
@@ -3011,9 +3011,9 @@ namespace ItSoftware
 				int result = 0;
 				if (hWnd != NULL)
 				{
-					ItsWin::hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
+					g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
 					result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONSTOP | MB_ABORTRETRYIGNORE);
-					UnhookWindowsHookEx(ItsWin::hCBTHook);
+					UnhookWindowsHookEx(g_hCBTHook);
 				}
 				else
 				{
