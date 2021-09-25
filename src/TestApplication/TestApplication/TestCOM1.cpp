@@ -74,7 +74,7 @@ void TestCOM1()
 	//
 	ComRuntime runtime(ComApartment::ApartmentThreaded);
 
-	PrintTestHeader(L"## Test COM 1 ItsMarshalGITPtr ");
+	PrintTestHeader(L"ItsMarshalGITPtr");
 
 	CComPtr<ITestCOM> pIStaObject;
 	HRESULT hr = pIStaObject.CoCreateInstance(CLSID_TestCOM);

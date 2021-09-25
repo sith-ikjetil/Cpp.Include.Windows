@@ -2007,7 +2007,7 @@ namespace ItSoftware
 		//
 		// Variable: hCBTHook for ItsWin
 		//
-		static HHOOK g_hCBTHook = nullptr;
+		inline HHOOK g_hCBTHook = nullptr;
 
 		//
 		// struct: ItsWin
