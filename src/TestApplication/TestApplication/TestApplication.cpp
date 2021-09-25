@@ -12,6 +12,7 @@
 #include <thread>
 #include <vector>
 #include <string>
+#include <mutex>
 #include <limits>
 #include "../../include/itsoftware.h"
 #include "../../include/itsoftware-com.h"
@@ -29,6 +30,8 @@ using std::wstring;
 using std::wstringstream;
 using std::unique_ptr;
 using std::make_unique;
+using std::mutex;
+using std::lock_guard;
 using ItSoftware::Win::ItsTimer;
 using ItSoftware::Win::ItsTextFile;
 using ItSoftware::Win::ItsFileOpenCreation;
@@ -148,6 +151,9 @@ int wmain(int argc, wchar_t* argv[])
 //
 void PrintTestHeader(wstring txt)
 {
+    static mutex m;
+    lock_guard<mutex> guard(m);
+
     wcout << endl;
 
     wstringstream ss;
@@ -507,7 +513,8 @@ void TestItsEventStart()
     g_eventThread = thread([] {
         g_event.Wait(-1);
         PrintTestHeader(L"ItsEvent Completed");
-        wcout << L"Event works as expected" << endl << endl;
+        wcout << L"Event works as expected" << endl;
+        wcout << endl;
         });
 
     wcout << endl;
