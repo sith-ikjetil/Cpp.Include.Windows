@@ -61,6 +61,12 @@ namespace ItSoftware
 	#define ROR( val, steps ) ( ( val >> Shift( val, steps ) ) | ( val << ( BitsCount( val ) - Shift( val, steps ) ) ) )	
 	#define AddFlag( val, flag ) (val | flag)
 	#define RemoveFlag(val, flag) (val & ~flag)
+	
+	//
+	// Function: as_const
+	//
+	template<typename T>
+	const T& as_const(const T& item) { return item; }
 
 	//
 	// Function: ItsAddFlag
