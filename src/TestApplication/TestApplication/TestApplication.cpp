@@ -653,17 +653,16 @@ void TestItsGuid()
     {
         wcout << L"> Success" << endl;
 
-        ItsGuidFormat fmt;
-        wcout << L"ItsGuid::ToString(guid,fmt.RegistryFormat)" << endl;
-        wcout << LR"(> ")" << ItsGuid::ToString(guid, fmt.RegistryFormat) << LR"(")" << endl;
-        wcout << L"ItsGuid::ToString(guid, fmt.RegistryFormatStripped)" << endl;
-        wcout << LR"(> ")" << ItsGuid::ToString(guid, fmt.RegistryFormatStripped) << LR"(")" << endl;
-        wcout << L"ItsGuid::ToString(guid,fmt.ConstFormat)" << endl;
-        wcout << LR"(> ")" << ItsGuid::ToString(guid, fmt.ConstFormat) << LR"(")" << endl;
-        wcout << L"ItsGuid::ToString(guid,fmt.CompactFormat)" << endl;
-        wcout << LR"(> ")" << ItsGuid::ToString(guid, fmt.CompactFormat) << LR"(")" << endl;
-        wcout << L"ItsGuid::ToString(guid,fmt.PrefixedCompactFormat)" << endl;
-        wcout << LR"(> ")" << ItsGuid::ToString(guid, fmt.PrefixedCompactFormat) << LR"(")" << endl;
+        wcout << L"ItsGuid::ToString(guid,ItsGuidFormat::RegistryFormat)" << endl;
+        wcout << LR"(> ")" << ItsGuid::ToString(guid, ItsGuidFormat::RegistryFormat) << LR"(")" << endl;
+        wcout << L"ItsGuid::ToString(guid, ItsGuidFormat::RegistryFormatStripped)" << endl;
+        wcout << LR"(> ")" << ItsGuid::ToString(guid, ItsGuidFormat::RegistryFormatStripped) << LR"(")" << endl;
+        wcout << L"ItsGuid::ToString(guid,ItsGuidFormat::ConstFormat)" << endl;
+        wcout << LR"(> ")" << ItsGuid::ToString(guid, ItsGuidFormat::ConstFormat) << LR"(")" << endl;
+        wcout << L"ItsGuid::ToString(guid,ItsGuidFormat::CompactFormat)" << endl;
+        wcout << LR"(> ")" << ItsGuid::ToString(guid, ItsGuidFormat::CompactFormat) << LR"(")" << endl;
+        wcout << L"ItsGuid::ToString(guid,ItsGuidFormat::PrefixedCompactFormat)" << endl;
+        wcout << LR"(> ")" << ItsGuid::ToString(guid, ItsGuidFormat::PrefixedCompactFormat) << LR"(")" << endl;
     }
     else {
         wcout << L"> FAILED: " << ItsError::GetLastErrorDescription() << endl;

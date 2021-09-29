@@ -1278,6 +1278,39 @@ namespace ItSoftware
 	};
 
 	//
+	// ItsLogUtil
+	//
+	// (i): Convertion misc. methods.
+	//
+	struct ItsLogUtil
+	{
+		static constexpr const char* LogTypeToString(ItsLogType t)
+		{
+			switch (t)
+			{
+			case ItsLogType::Information:
+				return "Information";
+				break;
+			case ItsLogType::Warning:
+				return "Warning";
+				break;
+			case ItsLogType::Error:
+				return "Error";
+				break;
+			case ItsLogType::Other:
+				return "Other";
+				break;
+			case ItsLogType::Debug:
+				return "Debug";
+				break;
+			default:
+				break;
+			}
+			return "<UNKNOWN>";
+		}
+	};
+
+	//
 	// struct: ItsLogItem
 	//
 	// (i): Log item for ItsLog
@@ -1287,6 +1320,34 @@ namespace ItSoftware
 		ItsLogType Type;
 		wstring	Description;
 		tm When;
+
+		wstring ToFriendlyString()
+		{
+			wstringstream ss;
+
+			ss << std::setiosflags(std::ios::left) << std::setw(12) << ItsLogUtil::LogTypeToString(this->Type) << ItsDateTime(this->When).ToString() << L" " << this->Description;
+
+			wstring retVal = ss.str();
+			return retVal;
+		}
+
+		wstring ToString()
+		{
+			wstringstream ss;
+			wstring nl1(L"\r\n");
+			wstring nl2(L"\n");
+			wstring s1(L":");
+			wstring rep_nl(L" ");
+			wstring rep_s(L" - ");
+
+			auto description = ItsString::Replace(this->Description, nl1, rep_nl);
+			description = ItsString::Replace(description, nl2, rep_nl);
+			description = ItsString::Replace(description, s1, rep_s);
+			ss << ItsLogUtil::LogTypeToString(this->Type) << " : " << ItsDateTime(this->When).ToString(L"s") << L" : " << description;
+
+			wstring retVal = ss.str();
+			return retVal;
+		}
 	};
 
 	//
@@ -1364,40 +1425,14 @@ namespace ItSoftware
 			this->m_items.clear();
 		}
 
-		wstring LogTypeToString(ItsLogType t)
-		{
-			wstring type;
-			switch (t)
-			{
-			case ItsLogType::Information:
-				type = L"Information";
-				break;
-			case ItsLogType::Warning:
-				type = L"Warning";
-				break;
-			case ItsLogType::Error:
-				type = L"Error";
-				break;
-			case ItsLogType::Other:
-				type = L"Other";
-				break;
-			case ItsLogType::Debug:
-				type = L"Debug";
-				break;
-			default:
-				type = L"<UNKNOWN>";
-				break;
-			}
-			return type;
-		}
-
 		wstring ToFriendlyString()
 		{
 			wstringstream ss;
-			for (auto i : this->m_items) {
-				ss << std::setiosflags(std::ios::left) << std::setw(12) << this->LogTypeToString(i.Type) << ItsDateTime(i.When).ToString() << " " << i.Description << endl;
+			for (auto i : this->m_items)
+			{
+				ss << i.ToFriendlyString() << endl;
 			}
-			
+
 			wstring retVal = ss.str();
 			return retVal;
 		}
@@ -1409,14 +1444,40 @@ namespace ItSoftware
 			wstring nl2(L"\n");
 			wstring s1(L":");
 			wstring rep_nl(L" ");
-			wstring rep_s(L",");
-			for (auto i : this->m_items) {
-				auto description = ItsString::Replace(i.Description, nl1, rep_nl);
-				description = ItsString::Replace(description, nl2, rep_nl);
-				description = ItsString::Replace(description, s1, rep_s);
-				ss << this->LogTypeToString(i.Type) << L" : " << ItsDateTime(i.When).ToString(L"s") << L" : " << description << endl;
+			wstring rep_s(L" - ");
+			for (auto i : this->m_items)
+			{
+				ss << i.ToString() << endl;
 			}
-			
+
+			wstring retVal = ss.str();
+			return retVal;
+		}
+
+		wstring ToString(uint32_t tailN)
+		{
+			wstringstream ss;
+			wstring nl1(L"\r\n");
+			wstring nl2(L"\n");
+			wstring s1(L":");
+			wstring rep_nl(L" ");
+			wstring rep_s(L" - ");
+			if (this->m_items.size() > tailN) {
+				auto ptr = this->m_items.end();
+				ptr -= tailN;
+
+				do
+				{
+					ss << (*ptr).ToString() << endl;
+				} while (++ptr != this->m_items.end());
+			}
+			else {
+				for (auto i : this->m_items)
+				{
+					ss << i.ToString() << endl;
+				}
+			}
+
 			wstring retVal = ss.str();
 			return retVal;
 		}

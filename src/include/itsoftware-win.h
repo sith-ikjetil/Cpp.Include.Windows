@@ -154,11 +154,11 @@ namespace ItSoftware
 		// (i): Container for premade Guid format strings.
 		//
 		struct ItsGuidFormat {
-			const wstring RegistryFormat{ L"{%08lX-%04X-%04x-%02X%02X-%02X%02X%02X%02X%02X%02X}" };
-			const wstring RegistryFormatStripped{ L"%08lX-%04X-%04x-%02X%02X-%02X%02X%02X%02X%02X%02X" };
-			const wstring ConstFormat{ L"{ 0x%lx, 0x%x, 0x%x, { 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x } }" };
-			const wstring CompactFormat{ L"%08lX%04X%04x%02X%02X%02X%02X%02X%02X%02X%02X" };
-			const wstring PrefixedCompactFormat{ L"GUID%08lX%04X%04x%02X%02X%02X%02X%02X%02X%02X%02X" };
+			inline static constexpr const wchar_t *RegistryFormat{ L"{%08lX-%04X-%04x-%02X%02X-%02X%02X%02X%02X%02X%02X}" };
+			inline static constexpr const wchar_t *RegistryFormatStripped{ L"%08lX-%04X-%04x-%02X%02X-%02X%02X%02X%02X%02X%02X" };
+			inline static constexpr const wchar_t *ConstFormat{ L"{ 0x%lx, 0x%x, 0x%x, { 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x } }" };
+			inline static constexpr const wchar_t *CompactFormat{ L"%08lX%04X%04x%02X%02X%02X%02X%02X%02X%02X%02X" };
+			inline static constexpr const wchar_t *PrefixedCompactFormat{ L"GUID%08lX%04X%04x%02X%02X%02X%02X%02X%02X%02X%02X" };
 		};
 
 		//
@@ -188,8 +188,7 @@ namespace ItSoftware
 				return true;
 			}
 			static wstring ToString(GUID& guid) {
-				ItsGuidFormat fmt;
-				return ItsGuid::ToString(guid, fmt.RegistryFormat);
+				return ItsGuid::ToString(guid, ItsGuidFormat::RegistryFormat);
 			}
 			static wstring ToString(GUID& guid, wstring format) {
 				wchar_t wcsBuffer[100];
