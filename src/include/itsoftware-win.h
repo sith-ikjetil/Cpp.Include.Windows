@@ -1317,19 +1317,6 @@ namespace ItSoftware
 		};
 
 		//
-		// struct: ItsTextFileInfo
-		//
-		// (i): Information for ItsTextFile.
-		//
-		struct ItsTextFileInfo
-		{
-			const wstring LineDelimiterWindows = L"\r\n";
-			const wstring LineDelimiterUnix = L"\n";
-			const vector<BYTE> ByteOrderMarkUnicode = { 0xFF, 0xFE };
-			const vector<BYTE> ByteOrderMarkUTF8 = { 0xEF, 0xBB, 0xBF };
-		};
-
-		//
 		// class: ItsTextFile
 		//
 		// (i): Wrapper for text file on Windows.
@@ -1398,30 +1385,10 @@ namespace ItSoftware
 
 		protected:
 		public:
-
-			static wstring LineDelimiterWindows()
-			{
-				ItsTextFileInfo i;
-				return i.LineDelimiterWindows;
-			}
-
-			static wstring LineDelimiterUnix()
-			{
-				ItsTextFileInfo i;
-				return i.LineDelimiterUnix;
-			}
-
-			static vector<BYTE> ByteOrderMarkUnicode() 
-			{
-				ItsTextFileInfo i;
-				return i.ByteOrderMarkUnicode;
-			}
-
-			static vector<BYTE> ByteOrderMarkUTF8()
-			{
-				ItsTextFileInfo i;
-				return i.ByteOrderMarkUTF8;
-			}
+			inline static constexpr const wchar_t* LineDelimiterWindows = L"\r\n";
+			inline static constexpr const wchar_t* LineDelimiterUnix = L"\n";
+			inline static const vector<BYTE> ByteOrderMarkUnicode = { 0xFF, 0xFE };
+			inline static const vector<BYTE> ByteOrderMarkUTF8 = { 0xEF, 0xBB, 0xBF };
 
 			//
 			// Constructor

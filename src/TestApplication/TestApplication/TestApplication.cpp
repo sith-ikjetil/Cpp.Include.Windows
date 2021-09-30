@@ -403,8 +403,8 @@ void TestItsTextFile()
     }
     wcout << LR"(> Success opening or creating )" << g_filenameText << endl;
 
-    wcout << LR"(file.WriteText(L"Small step for man." + ItsTextFile::LineDelimiterUnix() + L"Large leap for mankind."))" << endl;
-    bResult = file.WriteText(L"Small step for man." + ItsTextFile::LineDelimiterUnix() + L"Large leap for mankind.");
+    wcout << LR"(file.WriteText(L"Small step for man." + wstring(ItsTextFile::LineDelimiterUnix) + L"Large leap for mankind."))" << endl;
+    bResult = file.WriteText(L"Small step for man." + wstring(ItsTextFile::LineDelimiterUnix) + L"Large leap for mankind.");
     if (!bResult) {
         wcout << L"> FAILED: " << ItsError::GetLastErrorDescription() << endl;
         wcout << endl;
