@@ -1359,7 +1359,80 @@ namespace ItSoftware
 	{
 	private:
 		vector<ItsLogItem> m_items;
+		wstring m_sourceName;
+		bool m_bLogToEventLog;
+
+		enum struct EEVENTLOGTYPE : int
+		{
+			EET_SUCCESS = 0,
+			EET_ERROR_TYPE = 1,
+			EET_WARNING_TYPE = 2,
+			EET_INFORMATION_TYPE = 3,
+			EET_AUDIT_SUCCESS = 4,
+			EET_AUDIT_FAILURE = 5
+		};
+
+		WORD ConvertEnumToType(EEVENTLOGTYPE type)
+		{
+			WORD wType(0);
+			switch (type)
+			{
+			case EEVENTLOGTYPE::EET_SUCCESS:
+				wType = EVENTLOG_SUCCESS;
+				break;
+			case EEVENTLOGTYPE::EET_ERROR_TYPE:
+				wType = EVENTLOG_ERROR_TYPE;
+				break;
+			case EEVENTLOGTYPE::EET_WARNING_TYPE:
+				wType = EVENTLOG_WARNING_TYPE;
+				break;
+			case EEVENTLOGTYPE::EET_INFORMATION_TYPE:
+				wType = EVENTLOG_INFORMATION_TYPE;
+				break;
+			case EEVENTLOGTYPE::EET_AUDIT_SUCCESS:
+				wType = EVENTLOG_AUDIT_SUCCESS;
+				break;
+			case EEVENTLOGTYPE::EET_AUDIT_FAILURE:
+				wType = EVENTLOG_AUDIT_FAILURE;
+				break;
+			default:
+				break;
+			};
+
+			return wType;
+		}
+
+		int ReportEvent( EEVENTLOGTYPE eeventlogtype, const wstring description)
+		{
+			if (this->m_sourceName.size() == 0 || description.size() == 0) {
+				return -1;
+			}
+
+			HANDLE hEventLog = ::RegisterEventSource(NULL, this->m_sourceName.c_str());
+			if (hEventLog == NULL) {
+				return -1;
+			}
+			
+			CComBSTR bstr(description.c_str());
+			BOOL bStatus = ::ReportEvent(hEventLog, ConvertEnumToType(eeventlogtype), 0, 0, NULL, 1, 0, (LPCWSTR*)&bstr, NULL);
+			if (!bStatus) {
+				::DeregisterEventSource(hEventLog);
+				return -1;
+			}
+
+			::DeregisterEventSource(hEventLog);
+
+			return 0;
+		}
 	public:
+		ItsLog(wstring sourceName, bool logToEventLog)
+			:	m_sourceName(sourceName),
+				m_bLogToEventLog(logToEventLog)
+		{
+		}
+		~ItsLog()
+		{
+		}
 		void LogInformation(wstring description)
 		{
 			ItsLogItem item;
@@ -1368,6 +1441,10 @@ namespace ItSoftware
 			item.Type = ItsLogType::Information;
 
 			this->m_items.push_back(item);
+
+			if (this->m_bLogToEventLog) {
+				this->ReportEvent(ItsLog::EEVENTLOGTYPE::EET_INFORMATION_TYPE, item.ToString());
+			}
 		}
 
 		void LogWarning(wstring description)
@@ -1378,6 +1455,10 @@ namespace ItSoftware
 			item.Type = ItsLogType::Warning;
 
 			this->m_items.push_back(item);
+
+			if (this->m_bLogToEventLog) {
+				this->ReportEvent(ItsLog::EEVENTLOGTYPE::EET_WARNING_TYPE, item.ToString());
+			}
 		}
 
 		void LogError(wstring description)
@@ -1388,6 +1469,10 @@ namespace ItSoftware
 			item.Type = ItsLogType::Error;
 
 			this->m_items.push_back(item);
+
+			if (this->m_bLogToEventLog) {
+				this->ReportEvent(ItsLog::EEVENTLOGTYPE::EET_ERROR_TYPE, item.ToString());
+			}
 		}
 
 		void LogOther(wstring description)
@@ -1398,6 +1483,10 @@ namespace ItSoftware
 			item.Type = ItsLogType::Other;
 
 			this->m_items.push_back(item);
+
+			if (this->m_bLogToEventLog) {
+				this->ReportEvent(ItsLog::EEVENTLOGTYPE::EET_INFORMATION_TYPE, item.ToString());
+			}
 		}
 
 		void LogDebug(wstring description)
@@ -1408,6 +1497,10 @@ namespace ItSoftware
 			item.Type = ItsLogType::Debug;
 
 			this->m_items.push_back(item);
+
+			if (this->m_bLogToEventLog) {
+				this->ReportEvent(ItsLog::EEVENTLOGTYPE::EET_INFORMATION_TYPE, item.ToString());
+			}
 		}
 
 		const vector<ItsLogItem>& GetItems() 

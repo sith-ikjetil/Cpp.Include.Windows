@@ -680,7 +680,7 @@ void TestItsLog()
 {
     PrintTestHeader(L"ItsLog");
 
-    ItsLog log;
+    ItsLog log{L"ItsTestApp",true};
     log.LogInformation(L"This is an information log item");
     log.LogWarning(L"This is an warning log item");
     log.LogError(L"This is an error log item");
