@@ -251,6 +251,10 @@ void TestItsConvert()
     wcout << LR"(ItsConvert::ToDataSizeString(size_t max, 2, ItsDataSizeStringType::IEC))" << endl;
     wcout << LR"(> ")" << ItsConvert::ToDataSizeString(SIZE_MAX, 2, ItsDataSizeStringType::IEC) << LR"(")" << endl;
     
+    PrintTestSubHeader(L"ToLongFromHex");
+    wcout << LR"(ItsConvert::ToLongFromHex("0xFF3333"))" << endl;
+    wcout << L"> " << ItsConvert::ToLongFromHex(L"0xFF3333") << endl;
+
     wcout << endl;
 }
 
