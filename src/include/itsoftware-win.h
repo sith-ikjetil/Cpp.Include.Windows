@@ -17,6 +17,8 @@
 #include <wincrypt.h>
 #include <Shlwapi.h>
 #include <vector>
+#include <functional>
+#include <thread>
 #include "itsoftware.h"
 #include "itsoftware-exceptions.h"
 #include <time.h>
@@ -40,6 +42,8 @@ namespace ItSoftware
 		using std::vector;
 		using std::wstring;
 		using std::make_unique;
+		using std::function;
+		using std::thread;
 		using ItSoftware::ItsString;
 
 		//
@@ -154,11 +158,11 @@ namespace ItSoftware
 		// (i): Container for premade Guid format strings.
 		//
 		struct ItsGuidFormat {
-			inline static constexpr const wchar_t *RegistryFormat{ L"{%08lX-%04X-%04x-%02X%02X-%02X%02X%02X%02X%02X%02X}" };
-			inline static constexpr const wchar_t *RegistryFormatStripped{ L"%08lX-%04X-%04x-%02X%02X-%02X%02X%02X%02X%02X%02X" };
-			inline static constexpr const wchar_t *ConstFormat{ L"{ 0x%lx, 0x%x, 0x%x, { 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x } }" };
-			inline static constexpr const wchar_t *CompactFormat{ L"%08lX%04X%04x%02X%02X%02X%02X%02X%02X%02X%02X" };
-			inline static constexpr const wchar_t *PrefixedCompactFormat{ L"GUID%08lX%04X%04x%02X%02X%02X%02X%02X%02X%02X%02X" };
+			inline static constexpr const wchar_t* RegistryFormat{ L"{%08lX-%04X-%04x-%02X%02X-%02X%02X%02X%02X%02X%02X}" };
+			inline static constexpr const wchar_t* RegistryFormatStripped{ L"%08lX-%04X-%04x-%02X%02X-%02X%02X%02X%02X%02X%02X" };
+			inline static constexpr const wchar_t* ConstFormat{ L"{ 0x%lx, 0x%x, 0x%x, { 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, 0x%x } }" };
+			inline static constexpr const wchar_t* CompactFormat{ L"%08lX%04X%04x%02X%02X%02X%02X%02X%02X%02X%02X" };
+			inline static constexpr const wchar_t* PrefixedCompactFormat{ L"GUID%08lX%04X%04x%02X%02X%02X%02X%02X%02X%02X%02X" };
 		};
 
 		//
@@ -179,7 +183,7 @@ namespace ItSoftware
 
 				return ItsGuid::ToString(guid);
 			}
-			static bool CreateGuid(GUID *pGuid)
+			static bool CreateGuid(GUID* pGuid)
 			{
 				HRESULT hr = CoCreateGuid(pGuid);
 				if (FAILED(hr)) {
@@ -231,7 +235,7 @@ namespace ItSoftware
 				path = ItsString::Replace(path, aps, ps);
 
 				return path;
-			
+
 			}
 			static const vector<wchar_t> GetInvalidPathCharacters()
 			{
@@ -322,7 +326,7 @@ namespace ItSoftware
 			{
 				return static_cast<bool>(PathFileExistsW(path.c_str()));
 			}
-			static wstring GetVolume(wstring path) 
+			static wstring GetVolume(wstring path)
 			{
 				if (path.size() >= 2) {
 					if (path[1] == ItsPath::VolumeSeparator) {
@@ -333,7 +337,7 @@ namespace ItSoftware
 				}
 				return wstring(L"");
 			}
-			static wstring GetDirectory(wstring path) 
+			static wstring GetDirectory(wstring path)
 			{
 				if (path.size() == 0) {
 					return wstring(L"");
@@ -349,9 +353,9 @@ namespace ItSoftware
 				if (i == std::wstring::npos) {
 					return wstring(L"");
 				}
-				return path.substr(0, i+1);
+				return path.substr(0, i + 1);
 			}
-			static wstring GetFilename(wstring path) 
+			static wstring GetFilename(wstring path)
 			{
 				if (path.size() == 0) {
 					return wstring(L"");
@@ -367,7 +371,7 @@ namespace ItSoftware
 				if (i == std::wstring::npos) {
 					return wstring(L"");
 				}
-				return path.substr(i+1, path.size()-i-1);
+				return path.substr(i + 1, path.size() - i - 1);
 			}
 			static wstring GetExtension(wstring path)
 			{
@@ -404,7 +408,7 @@ namespace ItSoftware
 					return false;
 				}
 
-				for (auto d: directory) {
+				for (auto d : directory) {
 					for (auto i : invalidPathChars) {
 						if (d == i) {
 							return false;
@@ -435,7 +439,7 @@ namespace ItSoftware
 
 				return (ext == extension);
 			}
-			static wstring ChangeExtension(wstring path, wstring newExtension) 
+			static wstring ChangeExtension(wstring path, wstring newExtension)
 			{
 				if (path.size() == 0) {
 					return wstring(L"");
@@ -466,7 +470,7 @@ namespace ItSoftware
 					return path;
 				}
 
-				wstring retVal = path.replace(pe, path.size()-pe, newExtension);
+				wstring retVal = path.replace(pe, path.size() - pe, newExtension);
 				return retVal;
 			}
 
@@ -491,13 +495,13 @@ namespace ItSoftware
 					NULL,
 					GetLastError(),
 					MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-					(wchar_t *)&lpMsgBuf,
+					(wchar_t*)&lpMsgBuf,
 					0,
 					NULL);
 
 				// Copy buffer contet to bstr...
 				CComBSTR bstr;
-				bstr += (wchar_t *)lpMsgBuf;
+				bstr += (wchar_t*)lpMsgBuf;
 
 				// Free the buffer...
 				LocalFree(lpMsgBuf);
@@ -518,13 +522,13 @@ namespace ItSoftware
 					NULL,
 					dwError,
 					MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-					(wchar_t *)&lpMsgBuf,
+					(wchar_t*)&lpMsgBuf,
 					0,
 					NULL);
 
 				// Copy buffer contet to bstr...
 				CComBSTR bstr;
-				bstr += (wchar_t *)lpMsgBuf;
+				bstr += (wchar_t*)lpMsgBuf;
 
 				// Free the buffer...
 				LocalFree(lpMsgBuf);
@@ -538,8 +542,8 @@ namespace ItSoftware
 			 //
 			static wstring GetCoLastErrorInfoDescription()
 			{
-				IErrorInfo *pErrInfo = nullptr;
-				HRESULT hr = GetErrorInfo(NULL, (IErrorInfo **)&pErrInfo);
+				IErrorInfo* pErrInfo = nullptr;
+				HRESULT hr = GetErrorInfo(NULL, (IErrorInfo**)&pErrInfo);
 				CComBSTR bstr;
 				if (hr == S_OK && pErrInfo)
 				{
@@ -815,6 +819,23 @@ namespace ItSoftware
 		};
 
 		//
+		// FindChangeNotification HANDLE traits
+		//
+		struct handle_findchangehandle_traits
+		{
+			typedef HANDLE pointer;
+			static auto invalid() noexcept -> pointer
+			{
+				return INVALID_HANDLE_VALUE;
+			}
+
+			static auto close(pointer value) noexcept -> void
+			{
+				::FindCloseChangeNotification(value);
+			}
+		};
+
+		//
 		// HWND traits
 		//
 		struct hwnd_handle_traits
@@ -979,6 +1000,7 @@ namespace ItSoftware
 		//
 		typedef unique_handle<handle_handle_traits> unique_handle_handle;
 		typedef unique_handle<handle_findhandle_traits> unique_findhandle_handle;
+		typedef unique_handle<handle_findchangehandle_traits> unique_findchangehandle_handle;
 		typedef unique_handle<hwnd_handle_traits> unique_hwnd_handle;
 		typedef unique_handle<hbitmap_handle_traits> unique_hbitmap_handle;
 		typedef unique_handle<hmenu_handle_traits> unique_hmenu_handle;
@@ -1074,7 +1096,7 @@ namespace ItSoftware
 						dirs.push_back(wfd.cFileName);
 					}
 					while (::FindNextFile(h, &wfd)) {
-						if (!(wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {	
+						if (!(wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
 							dirs.push_back(wfd.cFileName);
 						}
 					}
@@ -1088,9 +1110,9 @@ namespace ItSoftware
 				vector<wchar_t> d;
 
 				DWORD dw = ::GetLogicalDrives();
-				
+
 				for (DWORD i = 0; i < 26; i++) {
-					DWORD dwBit = pow(2,(i));
+					DWORD dwBit = pow(2, (i));
 					DWORD dwResult = dw & dwBit;
 					if (dwResult) {
 						d.push_back(wszDrives[i]);
@@ -1122,8 +1144,8 @@ namespace ItSoftware
 				this->m_handle = CreateEvent(NULL, TRUE, (signaled) ? TRUE : FALSE, NULL);
 			}
 
-			ItsEvent(ItsEvent const &) = delete;
-			auto operator=(ItsEvent const &)->ItsEvent & = delete;
+			ItsEvent(ItsEvent const&) = delete;
+			auto operator=(ItsEvent const&)->ItsEvent & = delete;
 
 			operator HANDLE() noexcept
 			{
@@ -3391,7 +3413,7 @@ namespace ItSoftware
 			// (i)	Checks to see wheather or not a valid REGCLASS value has been
 			//		passed. If so the function returnes true, else it returnes false.
 			//
-			static bool CheckHKey(EREGCLASS a_regclass, HKEY &a_hKey)
+			static bool CheckHKey(EREGCLASS a_regclass, HKEY& a_hKey)
 			{
 				switch (a_regclass)
 				{
@@ -3433,7 +3455,7 @@ namespace ItSoftware
 				if (!CheckHKey(eregclass, hKey) || path.size() == 0 || result == nullptr)
 				{
 					return false;
-				}				
+				}
 
 				HKEY hOpenKey;
 				LONG lResult(0);
@@ -3447,7 +3469,7 @@ namespace ItSoftware
 
 				long lIndex(0);
 				ULONG cbAvailable(0);
-				wchar_t *pwcsName = new wchar_t[512];
+				wchar_t* pwcsName = new wchar_t[512];
 
 				FILETIME ft;
 				do
@@ -3471,20 +3493,20 @@ namespace ItSoftware
 				}
 
 				RegCloseKey(hOpenKey);
-				
+
 				return true;
 			}
 
 			//
 			// Function: EnumerateValues
 			//
-			static bool EnumerateValues(EREGCLASS eregclass, wstring path, const wstring key, vector<wstring>* result)	
+			static bool EnumerateValues(EREGCLASS eregclass, wstring path, const wstring key, vector<wstring>* result)
 			{
 				HKEY hKey;
 				if (!CheckHKey(eregclass, hKey) || (path.size() == 0 && key.size() == 0) || result == nullptr)
 				{
 					return false;
-				}				
+				}
 
 				if (path.size() > 0 && path[path.size() - 1] != L'\\')
 				{
@@ -3505,7 +3527,7 @@ namespace ItSoftware
 				long lIndex(0);
 				ULONG cbAvailable(0);
 				DWORD dwType(0);
-				wchar_t *pwcsName = new wchar_t[512];
+				wchar_t* pwcsName = new wchar_t[512];
 
 				do
 				{
@@ -3525,14 +3547,14 @@ namespace ItSoftware
 				}
 
 				RegCloseKey(hOpenKey);
-				
+
 				return true;
 			}
 
 			//
 			// Function: ReadValue
 			//
-			static bool ReadValue(EREGCLASS eregclass, wstring path, wstring key, wstring value, wstring *data)
+			static bool ReadValue(EREGCLASS eregclass, wstring path, wstring key, wstring value, wstring* data)
 			{
 				HKEY hKey;
 				if (!CheckHKey(eregclass, hKey) || (path.size() == 0 && key.size() == 0) || data == nullptr)
@@ -3569,15 +3591,15 @@ namespace ItSoftware
 					return false;
 				}
 
-				wchar_t *pszBuffer = new wchar_t[lSize / sizeof(wchar_t)];
-				lResult = RegQueryValueEx(hOpenKey, value.c_str(), 0, &dwType, (BYTE *)pszBuffer, &lSize);
+				wchar_t* pszBuffer = new wchar_t[lSize / sizeof(wchar_t)];
+				lResult = RegQueryValueEx(hOpenKey, value.c_str(), 0, &dwType, (BYTE*)pszBuffer, &lSize);
 				if (lResult != ERROR_SUCCESS)
 				{
 					RegCloseKey(hOpenKey);
 					delete[] pszBuffer;
 					return false;
 				}
-				
+
 				RegCloseKey(hOpenKey);
 
 				*data = wstring(pszBuffer);
@@ -3588,10 +3610,10 @@ namespace ItSoftware
 			//
 			// Function: DeleteKey
 			//
-			static bool DeleteKey(EREGCLASS eregclass,	wstring path, wstring key)
+			static bool DeleteKey(EREGCLASS eregclass, wstring path, wstring key)
 			{
 				HKEY hKey;
-				if (!CheckHKey(eregclass, hKey) || (path.size() == 0 && key.size() == 0)) 
+				if (!CheckHKey(eregclass, hKey) || (path.size() == 0 && key.size() == 0))
 				{
 					return false;
 				}
@@ -3603,7 +3625,7 @@ namespace ItSoftware
 				path += key;
 
 				DWORD dwResult(0);
-				dwResult = ::SHDeleteKey(hKey, path.c_str() );
+				dwResult = ::SHDeleteKey(hKey, path.c_str());
 				if (dwResult != ERROR_SUCCESS) {
 					if (GetLastError() != 0) {
 						return false;
@@ -3622,11 +3644,11 @@ namespace ItSoftware
 			static bool CreateKey(EREGCLASS eregclass, wstring path, wstring key, wstring default_data)
 			{
 				HKEY hKey;
-				if (!CheckHKey(eregclass, hKey) || (path.size() == 0 && key.size() == 0)) 
+				if (!CheckHKey(eregclass, hKey) || (path.size() == 0 && key.size() == 0))
 				{
 					return false;
 				}
-				
+
 				if (path.length() > 0) {
 					wchar_t wch = path.at(0);
 					while (wch == L'\\') {
@@ -3675,7 +3697,7 @@ namespace ItSoftware
 			static bool AddValue(EREGCLASS eregclass, wstring path, wstring key, wstring value, wstring data)
 			{
 				HKEY hKey;
-				if (!CheckHKey(eregclass, hKey) || (path.size() == 0 && key.size() == 0) || value.size() == 0) 
+				if (!CheckHKey(eregclass, hKey) || (path.size() == 0 && key.size() == 0) || value.size() == 0)
 				{
 					return false;
 				}
@@ -3693,7 +3715,7 @@ namespace ItSoftware
 					return false;
 				}
 
-				lResult = RegSetValueEx(hOpenKey, value.c_str(), 0, REG_SZ, reinterpret_cast<const BYTE *>(data.data()), (static_cast<DWORD>(data.size()) * sizeof(wchar_t)) + 2);
+				lResult = RegSetValueEx(hOpenKey, value.c_str(), 0, REG_SZ, reinterpret_cast<const BYTE*>(data.data()), (static_cast<DWORD>(data.size()) * sizeof(wchar_t)) + 2);
 				if (lResult != ERROR_SUCCESS) {
 					RegCloseKey(hOpenKey);
 					return false;
@@ -3710,7 +3732,7 @@ namespace ItSoftware
 			static bool DeleteValue(EREGCLASS eregclass, wstring path, wstring key, wstring value)
 			{
 				HKEY hKey;
-				if (!CheckHKey(eregclass, hKey) || (path.size() == 0 && key.size() == 0) || value.size() == 0) 
+				if (!CheckHKey(eregclass, hKey) || (path.size() == 0 && key.size() == 0) || value.size() == 0)
 				{
 					return false;
 				}
@@ -3738,5 +3760,161 @@ namespace ItSoftware
 				return true;
 			}
 		};// ItsRegistry
+
+		//
+		// enum: ItsFileMonitorMask
+		//
+		// (i): mask for ItsFileMonitor
+		//
+		enum ItsFileMonitorMask : uint32_t {
+			ChangeFileName = FILE_NOTIFY_CHANGE_FILE_NAME,
+			ChangeDirName = FILE_NOTIFY_CHANGE_DIR_NAME,
+			ChangeAttributes = FILE_NOTIFY_CHANGE_ATTRIBUTES,
+			ChangeSize = FILE_NOTIFY_CHANGE_SIZE,
+			ChangeLastWrite = FILE_NOTIFY_CHANGE_LAST_WRITE,
+			ChangeSecurity = FILE_NOTIFY_CHANGE_SECURITY,
+			ChangeCreation = FILE_NOTIFY_CHANGE_CREATION
+		};
+
+		struct ItsFileMonitorEvent {
+			DWORD         Action;
+			LARGE_INTEGER CreationTime;
+			LARGE_INTEGER LastModificationTime;
+			LARGE_INTEGER LastChangeTime;
+			LARGE_INTEGER LastAccessTime;
+			LARGE_INTEGER FileSize;
+			DWORD         FileAttributes;
+			DWORD         ReparsePointTag;
+			LARGE_INTEGER FileId;
+			LARGE_INTEGER ParentFileId;
+			wstring	FileName;
+		};
+
+		//
+		// class: ItsFileMonitor
+		//
+		// (i): Monitors a given file folder
+		//
+		class ItsFileMonitor
+		{
+		private:
+
+			uint32_t m_mask;
+			unique_ptr<thread> m_pthread;
+			unique_handle_handle m_dirHandle;
+			wstring m_pathname;
+			DWORD m_dwBytesReturned;
+			unique_ptr<BYTE[]> m_pbuffer;
+			bool m_bWatchSubTree;
+			bool m_bPaused;
+			bool m_bStopped;
+			bool m_bNoDouble;
+		protected:
+			void ExecuteDispatchThread(function<void(ItsFileMonitorEvent*)> func)
+			{
+				wstring lastName{ L"\0" };
+				DWORD lastAction{0};
+
+				while (!this->m_bStopped) {
+					if (!this->m_bPaused) {
+						auto bResult = ReadDirectoryChangesExW(this->m_dirHandle.operator HANDLE(),
+							this->m_pbuffer.get(),
+							sizeof(FILE_NOTIFY_EXTENDED_INFORMATION) + MAX_PATH,
+							this->m_bWatchSubTree,
+							this->m_mask,
+							&m_dwBytesReturned,
+							NULL,
+							NULL,
+							ReadDirectoryNotifyExtendedInformation);
+						if (bResult) {
+							FILE_NOTIFY_EXTENDED_INFORMATION* ptr = reinterpret_cast<FILE_NOTIFY_EXTENDED_INFORMATION*>(this->m_pbuffer.get());
+							
+							wstring name = wstring(ptr->FileName);
+							DWORD action = ptr->Action;
+
+							if (this->m_bNoDouble) {
+								if (action == lastAction && name == lastName) {
+									continue;
+								}
+
+								lastName = name;
+								lastAction = action;
+							}
+
+							ItsFileMonitorEvent event;
+							event.Action = action;
+							event.CreationTime = ptr->CreationTime;
+							event.LastModificationTime = ptr->LastModificationTime;
+							event.LastChangeTime = ptr->LastChangeTime;
+							event.LastAccessTime = ptr->LastAccessTime;
+							event.FileSize = ptr->FileSize;
+							event.FileAttributes = ptr->FileAttributes;
+							event.ReparsePointTag = ptr->ReparsePointTag;
+							event.FileId = ptr->FileId;
+							event.ParentFileId = ptr->ParentFileId;
+							event.FileName = name;
+
+							func(&event);
+						}
+					}
+					//std::this_thread::sleep_for(std::chrono::milliseconds(200));
+				}
+			}
+
+		public:
+			ItsFileMonitor(const wstring pathname, bool watchSubTree, function<void(ItsFileMonitorEvent*)> func)
+				: ItsFileMonitor(pathname, watchSubTree, true, ItsFileMonitorMask::ChangeLastWrite, func)
+			{
+
+			}
+			ItsFileMonitor(const wstring pathname, bool watchSubTree, bool noDouble, uint32_t mask, function<void(ItsFileMonitorEvent*)> func)
+				: m_pathname(pathname),
+				m_mask(mask),
+				m_bWatchSubTree(watchSubTree),
+				m_bNoDouble(noDouble),
+				m_bPaused(false),
+				m_bStopped(false)
+			{
+				if (ItsFile::Exists(this->m_pathname)) {
+					this->m_dirHandle = CreateFile(this->m_pathname.c_str(),
+						FILE_LIST_DIRECTORY,
+						FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
+						NULL,
+						OPEN_EXISTING,
+						FILE_FLAG_BACKUP_SEMANTICS,
+						NULL);
+					if (this->m_dirHandle.IsValid()) {
+						this->m_pbuffer = make_unique<BYTE[]>(sizeof(FILE_NOTIFY_EXTENDED_INFORMATION) + MAX_PATH);
+						this->m_pthread = make_unique<thread>(&ItsFileMonitor::ExecuteDispatchThread, this, func);
+					}
+				}
+			}
+			void Pause() {
+				this->m_bPaused = true;
+			}
+			void Resume() {
+				this->m_bPaused = false;
+			}
+			bool IsPaused() {
+				return this->m_bPaused;
+			}
+			void Stop() {
+				this->m_bStopped = true;
+			}
+			bool IsStopped()
+			{
+				return this->m_bStopped;
+			}
+			~ItsFileMonitor()
+			{
+				this->Stop();
+
+				if (this->m_pthread.get() != nullptr) {
+					if (this->m_pthread->joinable()) {
+						this->m_pthread->join();
+					}
+				}
+			}
+		};
 	}// namespace Win
 }// namespace ItSoftware

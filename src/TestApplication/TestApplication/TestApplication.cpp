@@ -14,6 +14,7 @@
 #include <string>
 #include <mutex>
 #include <limits>
+#include <chrono>
 #include "../../include/itsoftware.h"
 #include "../../include/itsoftware-com.h"
 #include "../../include/itsoftware-exceptions.h"
@@ -43,6 +44,9 @@ using ItSoftware::Win::ItsDirectory;
 using ItSoftware::Win::ItsGuid;
 using ItSoftware::Win::ItsError;
 using ItSoftware::Win::ItsGuidFormat;
+using ItSoftware::Win::ItsFileMonitor;
+using ItSoftware::Win::ItsFileMonitorMask;
+using ItSoftware::Win::ItsFileMonitorEvent;
 using ItSoftware::ItsTime;
 using ItSoftware::ItsConvert;
 using ItSoftware::ItsString;
@@ -80,6 +84,8 @@ void TestItsGuid();
 void TestItsLog();
 void TestItsDateTime();
 void TestItsID();
+void TestItsFileMonitorStart();
+void TestItsFileMonitorStop();
 void ExitFn();
 void PrintTestHeader(wstring txt);
 void PrintTestSubHeader(wstring txt);
@@ -89,6 +95,7 @@ void PrintTestSubHeader(wstring txt);
 //
 ItsTimer g_timer;
 ItsEvent g_event;
+wstring g_fileMonDirectory(L"D:\\");
 wstring g_filenameText(L"D:\\ItsTextFile.txt");
 wstring g_filenameBinary(L"D:\\ItsFile.bin");
 wstring g_filenameBinaryCopyTo(L"D:\\ItsFileCopy.bin");
@@ -99,6 +106,8 @@ wstring g_validPath(L"C:\\Temp\\test.html");
 wstring g_invalidPath(L"C:\\?Temp\\test:\a.html");
 wstring g_directoryRoot(L"C:\\Temp");
 wstring g_creatDir(L"C:\\Temp\\CREATDIR");
+unique_ptr<ItsFileMonitor> g_fm;
+vector<wstring> g_fileMonNames;
 
 //
 // Function: ExitFn
@@ -109,6 +118,16 @@ void ExitFn()
 {
     wcout << endl;
     wcout << L"> Test Application - Exited <" << endl;
+}
+
+//
+// Function: HandleFileEvent
+//
+// (i): handle file event.
+//
+void HandleFileEvent(ItsFileMonitorEvent* event)
+{
+    g_fileMonNames.push_back(event->FileName);
 }
 
 // 
@@ -122,6 +141,7 @@ int wmain(int argc, wchar_t* argv[])
 
     TestItsTimerStart();
     TestItsEventStart();
+    TestItsFileMonitorStart();
     TestItsConvert();
     TestItsRandom();
     TestItsTime();
@@ -136,6 +156,7 @@ int wmain(int argc, wchar_t* argv[])
     TestItsLog();
     TestItsDateTime();
     TestItsID();
+    TestItsFileMonitorStop();
     TestItsEventStop();
     
     if (g_eventThread.joinable()) { g_eventThread.join(); }
@@ -754,6 +775,41 @@ void TestItsID()
     wcout << LR"(> ")" << ItsID::CreateID(64, ItsCreateIDOptions::LowerAndUpperCase, false) << LR"(")" << endl;
     wcout << L"ItsID::CreateID(64, ItsCreateIDOptions::LowerAndUpperCase, true)" << endl;
     wcout << LR"(> ")" << ItsID::CreateID(64, ItsCreateIDOptions::LowerAndUpperCase, true) << LR"(")" << endl;
+
+    wcout << endl;
+}
+
+//
+// Function: TestItsFileMonitor
+//
+// (i): Tests ItsFileMonitor.
+//
+void TestItsFileMonitorStart()
+{
+    g_fm = make_unique<ItsFileMonitor>(g_fileMonDirectory, false, true, ItsFileMonitorMask::ChangeLastWrite, HandleFileEvent);
+
+    PrintTestHeader(L"ItsFileMonitor Start");
+    wcout << L"File monitor monitoring directory '" << g_fileMonDirectory << L"' with mask 'ItsFileMonitorMask::ChangeCreation'" << endl;
+
+    wcout << endl;
+}
+
+//
+// Function: TestItsFileMonitor
+//
+// (i): Tests ItsFileMonitor.
+//
+void TestItsFileMonitorStop()
+{
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    g_fm->Stop();
+
+    PrintTestHeader(L"ItsFileMonitor Stop");
+    wcout << L"File monitor monitoring directory '" << g_fileMonDirectory << L"' with mask 'ItsFileNonitorMask::ChangeCreation'" << endl;
+    wcout << L"Items found:" << endl;
+    for (auto i : g_fileMonNames) {
+        wcout << L">> " << i << endl;
+    }
 
     wcout << endl;
 }
