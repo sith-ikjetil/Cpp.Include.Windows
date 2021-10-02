@@ -19,6 +19,7 @@
 #include "../../include/itsoftware-com.h"
 #include "../../include/itsoftware-exceptions.h"
 #include "../../include/itsoftware-win.h"
+#include "../../include/itsoftware-win-core.h"
 
 //
 // using
@@ -33,20 +34,20 @@ using std::unique_ptr;
 using std::make_unique;
 using std::mutex;
 using std::lock_guard;
-using ItSoftware::Win::ItsTimer;
-using ItSoftware::Win::ItsTextFile;
-using ItSoftware::Win::ItsFileOpenCreation;
-using ItSoftware::Win::ItsFileTextType;
-using ItSoftware::Win::ItsFile;
-using ItSoftware::Win::ItsEvent;
-using ItSoftware::Win::ItsPath;
-using ItSoftware::Win::ItsDirectory;
-using ItSoftware::Win::ItsGuid;
-using ItSoftware::Win::ItsError;
-using ItSoftware::Win::ItsGuidFormat;
-using ItSoftware::Win::ItsFileMonitor;
-using ItSoftware::Win::ItsFileMonitorMask;
-using ItSoftware::Win::ItsFileMonitorEvent;
+using ItSoftware::Win::Core::ItsTimer;
+using ItSoftware::Win::Core::ItsTextFile;
+using ItSoftware::Win::Core::ItsFileOpenCreation;
+using ItSoftware::Win::Core::ItsFileTextType;
+using ItSoftware::Win::Core::ItsFile;
+using ItSoftware::Win::Core::ItsEvent;
+using ItSoftware::Win::Core::ItsPath;
+using ItSoftware::Win::Core::ItsDirectory;
+using ItSoftware::Win::Core::ItsGuid;
+using ItSoftware::Win::Core::ItsError;
+using ItSoftware::Win::Core::ItsGuidFormat;
+using ItSoftware::Win::Core::ItsFileMonitor;
+using ItSoftware::Win::Core::ItsFileMonitorMask;
+using ItSoftware::Win::Core::ItsFileMonitorEvent;
 using ItSoftware::ItsTime;
 using ItSoftware::ItsConvert;
 using ItSoftware::ItsString;

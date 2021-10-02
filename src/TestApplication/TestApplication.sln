@@ -10,6 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "include", "include", "{D852
 		..\include\itsoftware-cli.h = ..\include\itsoftware-cli.h
 		..\include\itsoftware-com.h = ..\include\itsoftware-com.h
 		..\include\itsoftware-exceptions.h = ..\include\itsoftware-exceptions.h
+		..\include\itsoftware-win-core.h = ..\include\itsoftware-win-core.h
 		..\include\itsoftware-win.h = ..\include\itsoftware-win.h
 		..\include\itsoftware.h = ..\include\itsoftware.h
 	EndProjectSection

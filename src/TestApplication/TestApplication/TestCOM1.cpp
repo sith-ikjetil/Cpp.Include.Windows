@@ -16,6 +16,7 @@
 #include "../../include/itsoftware.h"
 #include "../../include/itsoftware-com.h"
 #include "../../include/itsoftware-win.h"
+#include "../../include/itsoftware-win-core.h"
 #include "../../include/itsoftware-exceptions.h"
 #include "../TestCOMServer/TestCOMServer_i.h"
 #include "../TestCOMServer/TestCOMServer_i.c"
@@ -27,8 +28,8 @@
 using ItSoftware::COM::ComRuntime;
 using ItSoftware::COM::ComApartment;
 using ItSoftware::COM::ItsMarshalGITPtr;
-using ItSoftware::Win::ItsError;
-using ItSoftware::Win::unique_handle_handle;
+using ItSoftware::Win::Core::ItsError;
+using ItSoftware::Win::Core::unique_handle_handle;
 using std::wcout;
 using std::endl;
 using std::make_unique;
