@@ -2416,23 +2416,34 @@ namespace ItSoftware
 				bool m_bPaused;
 				bool m_bStopped;
 				bool m_bNoDouble;
+				OVERLAPPED m_o{ 0 };
+				function<void(ItsFileMonitorEvent*)> m_func;
 			protected:
 				void ExecuteDispatchThread(function<void(ItsFileMonitorEvent*)> func)
 				{
+					this->m_o.Pointer = this;
+					this->m_o.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+					BOOL bResult = ::ReadDirectoryChangesExW(this->m_dirHandle.operator HANDLE(),
+						this->m_pbuffer.get(),
+						sizeof(FILE_NOTIFY_EXTENDED_INFORMATION) + MAX_PATH,
+						this->m_bWatchSubTree,
+						this->m_mask,
+						&this->m_dwBytesReturned,
+						&this->m_o,
+						NULL,
+						ReadDirectoryNotifyExtendedInformation);
+					
+					if (!bResult) {
+						this->Stop();
+					}
+
 					wstring lastName{ L"\0" };
 					DWORD lastAction{ 0 };
 
 					while (!this->m_bStopped) {
-						if (!this->m_bPaused) {
-							auto bResult = ReadDirectoryChangesExW(this->m_dirHandle.operator HANDLE(),
-								this->m_pbuffer.get(),
-								sizeof(FILE_NOTIFY_EXTENDED_INFORMATION) + MAX_PATH,
-								this->m_bWatchSubTree,
-								this->m_mask,
-								&m_dwBytesReturned,
-								NULL,
-								NULL,
-								ReadDirectoryNotifyExtendedInformation);
+						DWORD dw = WaitForSingleObject(this->m_o.hEvent, 0);
+						if (dw == WAIT_OBJECT_0) {
+							BOOL bResult = ::GetOverlappedResult(this->m_dirHandle, &this->m_o, &this->m_dwBytesReturned, FALSE);
 							if (bResult) {
 								FILE_NOTIFY_EXTENDED_INFORMATION* ptr = reinterpret_cast<FILE_NOTIFY_EXTENDED_INFORMATION*>(this->m_pbuffer.get());
 
@@ -2441,6 +2452,16 @@ namespace ItSoftware
 
 								if (this->m_bNoDouble) {
 									if (action == lastAction && name == lastName) {
+										::ResetEvent(this->m_o.hEvent);
+										::ReadDirectoryChangesExW(this->m_dirHandle.operator HANDLE(),
+											this->m_pbuffer.get(),
+											sizeof(FILE_NOTIFY_EXTENDED_INFORMATION) + MAX_PATH,
+											this->m_bWatchSubTree,
+											this->m_mask,
+											&this->m_dwBytesReturned,
+											&this->m_o,
+											NULL,
+											ReadDirectoryNotifyExtendedInformation); 
 										continue;
 									}
 
@@ -2461,11 +2482,24 @@ namespace ItSoftware
 								event.ParentFileId = ptr->ParentFileId;
 								event.FileName = name;
 
-								func(&event);
+								this->m_func(&event);
 							}
+
+							::ResetEvent(this->m_o.hEvent);
+							
+							::ReadDirectoryChangesExW(this->m_dirHandle.operator HANDLE(),
+								this->m_pbuffer.get(),
+								sizeof(FILE_NOTIFY_EXTENDED_INFORMATION) + MAX_PATH,
+								this->m_bWatchSubTree,
+								this->m_mask,
+								&this->m_dwBytesReturned,
+								&this->m_o,
+								NULL,
+								ReadDirectoryNotifyExtendedInformation);
 						}
-						//std::this_thread::sleep_for(std::chrono::milliseconds(200));
 					}
+
+					CloseHandle(this->m_o.hEvent);
 				}
 
 			public:
@@ -2480,7 +2514,8 @@ namespace ItSoftware
 					m_bWatchSubTree(watchSubTree),
 					m_bNoDouble(noDouble),
 					m_bPaused(false),
-					m_bStopped(false)
+					m_bStopped(false),
+					m_func(func)
 				{
 					if (ItsFile::Exists(this->m_pathname)) {
 						this->m_dirHandle = CreateFile(this->m_pathname.c_str(),
@@ -2488,8 +2523,9 @@ namespace ItSoftware
 							FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
 							NULL,
 							OPEN_EXISTING,
-							FILE_FLAG_BACKUP_SEMANTICS,
+							FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED,
 							NULL);
+
 						if (this->m_dirHandle.IsValid()) {
 							this->m_pbuffer = make_unique<BYTE[]>(sizeof(FILE_NOTIFY_EXTENDED_INFORMATION) + MAX_PATH);
 							this->m_pthread = make_unique<thread>(&ItsFileMonitor::ExecuteDispatchThread, this, func);
@@ -2516,10 +2552,8 @@ namespace ItSoftware
 				{
 					this->Stop();
 
-					if (this->m_pthread.get() != nullptr) {
-						if (this->m_pthread->joinable()) {
-							this->m_pthread->join();
-						}
+					if (this->m_pthread->joinable()) {
+						this->m_pthread->join();
 					}
 				}
 			};
