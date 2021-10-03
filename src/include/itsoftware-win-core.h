@@ -2415,7 +2415,6 @@ namespace ItSoftware
 				bool m_bWatchSubTree;
 				bool m_bPaused;
 				bool m_bStopped;
-				bool m_bNoDouble;
 				OVERLAPPED m_o{ 0 };
 				function<void(ItsFileMonitorEvent*)> m_func;
 			protected:
@@ -2437,9 +2436,6 @@ namespace ItSoftware
 						this->Stop();
 					}
 
-					wstring lastName{ L"\0" };
-					DWORD lastAction{ 0 };
-
 					while (!this->m_bStopped) {
 						DWORD dw = WaitForSingleObject(this->m_o.hEvent, 0);
 						if (dw == WAIT_OBJECT_0) {
@@ -2447,27 +2443,8 @@ namespace ItSoftware
 							if (bResult) {
 								FILE_NOTIFY_EXTENDED_INFORMATION* ptr = reinterpret_cast<FILE_NOTIFY_EXTENDED_INFORMATION*>(this->m_pbuffer.get());
 
-								wstring name = wstring(ptr->FileName);
+								wstring name = ((ptr->FileNameLength != 0) ? wstring(ptr->FileName) : wstring{L"."});
 								DWORD action = ptr->Action;
-
-								if (this->m_bNoDouble) {
-									if (action == lastAction && name == lastName) {
-										::ResetEvent(this->m_o.hEvent);
-										::ReadDirectoryChangesExW(this->m_dirHandle.operator HANDLE(),
-											this->m_pbuffer.get(),
-											sizeof(FILE_NOTIFY_EXTENDED_INFORMATION) + MAX_PATH,
-											this->m_bWatchSubTree,
-											this->m_mask,
-											&this->m_dwBytesReturned,
-											&this->m_o,
-											NULL,
-											ReadDirectoryNotifyExtendedInformation); 
-										continue;
-									}
-
-									lastName = name;
-									lastAction = action;
-								}
 
 								ItsFileMonitorEvent event;
 								event.Action = action;
@@ -2504,15 +2481,14 @@ namespace ItSoftware
 
 			public:
 				ItsFileMonitor(const wstring pathname, bool watchSubTree, function<void(ItsFileMonitorEvent*)> func)
-					: ItsFileMonitor(pathname, watchSubTree, true, ItsFileMonitorMask::ChangeLastWrite, func)
+					: ItsFileMonitor(pathname, watchSubTree, ItsFileMonitorMask::ChangeLastWrite, func)
 				{
 
 				}
-				ItsFileMonitor(const wstring pathname, bool watchSubTree, bool noDouble, uint32_t mask, function<void(ItsFileMonitorEvent*)> func)
+				ItsFileMonitor(const wstring pathname, bool watchSubTree, uint32_t mask, function<void(ItsFileMonitorEvent*)> func)
 					: m_pathname(pathname),
 					m_mask(mask),
 					m_bWatchSubTree(watchSubTree),
-					m_bNoDouble(noDouble),
 					m_bPaused(false),
 					m_bStopped(false),
 					m_func(func)

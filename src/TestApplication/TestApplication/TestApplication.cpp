@@ -90,6 +90,7 @@ void TestItsFileMonitorStop();
 void ExitFn();
 void PrintTestHeader(wstring txt);
 void PrintTestSubHeader(wstring txt);
+void HandleFileEvent(ItsFileMonitorEvent* event);
 
 //
 // global variables
@@ -119,16 +120,6 @@ void ExitFn()
 {
     wcout << endl;
     wcout << L"> Test Application - Exited <" << endl;
-}
-
-//
-// Function: HandleFileEvent
-//
-// (i): handle file event.
-//
-void HandleFileEvent(ItsFileMonitorEvent* event)
-{
-    g_fileMonNames.push_back(event->FileName);
 }
 
 // 
@@ -787,7 +778,7 @@ void TestItsID()
 //
 void TestItsFileMonitorStart()
 {
-    g_fm = make_unique<ItsFileMonitor>(g_fileMonDirectory, false, true, ItsFileMonitorMask::ChangeLastWrite, HandleFileEvent);
+    g_fm = make_unique<ItsFileMonitor>(g_fileMonDirectory, false, ItsFileMonitorMask::ChangeLastWrite, HandleFileEvent);
 
     PrintTestHeader(L"ItsFileMonitor Start");
     wcout << L"File monitor monitoring directory '" << g_fileMonDirectory << L"' with mask 'ItsFileMonitorMask::ChangeCreation'" << endl;
@@ -813,4 +804,37 @@ void TestItsFileMonitorStop()
     }
 
     wcout << endl;
+}
+
+//
+// Function: HandleFileEvent
+//
+// (i): handle file event.
+//
+void HandleFileEvent(ItsFileMonitorEvent* event)
+{
+    wstringstream ss;
+    ss << L"Name: " << event->FileName << L", Action: ";
+    switch (event->Action)
+    {
+    case FILE_ACTION_ADDED:
+        ss << L"[FILE_ACTION_ADDED] ";
+        break;
+    case FILE_ACTION_REMOVED:
+        ss << L"[FILE_ACTION_REMOVED] ";
+        break;
+    case FILE_ACTION_MODIFIED:
+        ss << L"[FILE_ACTION_MODIFIED] ";
+        break;
+    case FILE_ACTION_RENAMED_OLD_NAME:
+        ss << L"[FILE_ACTION_RENAMED_OLD_NAME] ";
+        break;
+    case FILE_ACTION_RENAMED_NEW_NAME:
+        ss << L"[FILE_ACTION_RENAMED_NEW_NAME] ";
+        break;
+    default:
+        ss << L"?";
+        break;
+    }
+    g_fileMonNames.push_back(ss.str());
 }
