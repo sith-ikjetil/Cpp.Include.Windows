@@ -4,7 +4,7 @@
 //: Date         : 2020-05-01
 //: Author       : "Kjetil Kristoffer Solberg" <post@ikjetil.no>
 //: Version      : 1.0.0.0
-//: Descriptions : Implementation of Cpp.Include.Windows Test Application.
+//: Descriptions : Implementation of Cpp.Include.Windows Test Application. 
 //
 // #include
 //
