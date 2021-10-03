@@ -2416,9 +2416,9 @@ namespace ItSoftware
 				bool m_bPaused;
 				bool m_bStopped;
 				OVERLAPPED m_o{ 0 };
-				function<void(ItsFileMonitorEvent*)> m_func;
+				function<void(ItsFileMonitorEvent&)> m_func;
 			protected:
-				void ExecuteDispatchThread(function<void(ItsFileMonitorEvent*)> func)
+				void ExecuteDispatchThread(function<void(ItsFileMonitorEvent&)> func)
 				{
 					this->m_o.Pointer = this;
 					this->m_o.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
@@ -2459,7 +2459,7 @@ namespace ItSoftware
 								event.ParentFileId = ptr->ParentFileId;
 								event.FileName = name;
 
-								this->m_func(&event);
+								this->m_func(event);
 							}
 
 							::ResetEvent(this->m_o.hEvent);
@@ -2480,12 +2480,12 @@ namespace ItSoftware
 				}
 
 			public:
-				ItsFileMonitor(const wstring pathname, bool watchSubTree, function<void(ItsFileMonitorEvent*)> func)
+				ItsFileMonitor(const wstring pathname, bool watchSubTree, function<void(ItsFileMonitorEvent&)> func)
 					: ItsFileMonitor(pathname, watchSubTree, ItsFileMonitorMask::ChangeLastWrite, func)
 				{
 
 				}
-				ItsFileMonitor(const wstring pathname, bool watchSubTree, uint32_t mask, function<void(ItsFileMonitorEvent*)> func)
+				ItsFileMonitor(const wstring pathname, bool watchSubTree, uint32_t mask, function<void(ItsFileMonitorEvent&)> func)
 					: m_pathname(pathname),
 					m_mask(mask),
 					m_bWatchSubTree(watchSubTree),

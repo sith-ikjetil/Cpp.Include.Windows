@@ -90,7 +90,7 @@ void TestItsFileMonitorStop();
 void ExitFn();
 void PrintTestHeader(wstring txt);
 void PrintTestSubHeader(wstring txt);
-void HandleFileEvent(ItsFileMonitorEvent* event);
+void HandleFileEvent(ItsFileMonitorEvent& event);
 
 //
 // global variables
@@ -811,11 +811,11 @@ void TestItsFileMonitorStop()
 //
 // (i): handle file event.
 //
-void HandleFileEvent(ItsFileMonitorEvent* event)
+void HandleFileEvent(ItsFileMonitorEvent& event)
 {
     wstringstream ss;
-    ss << L"Name: " << event->FileName << L", Action: ";
-    switch (event->Action)
+    ss << L"Name: " << event.FileName << L", Action: ";
+    switch (event.Action)
     {
     case FILE_ACTION_ADDED:
         ss << L"[FILE_ACTION_ADDED] ";
