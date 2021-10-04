@@ -2394,7 +2394,7 @@ namespace ItSoftware
 				DWORD         ReparsePointTag;
 				LARGE_INTEGER FileId;
 				LARGE_INTEGER ParentFileId;
-				wstring	FileName;
+				wstring		  FileName;
 			};
 
 			//

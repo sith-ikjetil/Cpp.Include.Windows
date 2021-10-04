@@ -781,7 +781,7 @@ void TestItsFileMonitorStart()
     g_fm = make_unique<ItsFileMonitor>(g_fileMonDirectory, false, ItsFileMonitorMask::ChangeLastWrite, HandleFileEvent);
 
     PrintTestHeader(L"ItsFileMonitor Start");
-    wcout << L"File monitor monitoring directory '" << g_fileMonDirectory << L"' with mask 'ItsFileMonitorMask::ChangeCreation'" << endl;
+    wcout << L"File monitor monitoring directory '" << g_fileMonDirectory << L"' with mask 'ItsFileMonitorMask::ChangeLastWrite'" << endl;
 
     wcout << endl;
 }
@@ -797,7 +797,7 @@ void TestItsFileMonitorStop()
     g_fm->Stop();
 
     PrintTestHeader(L"ItsFileMonitor Stop");
-    wcout << L"File monitor monitoring directory '" << g_fileMonDirectory << L"' with mask 'ItsFileNonitorMask::ChangeCreation'" << endl;
+    wcout << L"File monitor monitoring directory '" << g_fileMonDirectory << L"' with mask 'ItsFileNonitorMask::ChangeLastWrite'" << endl;
     wcout << L"Items found:" << endl;
     for (auto i : g_fileMonNames) {
         wcout << L">> " << i << endl;
