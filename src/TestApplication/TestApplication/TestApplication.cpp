@@ -528,7 +528,7 @@ void TestItsEventStart()
     wcout << L"Event is cleared" << endl;
     
     g_eventThread = thread([] {
-        g_event.Wait(-1);
+        g_event.Wait(INFINITE);
         PrintTestHeader(L"ItsEvent Completed");
         wcout << L"Event works as expected" << endl;
         wcout << endl;

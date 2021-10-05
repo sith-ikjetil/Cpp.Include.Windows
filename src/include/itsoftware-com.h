@@ -13,6 +13,7 @@
 #include <atlbase.h>
 #include <string>
 #include <lmerr.h>
+#include "itsoftware-win-core.h"
 
 //
 // #define
@@ -33,6 +34,11 @@ namespace ItSoftware
 		// using namespace
 		//
 		using namespace ATL;
+
+		//
+		// using
+		//
+		using ItSoftware::Win::Core::ItsError;
 
 		// 
 		// class: ComException.
@@ -90,21 +96,6 @@ namespace ItSoftware
 				return CComBSTR( L"?" );
 			}
 
-			CComBSTR GetErrorInfo( HRESULT hr )
-			{
-				CComPtr<IErrorInfo> pIErrorInfo;
-				if ( SUCCEEDED( ::GetErrorInfo( NULL, &pIErrorInfo ) ) )
-				{
-					if ( pIErrorInfo != nullptr )
-					{
-						CComBSTR bstr;
-						pIErrorInfo->GetDescription( &bstr );
-						return bstr;
-					}
-				}
-				return CComBSTR( L"" );
-			}
-
 		public:
 
 
@@ -112,7 +103,7 @@ namespace ItSoftware
 				: m_hr( hr ),
 				m_message( CComBSTR( L"" ) ),
 				m_systemMessage( GetSystemMessage( hr ) ),
-				m_errorInfoMessage( this->GetErrorInfo( hr ) )
+				m_errorInfoMessage( ItsError::GetErrorDescription( static_cast<DWORD>(hr) ).c_str() )
 			{
 			}
 
@@ -120,7 +111,7 @@ namespace ItSoftware
 				: m_hr( hr ),
 				m_message( message ),
 				m_systemMessage( GetSystemMessage( hr ) ),
-				m_errorInfoMessage( this->GetErrorInfo( hr ) )
+				m_errorInfoMessage(ItsError::GetErrorDescription(static_cast<DWORD>(hr)).c_str())
 			{
 			}
 
@@ -401,7 +392,7 @@ namespace ItSoftware
 				}
 			}
 
-			static void HR( HRESULT hr, CComBSTR message, HRESULT ... )
+			/*static void HR(HRESULT hr, CComBSTR message, HRESULT ...)
 			{
 				if ( hr == S_OK )
 				{
@@ -430,7 +421,7 @@ namespace ItSoftware
 				{
 					throw ComException( hr, message );
 				}
-			}
+			}*/
 		};
 
 		// 

@@ -1378,9 +1378,9 @@ namespace ItSoftware
 			{
 				DWORD dwLength(static_cast<DWORD>(data.size()));
 				DWORD cchString(0);
-				CryptBinaryToString(data.data(), (DWORD)data.size(), CRYPT_STRING_BASE64, NULL, &cchString);
+				CryptBinaryToString(data.data(), dwLength, CRYPT_STRING_BASE64, NULL, &cchString);
 				unique_ptr<wchar_t[]> buffer = make_unique<wchar_t[]>(static_cast<size_t>(cchString) + 1);
-				BOOL bResult = CryptBinaryToString(data.data(), (DWORD)data.size(), CRYPT_STRING_BASE64, buffer.get(), &cchString);
+				CryptBinaryToString(data.data(), dwLength, CRYPT_STRING_BASE64, buffer.get(), &cchString);
 				buffer[cchString] = L'\0';
 
 				return wstring(buffer.get());

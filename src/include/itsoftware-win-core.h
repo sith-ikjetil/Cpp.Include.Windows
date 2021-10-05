@@ -2133,7 +2133,6 @@ namespace ItSoftware
 
 					long lIndex(0);
 					ULONG cbAvailable(0);
-					DWORD dwType(0);
 					wchar_t* pwcsName = new wchar_t[512];
 
 					do
@@ -2439,7 +2438,7 @@ namespace ItSoftware
 					while (!this->m_bStopped) {
 						DWORD dw = WaitForSingleObject(this->m_o.hEvent, 0);
 						if (dw == WAIT_OBJECT_0) {
-							BOOL bResult = ::GetOverlappedResult(this->m_dirHandle, &this->m_o, &this->m_dwBytesReturned, FALSE);
+							bResult = ::GetOverlappedResult(this->m_dirHandle, &this->m_o, &this->m_dwBytesReturned, FALSE);
 							if (bResult) {
 								FILE_NOTIFY_EXTENDED_INFORMATION* ptr = reinterpret_cast<FILE_NOTIFY_EXTENDED_INFORMATION*>(this->m_pbuffer.get());
 
