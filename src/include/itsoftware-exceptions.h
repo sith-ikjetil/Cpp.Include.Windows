@@ -46,7 +46,7 @@ namespace ItSoftware
         //
         // (i): Generic root exception
         //
-        class ItsException : exception
+        class ItsException : public exception
         {            
         private:
             
@@ -72,7 +72,7 @@ namespace ItSoftware
                         FORMAT_MESSAGE_FROM_SYSTEM |
                         FORMAT_MESSAGE_IGNORE_INSERTS,
                         NULL,
-                        m_errorCode,
+                        errorCode,
                         MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), // Default language
                         (wchar_t *)&lpMsgBuf,
                         0,
@@ -112,24 +112,28 @@ namespace ItSoftware
         public:
             
             ItsException()
-                : m_errorCode(0)
+                : exception(),
+                m_errorCode(0)
             { 
             }
             
             ItsException(unsigned int errorCode)
-                : m_errorCode(errorCode)
+                : exception(),
+                m_errorCode(errorCode)
             {
 
             }
             
             ItsException( wstring message)
-                : m_errorCode( 0 ),
-                  m_message(message)
+                : exception(),
+                m_errorCode( 0 ),
+                m_message(message)
             {
 
             }
              
             ItsException( ItsException&& other ) noexcept
+                : exception()
             {
                 //
                 // Take over ownership
@@ -146,28 +150,32 @@ namespace ItSoftware
             }
 
             ItsException( unsigned int errorCode, wstring message )
-                :	m_errorCode( errorCode ),
-                    m_message( message )
+                :	exception(),
+                m_errorCode( errorCode ),
+                m_message( message )
             {
 
             }
 
             ItsException( unsigned int errorCode, ItsException&& inner )
-                : m_errorCode( errorCode )				  
+                : exception(),
+                m_errorCode( errorCode )				  
             {
 				m_pInnerException = make_unique<ItsException>(std::move(inner));
             }
 
             ItsException( wstring message, ItsException&& inner )
-                : m_errorCode( 0 ),
-                  m_message( message )
+                : exception(),
+                m_errorCode( 0 ),
+                m_message( message )
             {
 				m_pInnerException = make_unique<ItsException>( std::move(inner) );
             }
 
             ItsException( unsigned int errorCode, wstring message, ItsException&& inner )
-                : m_errorCode( errorCode ),
-				  m_message( message )
+                : exception(),
+                m_errorCode( errorCode ),
+				m_message( message )
             {
 				m_pInnerException = make_unique<ItsException>( std::move(inner) );
             }
@@ -196,7 +204,7 @@ namespace ItSoftware
 		//
 		// (i): Generic root exception
 		//
-		class ItsNullReferenceException : ItsException
+		class ItsNullReferenceException : public ItsException
 		{
 		private:
 		protected:
@@ -249,7 +257,7 @@ namespace ItSoftware
 		//
 		// (i): Generic root exception
 		//
-		class ItsArgumentNullException : ItsException
+		class ItsArgumentNullException : public ItsException
 		{			
 		private:
 		protected:
@@ -288,7 +296,7 @@ namespace ItSoftware
 		//
 		// (i): Generic root exception
 		//
-		class ItsArgumentException : ItsException
+		class ItsArgumentException : public ItsException
 		{
 		private:
 		protected:
