@@ -102,6 +102,7 @@ wstring g_fileMonDirectory(L"D:\\");
 wstring g_filenameText(L"D:\\ItsTextFile.txt");
 wstring g_filenameBinary(L"D:\\ItsFile.bin");
 wstring g_filenameBinaryCopyTo(L"D:\\ItsFileCopy.bin");
+wstring g_filenameShred(L"D:\\ItsShred.txt");
 thread g_eventThread;
 wstring g_path1(L"C:\\");
 wstring g_path2(L"Temp\\test.html");
@@ -500,6 +501,14 @@ void TestItsFile()
     }
     wcout << L"> Success. File " << g_filenameBinary << L" is " << size << L" bytes in size" << endl;
 
+    wcout << LR"(ItsFile::Copy(g_filenameBinary, g_filenameShred, false))" << endl;
+    if (!ItsFile::Copy(g_filenameBinary, g_filenameShred, false)) {
+        wcout << L"> FAILED: " << ItsError::GetLastErrorDescription() << endl;
+        wcout << endl;
+        return;
+    }
+    wcout << L"> Success. File " << g_filenameBinary << " successfully copied to " << g_filenameShred << endl;
+
     wcout << LR"(ItsFile::Copy(g_filenameBinary, g_filenameBinaryCopyTo, false))" << endl;
     if (!ItsFile::Copy(g_filenameBinary, g_filenameBinaryCopyTo, false)) {
         wcout << L"> FAILED: " << ItsError::GetLastErrorDescription() << endl;
@@ -523,6 +532,15 @@ void TestItsFile()
         return;
     }
     wcout << L"> Success. File " << g_filenameBinaryCopyTo << " successfully deleted" << endl;
+
+    wcout << LR"(ItsFile::Shred(g_filenameShred, true))" << endl;
+    if (!ItsFile::Shred(g_filenameShred, true)) {
+        wcout << L"> FAILED: " << ItsError::GetLastErrorDescription() << endl;
+        wcout << endl;
+        return;
+    }
+    wcout << L"> Success. File " << g_filenameShred << " successfully shreded" << endl;
+
 
     wcout << endl;
 }

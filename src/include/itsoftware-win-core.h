@@ -1243,7 +1243,7 @@ namespace ItSoftware
 				//
 				// Method: Write
 				//
-				bool Write(void* pBuffer, DWORD dwBytesToWrite, DWORD* dwBytesWritten)
+				bool Write(const void* pBuffer, DWORD dwBytesToWrite, DWORD* dwBytesWritten)
 				{
 					if (this->m_handle.IsInvalid())
 					{
@@ -1992,6 +1992,55 @@ namespace ItSoftware
 					}
 					return file.SetFileSize(pos);
 				}
+
+				static bool Shred(wstring filename, bool alsoDelete)
+				{
+					if (!ItsFile::Exists(filename))
+					{
+						return false;
+					}
+
+					size_t fileSize = 0;
+					if (!ItsFile::GetFileSize(filename, &fileSize)) 
+					{
+						return false;
+					}
+					if (fileSize == 0)
+					{
+						return false;
+					}
+
+					ItsFile f;
+					if (!f.OpenOrCreate(filename, L"rw", L"r", ItsFileOpenCreation::OpenExisting)) 
+					{
+						return false;
+					}
+					if (f.IsInvalid())
+					{
+						return false;
+					}
+
+					const uint32_t bufferSize = 2048;
+					DWORD bytesWritten = 0;
+					size_t totalWritten = 0;
+					const unique_ptr<uint8_t[]> pdata = make_unique<uint8_t[]>(bufferSize);
+					for (uint32_t i = 0; i < bufferSize; i++) {
+						pdata[i] = 0xFF;
+					}
+					f.SetFilePosition(0,ItsFilePosition::FileBegin);
+					while (totalWritten < fileSize) {
+						f.Write(static_cast<const void*>(pdata.get()), static_cast<DWORD>(((fileSize - totalWritten) > bufferSize) ? bufferSize : (fileSize - totalWritten)), &bytesWritten);
+						totalWritten += bytesWritten;
+					}
+					f.Close();
+
+					if (alsoDelete)
+					{
+						return ItsFile::Delete(filename);
+					}
+
+					return true;
+				}
 			};
 
 #pragma warning(disable: 26812)
@@ -2443,6 +2492,7 @@ namespace ItSoftware
 								FILE_NOTIFY_EXTENDED_INFORMATION* ptr = reinterpret_cast<FILE_NOTIFY_EXTENDED_INFORMATION*>(this->m_pbuffer.get());
 
 								wstring name = ((ptr->FileNameLength != 0) ? wstring(ptr->FileName) : wstring{L"."});
+
 								DWORD action = ptr->Action;
 
 								ItsFileMonitorEvent event;
@@ -2457,8 +2507,10 @@ namespace ItSoftware
 								event.FileId = ptr->FileId;
 								event.ParentFileId = ptr->ParentFileId;
 								event.FileName = name;
-
+								
 								this->m_func(event);
+
+								memset(static_cast<void*>(this->m_pbuffer.get()), 0, sizeof(FILE_NOTIFY_EXTENDED_INFORMATION) + MAX_PATH);
 							}
 
 							::ResetEvent(this->m_o.hEvent);
