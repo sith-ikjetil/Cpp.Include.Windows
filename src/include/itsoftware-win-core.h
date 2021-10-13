@@ -345,7 +345,7 @@ namespace ItSoftware
 						return wstring(L"");
 					}
 
-					if (path.find(ItsPath::PathSeparator) == -1) {
+					if (path.find(ItsPath::PathSeparator) == wstring::npos) {
 						return wstring(L"");
 					}
 
@@ -363,7 +363,7 @@ namespace ItSoftware
 						return wstring(L"");
 					}
 
-					if (path.find(ItsPath::PathSeparator) == -1) {
+					if (path.find(ItsPath::PathSeparator) == wstring::npos) {
 						return wstring(L"");
 					}
 
@@ -381,7 +381,7 @@ namespace ItSoftware
 						return wstring(L"");
 					}
 
-					if (path.find(ItsPath::PathSeparator) == -1) {
+					if (path.find(ItsPath::PathSeparator) == wstring::npos) {
 						return wstring(L"");
 					}
 
@@ -499,7 +499,6 @@ namespace ItSoftware
 
 					return path.substr(0, pos2+1);
 				}
-
 			};
 
 			//
