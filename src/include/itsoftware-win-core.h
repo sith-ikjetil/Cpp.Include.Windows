@@ -2041,6 +2041,11 @@ namespace ItSoftware
 
 					return true;
 				}
+
+				static bool ShredAndDelete(wstring filename) 
+				{
+					return ItsFile::Shred(filename, true);
+				}
 			};
 
 #pragma warning(disable: 26812)
