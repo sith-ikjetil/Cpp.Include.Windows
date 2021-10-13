@@ -483,6 +483,7 @@ namespace ItSoftware
 					}
 					
 					path = ItsPath::NormalizePath(path);
+					path = ItsPath::GetDirectory(path);
 
 					size_t pos1 = path.rfind(ItsPath::PathSeparator);
 					if (pos1 == wstring::npos) {
