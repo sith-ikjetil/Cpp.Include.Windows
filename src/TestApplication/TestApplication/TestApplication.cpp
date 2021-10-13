@@ -617,7 +617,8 @@ void TestItsPath()
     wcout << LR"(> )" << ((ItsPath::IsPathValid(path)) ? L"true" : L"false") << endl;
     wcout << LR"(ItsPath::IsPathValid(g_invalidPath))" << endl; 
     wcout << LR"(> )" << ((ItsPath::IsPathValid(g_invalidPath)) ? L"true" : L"false") << endl;
-
+    wcout << LR"(ItsPath::GetParentDirectory("D:\Temp\t2"))" << endl;
+    wcout << LR"(> )" << ItsPath::GetParentDirectory(L"D:\\Temp\\t2") << endl;
     wcout << endl;
 }
 

@@ -476,6 +476,30 @@ namespace ItSoftware
 					return retVal;
 				}
 
+				static wstring GetParentDirectory(wstring path)
+				{
+					if (path.size() == 0) {
+						return wstring(L"");
+					}
+					
+					path = ItsPath::NormalizePath(path);
+
+					size_t pos1 = path.rfind(ItsPath::PathSeparator);
+					if (pos1 == wstring::npos) {
+						return wstring(L"");
+					}
+
+					size_t pos2 = pos1;
+					if (pos1 == (path.size() - 1)) {
+						pos2 = path.rfind(ItsPath::PathSeparator, pos1 - 1);
+						if (pos2 == wstring::npos) {
+							pos2 = pos1;
+						}
+					}
+
+					return path.substr(0, pos2+1);
+				}
+
 			};
 
 			//
