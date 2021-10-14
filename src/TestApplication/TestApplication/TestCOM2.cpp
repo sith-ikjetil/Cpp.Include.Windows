@@ -150,8 +150,8 @@ DWORD WINAPI COM2_THREAD1(LPVOID pArg)
 	}
 
 	wstring str(L"Message from STA Thread 1: ");
-	str.append(bstr.operator LPWSTR());
-	PrintLineToConsole( str );
+	wstring str2 = str.append(bstr.operator LPWSTR());
+	PrintLineToConsole( str2 );
 
 	g_bThread1Fin = true;
 
@@ -182,8 +182,8 @@ DWORD WINAPI COM2_THREAD2(LPVOID pArg)
 	}
 
 	wstring str(L"Message from MTA Thread 2: ");
-	str.append(bstr.operator LPWSTR());
-	PrintLineToConsole(str);
+	wstring str2 = str.append(bstr.operator LPWSTR());
+	PrintLineToConsole(str2);
 
 	g_bThread2Fin = true;
 
@@ -207,16 +207,16 @@ void COM2_THREAD3(void* pArg)
 	CComBSTR bstr;
 	HRESULT hr = pIStaObject->GetMessage(&bstr);
 	if (FAILED(hr)) {
-		//PrintLineToConsole( L"ERROR STA Thread 3: " + ItsError::GetErrorDescription(hr) );
+		PrintLineToConsole( L"ERROR STA Thread 3: " + ItsError::GetErrorDescription(hr) );
 		g_bThread3Fin = true;
 		PostPotentialQuitMessageToMainThread();
 		return;
 	}
 
 	wstring str(L"Message from STA Thread 3: ");
-	str.append(bstr.operator LPWSTR());
-	//PrintLineToConsole(str);
-	wcout << str << endl;
+	wstring str2 = str.append(bstr.operator LPWSTR());
+	//PrintLineToConsole(str2);
+	wcout << str2 << endl;
 
 	g_bThread3Fin = true;
 

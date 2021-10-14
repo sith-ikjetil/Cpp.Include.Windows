@@ -154,8 +154,8 @@ DWORD WINAPI COM1_THREAD1(LPVOID pArg)
 	}
 
 	wstring str(L"Message from STA Thread 1: ");
-	str.append(bstr.operator LPWSTR());
-	PrintLineToConsole(str);
+	wstring str2 = str.append(bstr.operator LPWSTR());
+	PrintLineToConsole(str2);
 
 	g_bThread1Fin = true;
 
@@ -186,8 +186,8 @@ DWORD WINAPI COM1_THREAD2(LPVOID pArg)
 	}
 
 	wstring str(L"Message from MTA Thread 2: ");
-	str.append(bstr.operator LPWSTR());
-	PrintLineToConsole(str);
+	wstring str2 = str.append(bstr.operator LPWSTR());
+	PrintLineToConsole(str2);
 
 	g_bThread2Fin = true;
 
@@ -218,9 +218,9 @@ void COM1_THREAD3(void* pArg)
 	}
 
 	wstring str(L"Message from STA Thread 3: ");
-	str.append(bstr.operator LPWSTR());
-	//PrintLineToConsole(str);
-	wcout << str << endl;
+	wstring str2 = str.append(bstr.operator LPWSTR());
+	//PrintLineToConsole(str2);
+	wcout << str2 << endl;
 
 	g_bThread3Fin = true;
 
