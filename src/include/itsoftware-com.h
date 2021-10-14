@@ -33,7 +33,7 @@ namespace ItSoftware
 		//
 		// using namespace
 		//
-		using namespace ATL;
+		//using namespace ATL;
 
 		//
 		// using
