@@ -631,6 +631,14 @@ void TestItsDirectory()
 {
     PrintTestHeader(L"ItsDirectory");
 
+    wcout << LR"(ItsDirectory::Exists(g_directoryRoot)" << endl;
+    if (!ItsDirectory::Exists(g_directoryRoot)) {
+        wcout << L"> Directory " << g_directoryRoot << " does NOT exist" << endl;
+    }
+    else {
+        wcout << L"> Directory " << g_directoryRoot << " EXISTS" << endl;
+    }
+
     wcout << LR"(ItsDirectory::GetDirectories(g_directoryRoot))" << endl;
     auto result = ItsDirectory::GetDirectories(g_directoryRoot);
     if (result.size() > 0) {

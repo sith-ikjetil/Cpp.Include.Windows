@@ -1044,6 +1044,11 @@ namespace ItSoftware
 			struct ItsDirectory
 			{
 			public:
+				static bool Exists(wstring directory)
+				{
+					DWORD fileAttributes = GetFileAttributes(directory.c_str());
+					return (fileAttributes != INVALID_FILE_ATTRIBUTES && (fileAttributes & FILE_ATTRIBUTE_DIRECTORY));
+				}
 				static bool CreateDirectory(wstring path)
 				{
 					return ::CreateDirectoryW(path.c_str(), nullptr);
@@ -2002,7 +2007,8 @@ namespace ItSoftware
 				//
 				static bool Exists(wstring filename)
 				{
-					return (bool)PathFileExists(filename.c_str());
+					DWORD fileAttributes = GetFileAttributes(filename.c_str());
+					return (fileAttributes != INVALID_FILE_ATTRIBUTES && !(fileAttributes & FILE_ATTRIBUTE_DIRECTORY));
 				}
 
 				//
