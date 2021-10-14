@@ -34,11 +34,10 @@ bool g_bThread3Fin = false;
 void PostPotentialQuitMessageToMainThread()
 {
 	static mutex m;
-	lock_guard<mutex> g(m);
+	lock_guard<mutex> guard(m);
 
 	if (g_bThread1Fin && g_bThread2Fin && g_bThread3Fin) {
 		PostMessage(g_hWndMainThread, WM_QUIT, 0, 0);
-		return;
 	}
 }
 

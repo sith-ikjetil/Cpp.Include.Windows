@@ -2501,7 +2501,7 @@ namespace ItSoftware
 			private:
 
 				uint32_t m_mask;
-				unique_ptr<thread> m_pthread;
+				thread m_thread;
 				unique_handle_handle m_dirHandle;
 				wstring m_pathname;
 				DWORD m_dwBytesReturned;
@@ -2601,7 +2601,7 @@ namespace ItSoftware
 
 						if (this->m_dirHandle.IsValid()) {
 							this->m_pbuffer = make_unique<BYTE[]>(sizeof(FILE_NOTIFY_EXTENDED_INFORMATION) + MAX_PATH);
-							this->m_pthread = make_unique<thread>(&ItsFileMonitor::ExecuteDispatchThread, this, func);
+							this->m_thread = thread(&ItsFileMonitor::ExecuteDispatchThread, this, func);
 						}
 					}
 				}
@@ -2625,8 +2625,8 @@ namespace ItSoftware
 				{
 					this->Stop();
 
-					if (this->m_pthread->joinable()) {
-						this->m_pthread->join();
+					if (this->m_thread.joinable()) {
+						this->m_thread.join();
 					}
 				}
 			};

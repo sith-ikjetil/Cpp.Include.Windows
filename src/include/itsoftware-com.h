@@ -450,7 +450,7 @@ namespace ItSoftware
 				: m_apartment( apartment ),
 				m_isInitialized( false )
 			{
-				ComUtil::HR( ::CoInitializeEx( nullptr, apartment ) );
+				::CoInitializeEx( nullptr, apartment );
 				this->m_isInitialized = true;
 			}
 			~ComRuntime()
@@ -458,6 +458,7 @@ namespace ItSoftware
 				if ( this->m_isInitialized )
 				{
 					::CoUninitialize();
+					this->m_isInitialized = false;
 				}
 			}
 		};

@@ -97,7 +97,7 @@ void TestCOM2()
 
 	unique_handle_handle	hThread1(::CreateThread(NULL, 1024 * 1024, COM2_THREAD1, (LPVOID)&pMarshal1, 0, &dwThreadID1));
 	unique_handle_handle	hThread2(::CreateThread(NULL, 1024 * 1024, COM2_THREAD2, (LPVOID)&pMarshal2, 0, &dwThreadID2));
-	unique_ptr<thread>		pThread3 = make_unique<thread>(COM2_THREAD3, (void*)&pMarshal3);
+	thread					pThread3(COM2_THREAD3, (void*)&pMarshal3);
 
 	//
 	// message loop msg object
@@ -123,10 +123,9 @@ void TestCOM2()
 	PrintLineToConsole(L"WM_QUIT received and exits message loop");
 	PrintLineToConsole(L"");
 
-	//
-	// join thread 3
-	//
-	pThread3->detach();
+	if (pThread3.joinable()) {
+		pThread3.join();
+	}
 }
 
 //
@@ -208,7 +207,7 @@ void COM2_THREAD3(void* pArg)
 	CComBSTR bstr;
 	HRESULT hr = pIStaObject->GetMessage(&bstr);
 	if (FAILED(hr)) {
-		PrintLineToConsole( L"ERROR STA Thread 3: " + ItsError::GetErrorDescription(hr) );
+		//PrintLineToConsole( L"ERROR STA Thread 3: " + ItsError::GetErrorDescription(hr) );
 		g_bThread3Fin = true;
 		PostPotentialQuitMessageToMainThread();
 		return;
@@ -216,7 +215,8 @@ void COM2_THREAD3(void* pArg)
 
 	wstring str(L"Message from STA Thread 3: ");
 	str.append(bstr.operator LPWSTR());
-	PrintLineToConsole(str);
+	//PrintLineToConsole(str);
+	wcout << str << endl;
 
 	g_bThread3Fin = true;
 
