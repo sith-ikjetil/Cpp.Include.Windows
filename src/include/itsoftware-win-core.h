@@ -210,6 +210,7 @@ namespace ItSoftware
 				}
 			};
 
+			
 			//
 			// struct: ItsPath
 			// 
@@ -327,6 +328,16 @@ namespace ItSoftware
 				static bool Exists(wstring path)
 				{
 					return static_cast<bool>(PathFileExistsW(path.c_str()));
+				}
+				static bool IsFile(wstring path)
+				{
+					DWORD fileAttributes = GetFileAttributes(path.c_str());
+					return (fileAttributes != INVALID_FILE_ATTRIBUTES && !(fileAttributes & FILE_ATTRIBUTE_DIRECTORY));
+				}
+				static bool IsDirectory(wstring path)
+				{
+					DWORD fileAttributes = GetFileAttributes(path.c_str());
+					return (fileAttributes != INVALID_FILE_ATTRIBUTES && (fileAttributes & FILE_ATTRIBUTE_DIRECTORY));
 				}
 				static wstring GetVolume(wstring path)
 				{
