@@ -7,7 +7,8 @@
 // CTestCOM
 STDMETHODIMP CTestCOM::GetMessage(/*[out, retval]*/ BSTR* message)
 {
-	*message = CComBSTR("Message from TestCOM.GetMessage!");
+	CComBSTR bstr(L"Message from TestCOM.GetMessage!");
+	*message = bstr.Detach();
 	return S_OK;
 }
 
