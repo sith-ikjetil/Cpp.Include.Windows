@@ -25,6 +25,8 @@
 //
 // using 
 // 
+using ATL::CComPtr;
+using ATL::CComBSTR;
 using ItSoftware::COM::ComRuntime;
 using ItSoftware::COM::ComApartment;
 using ItSoftware::COM::ItsMarshalGITPtr;
@@ -136,24 +138,24 @@ DWORD WINAPI COM1_THREAD1(LPVOID pArg)
 	ComRuntime runtime(ComApartment::ApartmentThreaded);
 	{
 		ItsMarshalGITPtr<ITestCOM, &IID_ITestCOM>* pM = static_cast<ItsMarshalGITPtr<ITestCOM, &IID_ITestCOM>*>(pArg);
+		{
+			CComPtr<ITestCOM> pIStaObject;
+			HRESULT hr = pM->UnMarshal(&pIStaObject);
 
-		CComPtr<ITestCOM> pIStaObject;
-		pM->UnMarshal(&pIStaObject);
+			CComBSTR bstr;
+			hr = pIStaObject->GetMessage(&bstr);
+			if (FAILED(hr)) {
+				PrintLineToConsole(L"ERROR STA Thread 1: " + ItsError::GetErrorDescription(hr));
+				g_bThread1Fin = true;
+				PostPotentialQuitMessageToMainThread();
+				return 1;
+			}
 
-		CComBSTR bstr;
-		HRESULT hr = pIStaObject->GetMessage(&bstr);
-		if (FAILED(hr)) {
-			PrintLineToConsole(L"ERROR STA Thread 1: " + ItsError::GetErrorDescription(hr));
-			g_bThread1Fin = true;
-			PostPotentialQuitMessageToMainThread();
-			return 1;
+			wstring str(L"Message from STA Thread 1: ");
+			wstring str2 = str.append(bstr.operator LPWSTR());
+			PrintLineToConsole(str2);
 		}
 
-		wstring str(L"Message from STA Thread 1: ");
-		wstring str2 = str.append(bstr.operator LPWSTR());
-		PrintLineToConsole(str2);
-
-		pIStaObject.Release();
 		g_bThread1Fin = true;
 
 		PostPotentialQuitMessageToMainThread();
@@ -169,24 +171,24 @@ DWORD WINAPI COM1_THREAD2(LPVOID pArg)
 	ComRuntime runtime(ComApartment::MultiThreaded);
 	{
 		ItsMarshalGITPtr<ITestCOM, &IID_ITestCOM>* pM = static_cast<ItsMarshalGITPtr<ITestCOM, &IID_ITestCOM>*>(pArg);
+		{
+			CComPtr<ITestCOM> pIStaObject;
+			HRESULT hr = pM->UnMarshal(&pIStaObject);
 
-		CComPtr<ITestCOM> pIStaObject;
-		pM->UnMarshal(&pIStaObject);
+			CComBSTR bstr;
+			hr = pIStaObject->GetMessage(&bstr);
+			if (FAILED(hr)) {
+				PrintLineToConsole(L"ERROR MTA Thread 2: " + ItsError::GetErrorDescription(hr));
+				g_bThread2Fin = true;
+				PostPotentialQuitMessageToMainThread();
+				return 1;
+			}
 
-		CComBSTR bstr;
-		HRESULT hr = pIStaObject->GetMessage(&bstr);
-		if (FAILED(hr)) {
-			PrintLineToConsole(L"ERROR MTA Thread 2: " + ItsError::GetErrorDescription(hr));
-			g_bThread2Fin = true;
-			PostPotentialQuitMessageToMainThread();
-			return 1;
+			wstring str(L"Message from MTA Thread 2: ");
+			wstring str2 = str.append(bstr.operator LPWSTR());
+			PrintLineToConsole(str2);
 		}
 
-		wstring str(L"Message from MTA Thread 2: ");
-		wstring str2 = str.append(bstr.operator LPWSTR());
-		PrintLineToConsole(str2);
-		
-		pIStaObject.Release();
 		g_bThread2Fin = true;
 		
 		PostPotentialQuitMessageToMainThread();
@@ -202,25 +204,25 @@ void COM1_THREAD3(void* pArg)
 	ComRuntime runtime(ComApartment::ApartmentThreaded);
 	{
 		ItsMarshalGITPtr<ITestCOM, &IID_ITestCOM>* pM = static_cast<ItsMarshalGITPtr<ITestCOM, &IID_ITestCOM>*>(pArg);
+		{
+			CComPtr<ITestCOM> pIStaObject;
+			HRESULT hr = pM->UnMarshal(&pIStaObject);
 
-		CComPtr<ITestCOM> pIStaObject;
-		HRESULT hr = pM->UnMarshal(&pIStaObject);
+			CComBSTR bstr;
+			hr = pIStaObject->GetMessage(&bstr);
+			if (FAILED(hr)) {
+				PrintLineToConsole(L"ERROR STA Thread 3: " + ItsError::GetErrorDescription(hr));
+				g_bThread3Fin = true;
+				PostPotentialQuitMessageToMainThread();
+				return;
+			}
 
-		CComBSTR bstr;
-		hr = pIStaObject->GetMessage(&bstr);
-		if (FAILED(hr)) {
-			PrintLineToConsole(L"ERROR STA Thread 3: " + ItsError::GetErrorDescription(hr));
-			g_bThread3Fin = true;
-			PostPotentialQuitMessageToMainThread();
-			return;
+			wstring str(L"Message from STA Thread 3: ");
+			wstring str2 = str.append(bstr.operator LPWSTR());
+
+			PrintLineToConsole(str2);
 		}
-		
-		wstring str(L"Message from STA Thread 3: ");
-		wstring str2 = str.append(bstr.operator LPWSTR());
-		
-		PrintLineToConsole(str2);
-		
-		pIStaObject.Release();
+
 		g_bThread3Fin = true;
 
 		PostPotentialQuitMessageToMainThread();

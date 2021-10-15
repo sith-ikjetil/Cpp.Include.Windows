@@ -166,7 +166,7 @@ namespace ItSoftware
 		private:
 			bool				m_bHasMarshaled;
 			bool				m_bHasUnMarshaled;
-			CComPtr<IStream>	m_pStream;
+			IStream*			m_pStream;
 
 			HRESULT ResetStreamPosition()
 			{
@@ -215,7 +215,7 @@ namespace ItSoftware
 
 					hr = CoMarshalInterface(this->m_pStream, (*piid), ptr, MSHCTX_LOCAL, 0, MSHLFLAGS_NORMAL);
 					if (FAILED(hr)) {
-						this->m_pStream.Release();
+						this->m_pStream->Release();
 						return hr;
 					}
 
@@ -237,6 +237,29 @@ namespace ItSoftware
 					if (FAILED(hr)) {
 						return hr;
 					}
+					this->m_pStream->Release();
+				
+					this->m_bHasUnMarshaled = true;
+
+					return S_OK;
+				}
+
+				return E_FAIL;
+			}
+
+			HRESULT UnMarshal(CComPtr<T>& ptr)
+			{
+				if (this->m_bHasMarshaled && !this->m_bHasUnMarshaled)
+				{
+					this->ResetStreamPosition();
+
+					T* p = nullptr;
+					HRESULT hr = ::CoUnmarshalInterface(this->m_pStream, (*piid), (void**)&p);
+					if (FAILED(hr)) {
+						return hr;
+					}
+					this->m_pStream->Release();
+					ptr = p;
 
 					this->m_bHasUnMarshaled = true;
 
@@ -325,6 +348,31 @@ namespace ItSoftware
 						return hr;
 					}
 
+					this->m_bHasUnMarshaled = true;
+
+					return S_OK;
+				}
+
+				return E_FAIL;
+			}
+
+			HRESULT UnMarshal(CComPtr<T>& ptr)
+			{
+				if (this->m_bHasMarshaled && !this->m_bHasUnMarshaled)
+				{
+					CComPtr<IGlobalInterfaceTable> pIGIT;
+					HRESULT hr = CoCreateInstance(CLSID_StdGlobalInterfaceTable, NULL, CLSCTX_INPROC_SERVER, IID_IGlobalInterfaceTable, (void**)&pIGIT);
+					if (FAILED(hr)) {
+						return hr;
+					}
+
+					T* p = nullptr;
+					hr = pIGIT->GetInterfaceFromGlobal(this->m_dwCookie, (*piid), (void**)&p);
+					if (FAILED(hr)) {
+						return hr;
+					}
+					ptr = p;
+					
 					this->m_bHasUnMarshaled = true;
 
 					return S_OK;
