@@ -599,6 +599,10 @@ void TestItsPath()
         wcout << L"> Path: " << path << L" does not exist" << endl;
     }
 
+    wcout << LR"(ItsPath::IsFile(path))" << endl;
+    wcout << LR"(> )" << ((ItsPath::IsFile(path)) ? "true" : "false") << endl;
+    wcout << LR"(ItsPath::IsDirectory(path))" << endl;
+    wcout << LR"(> )" << ((ItsPath::IsDirectory(path)) ? "true" : "false") << endl;
     wcout << LR"(ItsPath::GetVolume(path))" << endl;
     wcout << LR"(> ")" << ItsPath::GetVolume(path) << LR"(")" << endl;
     wcout << LR"(ItsPath::GetDirectory(path))" << endl; 
@@ -619,6 +623,7 @@ void TestItsPath()
     wcout << LR"(> )" << ((ItsPath::IsPathValid(g_invalidPath)) ? L"true" : L"false") << endl;
     wcout << LR"(ItsPath::GetParentDirectory("D:\Temp\t2"))" << endl;
     wcout << LR"(> )" << ItsPath::GetParentDirectory(L"D:\\Temp\\t2") << endl;
+    
     wcout << endl;
 }
 
@@ -743,9 +748,6 @@ void TestItsLog()
     log.LogOther(L"This is an other log item");
     log.LogDebug(L"This is an debug log item");
     
-    PrintTestSubHeader(L"ToFriendlyString");
-    wcout << log.ToFriendlyString() << endl;
-
     PrintTestSubHeader(L"ToString");
     wcout << log.ToString() << endl;
 
