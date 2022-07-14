@@ -94,6 +94,13 @@ void PrintTestApplicationEvent(wstring event);
 void HandleFileEvent(ItsFileMonitorEvent& event);
 
 //
+// #define
+//
+#define CLR_GREEN      L"\033[32m"
+#define CLR_WHITE      L"\033[37;1m"
+#define CLR_RESET      L"\033[0m"
+
+//
 // global variables
 //
 ItsTimer g_timer;
@@ -166,7 +173,12 @@ int wmain(int argc, wchar_t* argv[])
 //
 void PrintTestApplicationEvent(wstring event)
 {
+    wcout << CLR_RESET << CLR_GREEN;
+
     wcout << std::setw(80) << std::setfill(L'#') << std::left << L"## Test Application " << endl;
+    
+    wcout << CLR_RESET << CLR_WHITE;
+
     wcout << L"> " << event << L" <" << endl;
 }
 
@@ -180,11 +192,15 @@ void PrintTestHeader(wstring txt)
     static mutex m;
     lock_guard<mutex> guard(m);
 
+    wcout << CLR_RESET << CLR_GREEN;
+
     wcout << endl;
 
     wstringstream ss;
     ss << " " << txt << " ";
     wcout << ItsString::WidthExpand(ss.str(), 80, '_', ItsExpandDirection::Middle) << endl;
+
+    wcout << CLR_RESET << CLR_WHITE;
 }
 
 //
@@ -194,8 +210,12 @@ void PrintTestHeader(wstring txt)
 //
 void PrintTestSubHeader(wstring txt)
 {
+    wcout << CLR_RESET << CLR_GREEN;
+
     wcout << endl;
     wcout << L"__ " << txt << L" __" << endl;
+
+    wcout << CLR_RESET << CLR_WHITE;
 }
 
 //
