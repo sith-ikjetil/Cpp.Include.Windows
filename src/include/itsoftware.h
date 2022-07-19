@@ -1317,9 +1317,9 @@ namespace ItSoftware
 	//
 	struct ItsLogItem 
 	{
-		ItsLogType Type;
-		wstring	Description;
-		tm When;
+		ItsLogType Type{ ItsLogType::Information };
+		wstring	Description{L""};
+		tm When{0};
 
 		wstring ToString()
 		{

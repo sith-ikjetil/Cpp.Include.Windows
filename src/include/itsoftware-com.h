@@ -131,7 +131,7 @@ namespace ItSoftware
 				result.append( L"## ComException thrown. ##\n" );
 				result.append( L"\n# HRESULT" );
 				result.append( L"\n  0x" );
-				wchar_t wszBuffer[20];
+				wchar_t wszBuffer[20]{ 0 };
 				_ltow_s( this->m_hr, wszBuffer, 16 );
 				result.append( wszBuffer );
 				result.append( L" (" ); result.append( GetHResultName( this->m_hr ) ); result.append( L")" );
@@ -187,6 +187,7 @@ namespace ItSoftware
 			{
 				this->m_bHasMarshaled = false;
 				this->m_bHasUnMarshaled = false;
+				this->m_pStream = nullptr;
 			}
 
 			IID GetIID()
@@ -498,7 +499,7 @@ namespace ItSoftware
 				: m_apartment( apartment ),
 				m_isInitialized( false )
 			{
-				::CoInitializeEx( nullptr, apartment );
+				HRESULT hr = ::CoInitializeEx( nullptr, apartment );
 				this->m_isInitialized = true;
 			}
 			~ComRuntime()

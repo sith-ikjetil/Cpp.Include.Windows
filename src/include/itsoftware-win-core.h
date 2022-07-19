@@ -2531,49 +2531,53 @@ namespace ItSoftware
 					}
 
 					while (!this->m_bStopped) {
-						DWORD dw = WaitForSingleObject(this->m_o.hEvent, 0);
-						if (dw == WAIT_OBJECT_0) {
-							bResult = ::GetOverlappedResult(this->m_dirHandle, &this->m_o, &this->m_dwBytesReturned, FALSE);
-							if (bResult) {
-								FILE_NOTIFY_EXTENDED_INFORMATION* ptr = reinterpret_cast<FILE_NOTIFY_EXTENDED_INFORMATION*>(this->m_pbuffer.get());
+						if (this->m_o.hEvent != nullptr) {
+							DWORD dw = WaitForSingleObject(this->m_o.hEvent, 0);
+							if (dw == WAIT_OBJECT_0) {
+								bResult = ::GetOverlappedResult(this->m_dirHandle, &this->m_o, &this->m_dwBytesReturned, FALSE);
+								if (bResult) {
+									FILE_NOTIFY_EXTENDED_INFORMATION* ptr = reinterpret_cast<FILE_NOTIFY_EXTENDED_INFORMATION*>(this->m_pbuffer.get());
 
-								wstring name = ((ptr->FileNameLength != 0) ? wstring(ptr->FileName) : wstring{L"."});
+									wstring name = ((ptr->FileNameLength != 0) ? wstring(ptr->FileName) : wstring{ L"." });
 
-								DWORD action = ptr->Action;
+									DWORD action = ptr->Action;
 
-								ItsFileMonitorEvent event;
-								event.Action = action;
-								event.CreationTime = ptr->CreationTime;
-								event.LastModificationTime = ptr->LastModificationTime;
-								event.LastChangeTime = ptr->LastChangeTime;
-								event.LastAccessTime = ptr->LastAccessTime;
-								event.FileSize = ptr->FileSize;
-								event.FileAttributes = ptr->FileAttributes;
-								event.ReparsePointTag = ptr->ReparsePointTag;
-								event.FileId = ptr->FileId;
-								event.ParentFileId = ptr->ParentFileId;
-								event.FileName = name;
-								
-								this->m_func(event);
+									ItsFileMonitorEvent event;
+									event.Action = action;
+									event.CreationTime = ptr->CreationTime;
+									event.LastModificationTime = ptr->LastModificationTime;
+									event.LastChangeTime = ptr->LastChangeTime;
+									event.LastAccessTime = ptr->LastAccessTime;
+									event.FileSize = ptr->FileSize;
+									event.FileAttributes = ptr->FileAttributes;
+									event.ReparsePointTag = ptr->ReparsePointTag;
+									event.FileId = ptr->FileId;
+									event.ParentFileId = ptr->ParentFileId;
+									event.FileName = name;
 
-								memset(static_cast<void*>(this->m_pbuffer.get()), 0, sizeof(FILE_NOTIFY_EXTENDED_INFORMATION) + MAX_PATH);
+									this->m_func(event);
+
+									memset(static_cast<void*>(this->m_pbuffer.get()), 0, sizeof(FILE_NOTIFY_EXTENDED_INFORMATION) + MAX_PATH);
+								}
+
+								::ResetEvent(this->m_o.hEvent);
+				
+								::ReadDirectoryChangesExW(this->m_dirHandle.operator HANDLE(),
+									this->m_pbuffer.get(),
+									sizeof(FILE_NOTIFY_EXTENDED_INFORMATION) + MAX_PATH,
+									this->m_bWatchSubTree,
+									this->m_mask,
+									&this->m_dwBytesReturned,
+									&this->m_o,
+									NULL,
+									ReadDirectoryNotifyExtendedInformation);
 							}
+						}
 
-							::ResetEvent(this->m_o.hEvent);
-							
-							::ReadDirectoryChangesExW(this->m_dirHandle.operator HANDLE(),
-								this->m_pbuffer.get(),
-								sizeof(FILE_NOTIFY_EXTENDED_INFORMATION) + MAX_PATH,
-								this->m_bWatchSubTree,
-								this->m_mask,
-								&this->m_dwBytesReturned,
-								&this->m_o,
-								NULL,
-								ReadDirectoryNotifyExtendedInformation);
+						if (this->m_o.hEvent != nullptr) {
+							CloseHandle(this->m_o.hEvent);
 						}
 					}
-
-					CloseHandle(this->m_o.hEvent);
 				}
 
 			public:
