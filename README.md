@@ -2,7 +2,7 @@
 Some include files for Windows C++ development I use.  
 License: **GPL-3.0-or-later**  
 
-##itsoftware.h 
+##itsoftware.h  
 Has the following types:
 
     * UTF8
@@ -14,13 +14,13 @@ Has the following types:
     * ItsLog
     * ItsID
 
-##itsoftware-cli.h 
+##itsoftware-cli.h  
 *deprecated* 
 Has the following types:
 
     * ItsCli
 
-##itsoftware-com.h 
+##itsoftware-com.h  
 Has the following types:
 
     * ItsComException
@@ -29,7 +29,7 @@ Has the following types:
     * ItsComUtil
     * ItsComRuntime
 
-##itsoftware-exception.h 
+##itsoftware-exception.h  
 Has the following types:
 
     * ItsException
@@ -37,12 +37,12 @@ Has the following types:
     * ItsArgumentNullException
     * ItsArgumentException
 
-##itsoftware-win.h 
+##itsoftware-win.h  
 Has the following types:
 
     * ItsWin
 
-##itsoftware-core.h 
+##itsoftware-core.h  
 Has the following types:
 
     * ItsTimer
