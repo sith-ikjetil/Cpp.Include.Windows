@@ -1,5 +1,5 @@
 # Cpp.Include.Windows
-Some include files for Windows C++ development I use. 
+Some include files for Windows C++ development I use.  
 License: **GPL-3.0-or-later**  
 
 ##itsoftware.h 
