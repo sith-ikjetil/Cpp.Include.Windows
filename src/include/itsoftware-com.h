@@ -43,7 +43,7 @@ namespace ItSoftware
 		// 
 		// class: ComException.
 		//
-		class ComException
+		class ItsComException
 		{
 		private:
 			HRESULT  m_hr;
@@ -99,7 +99,7 @@ namespace ItSoftware
 		public:
 
 
-			ComException( HRESULT hr )
+			ItsComException( HRESULT hr )
 				: m_hr( hr ),
 				m_message( CComBSTR( L"" ) ),
 				m_systemMessage( GetSystemMessage( hr ) ),
@@ -107,7 +107,7 @@ namespace ItSoftware
 			{
 			}
 
-			ComException( HRESULT hr, CComBSTR message )
+			ItsComException( HRESULT hr, CComBSTR message )
 				: m_hr( hr ),
 				m_message( message ),
 				m_systemMessage( GetSystemMessage( hr ) ),
@@ -386,7 +386,7 @@ namespace ItSoftware
 		//
 		// struct: ComUtil
 		//
-		struct ComUtil
+		struct ItsComUtil
 		{
 			//
 			// HR inline function for handling HRESULT codes.
@@ -478,7 +478,7 @@ namespace ItSoftware
 		//
 		// (i) COM apartment types.
 		//
-		enum ComApartment
+		enum class ItsComApartment
 		{
 			ApartmentThreaded = COINIT_APARTMENTTHREADED,
 			MultiThreaded = COINIT_MULTITHREADED
@@ -489,17 +489,17 @@ namespace ItSoftware
 		//
 		// (i) Auto CoInitializeEx and CoUninitialize.
 		//
-		class ComRuntime
+		class ItsComRuntime
 		{
 		private:
-			ComApartment m_apartment;
+			ItsComApartment m_apartment;
 			bool		 m_isInitialized;
 		public:
-			ComRuntime( ComApartment apartment )
+			ItsComRuntime( ComApartment apartment )
 				: m_apartment( apartment ),
 				m_isInitialized( false )
 			{
-				HRESULT hr = ::CoInitializeEx( nullptr, apartment );
+				HRESULT hr = ::CoInitializeEx( nullptr, static_cast<DWORD>(apartment) );
 				this->m_isInitialized = true;
 			}
 			~ComRuntime()
