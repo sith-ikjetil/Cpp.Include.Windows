@@ -27,8 +27,8 @@
 // 
 using ATL::CComPtr;
 using ATL::CComBSTR;
-using ItSoftware::COM::ComRuntime;
-using ItSoftware::COM::ComApartment;
+using ItSoftware::COM::ItsComRuntime;
+using ItSoftware::COM::ItsComApartment;
 using ItSoftware::COM::ItsMarshalGITPtr;
 using ItSoftware::Win::Core::ItsError;
 using ItSoftware::Win::Core::unique_handle_handle;
@@ -67,7 +67,7 @@ void TestCOM1()
 	//
 	// enter the apartment
 	//
-	ComRuntime runtime(ComApartment::ApartmentThreaded);
+	ItsComRuntime runtime(ItsComApartment::ApartmentThreaded);
 	{
 		PrintTestHeader(L"ItsMarshalGITPtr");
 	
@@ -135,7 +135,7 @@ void TestCOM1()
 //
 DWORD WINAPI COM1_THREAD1(LPVOID pArg)
 {
-	ComRuntime runtime(ComApartment::ApartmentThreaded);
+	ItsComRuntime runtime(ItsComApartment::ApartmentThreaded);
 	{
 		ItsMarshalGITPtr<ITestCOM, &IID_ITestCOM>* pM = static_cast<ItsMarshalGITPtr<ITestCOM, &IID_ITestCOM>*>(pArg);
 		{
@@ -168,7 +168,7 @@ DWORD WINAPI COM1_THREAD1(LPVOID pArg)
 //
 DWORD WINAPI COM1_THREAD2(LPVOID pArg)
 {
-	ComRuntime runtime(ComApartment::MultiThreaded);
+	ItsComRuntime runtime(ItsComApartment::MultiThreaded);
 	{
 		ItsMarshalGITPtr<ITestCOM, &IID_ITestCOM>* pM = static_cast<ItsMarshalGITPtr<ITestCOM, &IID_ITestCOM>*>(pArg);
 		{
@@ -201,7 +201,7 @@ DWORD WINAPI COM1_THREAD2(LPVOID pArg)
 //
 void COM1_THREAD3(void* pArg)
 {
-	ComRuntime runtime(ComApartment::ApartmentThreaded);
+	ItsComRuntime runtime(ItsComApartment::ApartmentThreaded);
 	{
 		ItsMarshalGITPtr<ITestCOM, &IID_ITestCOM>* pM = static_cast<ItsMarshalGITPtr<ITestCOM, &IID_ITestCOM>*>(pArg);
 		{

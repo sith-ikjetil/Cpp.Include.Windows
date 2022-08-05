@@ -395,7 +395,7 @@ namespace ItSoftware
 			{
 				if ( FAILED( hr ) )
 				{
-					throw ComException( hr );
+					throw ItsComException( hr );
 				}
 			}
 
@@ -426,7 +426,7 @@ namespace ItSoftware
 
 				if ( failed )
 				{
-					throw ComException( hr );
+					throw ItsComException( hr );
 				}
 			}
 			//
@@ -437,7 +437,7 @@ namespace ItSoftware
 			{
 				if ( FAILED( hr ) )
 				{
-					throw ComException( hr, message );
+					throw ItsComException( hr, message );
 				}
 			}
 
@@ -495,14 +495,14 @@ namespace ItSoftware
 			ItsComApartment m_apartment;
 			bool		 m_isInitialized;
 		public:
-			ItsComRuntime( ComApartment apartment )
+			ItsComRuntime( ItsComApartment apartment )
 				: m_apartment( apartment ),
 				m_isInitialized( false )
 			{
 				HRESULT hr = ::CoInitializeEx( nullptr, static_cast<DWORD>(apartment) );
 				this->m_isInitialized = true;
 			}
-			~ComRuntime()
+			~ItsComRuntime()
 			{
 				if ( this->m_isInitialized )
 				{
