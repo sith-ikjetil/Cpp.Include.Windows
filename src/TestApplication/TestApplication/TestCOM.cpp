@@ -12,42 +12,45 @@
 #include <iostream>
 #include "TestCOM.h"
 
-//
-// using 
-//
-using std::mutex;
-using std::lock_guard;
-using std::wcout;
-using std::endl;
-
-//
-// global variables
-//
-HWND g_hWndMainThread = NULL;
-bool g_bThread1Fin = false;
-bool g_bThread2Fin = false;
-bool g_bThread3Fin = false;
-
-//
-// PostPotentialQuitMessageToMainThread
-//
-void PostPotentialQuitMessageToMainThread()
+namespace ItSoftware::CppIncludeWindows::TestApplication
 {
-	static mutex m;
-	lock_guard<mutex> guard(m);
+	//
+	// using 
+	//
+	using std::mutex;
+	using std::lock_guard;
+	using std::wcout;
+	using std::endl;
 
-	if (g_bThread1Fin && g_bThread2Fin && g_bThread3Fin) {
-		PostMessage(g_hWndMainThread, WM_QUIT, 0, 0);
+	//
+	// global variables
+	//
+	HWND g_hWndMainThread = NULL;
+	bool g_bThread1Fin = false;
+	bool g_bThread2Fin = false;
+	bool g_bThread3Fin = false;
+
+	//
+	// PostPotentialQuitMessageToMainThread
+	//
+	void PostPotentialQuitMessageToMainThread()
+	{
+		static mutex m;
+		lock_guard<mutex> guard(m);
+
+		if (g_bThread1Fin && g_bThread2Fin && g_bThread3Fin) {
+			PostMessage(g_hWndMainThread, WM_QUIT, 0, 0);
+		}
 	}
-}
 
-//
-// PrintLineToConsole
-//
-void PrintLineToConsole(wstring text)
-{
-	static mutex m;
-	lock_guard<mutex> guard(m);
+	//
+	// PrintLineToConsole
+	//
+	void PrintLineToConsole(wstring text)
+	{
+		static mutex m;
+		lock_guard<mutex> guard(m);
 
-	wcout << text << endl;
+		wcout << text << endl;
+	}
 }

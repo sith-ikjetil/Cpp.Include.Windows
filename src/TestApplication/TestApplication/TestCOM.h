@@ -12,14 +12,16 @@
 #include <Windows.h>
 #include <string>
 
-//
-// using
-//
-using std::wstring;
+namespace ItSoftware::CppIncludeWindows::TestApplication
+{
+	//
+	// using
+	//
+	using std::wstring;
 
-//
-// function prototypes
-//
-void PostPotentialQuitMessageToMainThread();
-void PrintLineToConsole(wstring text);
-
+	//
+	// function prototypes
+	//
+	void PostPotentialQuitMessageToMainThread();
+	void PrintLineToConsole(wstring text);
+}
