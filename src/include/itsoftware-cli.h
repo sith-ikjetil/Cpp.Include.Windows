@@ -15,25 +15,19 @@
 //
 // namespace
 //
-namespace ItSoftware
+namespace ItSoftware::CLI
 {
-	//
-	// namespace
-	//
-	namespace CLI
-	{
-		using namespace System;
+	using namespace System;
 
-		//
-		// class: ItsCli
-		//
-		class ItsCli
+	//
+	// class: ItsCli
+	//
+	class ItsCli
+	{
+	public:
+		static wstring ToString(String^ str)
 		{
-		public:
-			static wstring ToString(String^ str)
-			{
-				return msclr::interop::marshal_as<std::wstring>(str);
-			}
-		};
-	}
-}
+			return msclr::interop::marshal_as<std::wstring>(str);
+		}
+	};
+}// namespace ItSoftware::CLI
