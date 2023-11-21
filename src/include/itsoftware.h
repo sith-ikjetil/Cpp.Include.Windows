@@ -369,13 +369,13 @@ namespace ItSoftware
 
 		static wstring ToLowerCase( wstring s )
 		{
-			std::transform( s.begin( ), s.end( ), s.begin( ), tolower );
+			std::transform( s.begin( ), s.end( ), s.begin( ), ::tolower );
 			return s;
 		}
 
 		static wstring ToUpperCase( wstring s )
 		{
-			std::transform( s.begin( ), s.end( ), s.begin( ), toupper );
+			std::transform( s.begin( ), s.end( ), s.begin( ), ::toupper );
 			return s;
 		}
 
