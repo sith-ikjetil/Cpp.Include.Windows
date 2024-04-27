@@ -126,6 +126,24 @@ namespace ItSoftware::Exceptions
         {
 
         }
+
+        ItsException(ItsException& other)
+        {
+            //
+            // Take over ownership
+            //
+            this->m_errorCode = other.m_errorCode;
+            if (other.m_pInnerException != nullptr) {
+                this->m_pInnerException.reset(other.m_pInnerException.get());
+            }
+            this->m_message = other.m_message;
+
+            //
+            // Clean up other
+            //
+            other.m_errorCode = 0;
+            other.m_message = L"";
+        }
              
         ItsException( ItsException&& other ) noexcept
             : exception()
