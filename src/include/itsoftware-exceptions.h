@@ -320,7 +320,7 @@ namespace ItSoftware::Exceptions
 			: ItsException(message),
 				m_argumentName( name )
 		{
-		}
+		}        
 
 		ItsArgumentException( wstring name, wstring message, ItsException&& inner )
 			: ItsException(message),

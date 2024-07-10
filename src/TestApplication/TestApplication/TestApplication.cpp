@@ -61,6 +61,10 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
     using ItSoftware::ItsDataSizeStringType;
     using ItSoftware::ItsID;
     using ItSoftware::ItsCreateIDOptions;
+    using ItSoftware::Exceptions::ItsArgumentException;
+    using ItSoftware::Exceptions::ItsArgumentNullException;
+    using ItSoftware::Exceptions::ItsException;
+    using ItSoftware::Exceptions::ItsNullReferenceException;
 
     //
     // extern
@@ -89,6 +93,7 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
     void TestItsID();
     void TestItsFileMonitorStart();
     void TestItsFileMonitorStop();
+    void TestException();
     void ExitFn();
     void PrintTestHeader(wstring txt);
     void PrintTestSubHeader(wstring txt);
@@ -161,6 +166,7 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
         TestItsID();
         TestItsFileMonitorStop();
         TestItsEventStop();
+        TestException();
 
         if (g_eventThread.joinable()) { g_eventThread.join(); }
         TestItsTimerStop();
@@ -868,7 +874,58 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
 
         wcout << endl;
     }
+    //
+    // Function: TestException
+    // 
+    // (i): handle custom exception testing
+    //
+    void TestException()
+    {   
+        PrintTestHeader(L"ItsException Start");
 
+        /*
+        ItsArgumentException;
+        ItsArgumentNullException;
+        ItsException;
+        ItsNullReferenceException; 
+        */
+
+        PrintTestSubHeader(L"ItsArgumentException");
+        try
+        {            
+            throw ItsArgumentException(L"param1", L"parame1 outside expected range", ItsException(101,L"101 inner here"));
+        }
+        catch (ItsArgumentException& iae) {
+            wcout << iae.ToString() << endl;
+        }
+
+        PrintTestSubHeader(L"ItsArgumentNullException");
+        try
+        {
+            throw ItsArgumentNullException(L"param1", ItsException(201, L"201 inner here"));
+        }
+        catch (ItsArgumentNullException& iae) {
+            wcout << iae.ToString() << endl;
+        }
+
+        PrintTestSubHeader(L"ItsException");
+        try
+        {
+            throw ItsException(3, L"something went wrong", ItsException(301, L"301 inner here"));
+        }
+        catch (ItsException& iae) {
+            wcout << iae.ToString() << endl;
+        }
+
+        PrintTestSubHeader(L"ItsNullReferenceException");
+        try
+        {            
+            throw ItsNullReferenceException(L"param4", L"was null", ItsArgumentException(L"param2", L"was invalid"));
+        }
+        catch (ItsNullReferenceException& iae) {
+            wcout << iae.ToString() << endl;
+        }
+    }
     //
     // Function: HandleFileEvent
     //
