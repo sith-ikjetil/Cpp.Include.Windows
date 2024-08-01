@@ -22,6 +22,7 @@
 #include "itsoftware.h"
 #include "itsoftware-exceptions.h"
 #include <time.h>
+#include <map>
 
 //
 // #pragma
@@ -42,6 +43,7 @@ namespace ItSoftware::Win::Core
 	using std::make_unique;
 	using std::function;
 	using std::thread;
+	using std::map;
 	using ItSoftware::ItsString;
 
 	//
@@ -2630,4 +2632,243 @@ namespace ItSoftware::Win::Core
 			}
 		}
 	};
+	//
+	// class: ItsRegistry
+	//
+	// (i): Windows registry routines.
+	//
+	class ItsIniFile {
+	private:
+	protected:
+	public:
+		//
+		// Creates a key in ini file.
+		//
+		static bool CreateKey(wstring filename, wstring sectionname, wstring keyname, wstring value, bool overwriteifexist)
+		{
+			if (filename.size() == 0 || sectionname.size() == 0 || keyname.size() == 0) {
+				return false;
+			}
+
+			bool bDoCreate = false;
+			if (overwriteifexist == true) {
+				ItsIniFile::DeleteKey(filename, sectionname, keyname);
+				bDoCreate = true;
+			}
+			else {
+				wstring readValue;
+				if (ItsIniFile::ReadValue(filename, sectionname, keyname, &readValue) == false) {
+					bDoCreate = true;
+				}
+			}
+
+			if (bDoCreate == true) {
+				if (!::WritePrivateProfileString(sectionname.c_str(), keyname.c_str(), value.c_str(), filename.c_str())) {					
+					return false;
+				}
+			}
+
+			return true;
+		}
+		
+		static bool DeleteKey( wstring filename, wstring sectionname, wstring keyname)			
+		{
+			if (filename.size() == 0 || sectionname.size() == 0 || keyname.size() == 0) {
+				return false;
+			}
+
+			wstring readValue;
+			if (ItsIniFile::ReadValue(filename, sectionname, keyname, &readValue) == true) {
+				if (!WritePrivateProfileString(sectionname.c_str(), keyname.c_str(), NULL, filename.c_str())) {
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		static bool ReadValue(wstring filename, wstring sectionname, wstring keyname, wstring* value)		
+		{
+			if (filename.size() == 0 || sectionname.size() == 0 || keyname.size() == 0) {
+				return false;
+			}
+
+			wchar_t wcsDefault[] = L"24AA9E3A-5086-409c-A6CF-E1C48B8FFA62";
+			wchar_t* pwcs = new wchar_t[2048];
+			if (::GetPrivateProfileString(sectionname.c_str(), keyname.c_str(), wcsDefault, pwcs, 2047, filename.c_str()) == 0) {
+				// FOUND BUT HAD NO VALUE WITCH IS OK. WE HAD AN EMPTY STRING
+				*value = L"";
+			}
+			else {
+				if (wcscmp(wcsDefault, pwcs) == 0) {	// CANNOT BE FOUND			
+					delete[] pwcs;
+					return false;
+				}
+				else {									// VALUE FOUND					
+					*value = wstring(pwcs);
+				}
+			}
+			delete[] pwcs;
+
+			return true;
+		}
+
+
+		static bool SetValue( wstring filename, wstring sectionname, wstring keyname, wstring value)			
+		{
+			if (filename.size() == 0 || sectionname.size() == 0 || keyname.size() == 0) {
+				return false;
+			}
+
+			wstring str;
+			if (!ItsIniFile::ReadValue(filename, sectionname, keyname, &str)) {
+				return false;
+			}
+
+			if (value.size() == 0) {
+				if (!WritePrivateProfileString(sectionname.c_str(), keyname.c_str(), L"", filename.c_str())) {
+					return false;
+				}
+			}
+			else {
+				if (!WritePrivateProfileString(sectionname.c_str(), keyname.c_str(), value.c_str(), filename.c_str())) {
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		static bool CreateSection( wstring filename, wstring sectionname )
+		{
+			if (filename.size() == 0 || sectionname.size() == 0) {
+				return false;
+			}
+
+			wstring key(L"KKSINIFILE");
+			wstring value(L"YOU CAN SAFTLEY DELETE ME!");
+			if (!ItsIniFile::CreateKey(filename, sectionname, key, value, false)) {
+				return false;
+			}
+			else {
+				DeleteKey(filename, sectionname, key);
+			}
+
+			return true;
+		}
+
+		static bool DeleteSection( wstring filename, wstring sectionname )
+		{
+			if (filename.size() == 0 || sectionname.size() == 0) {
+				return false;
+			}
+
+			if (!WritePrivateProfileString(sectionname.c_str(), NULL, NULL, filename.c_str())) {
+				return false;
+			}
+
+			return true;
+		}
+
+		static bool StoreCollection( wstring filename, wstring sectionname, map<wstring,wstring>& map, bool overwriteifexist)
+		{
+			if (filename.size() == 0 || sectionname.size() == 0 || map.size() == 0) {
+				return false;
+			}
+			
+			for (auto itr = map.begin(); itr != map.end(); itr++) {
+				const wstring key = itr->first;
+				const wstring value = itr->second;
+				CreateKey(filename, sectionname, key, value, overwriteifexist);
+			}
+
+			return true;
+		}
+
+		static bool EnumerateKeys( wstring filename, wstring sectionname, map<wstring,wstring>& map)
+		{
+			if (filename.size() == 0 || sectionname.size() == 0) {
+				return false;
+			}
+			
+			wchar_t* pwcs = new wchar_t[2048];
+			wchar_t wcsDefault[] = L"03803CC2-1BAC-4775-BBA6-733AA181F9CC";
+			if (GetPrivateProfileString(sectionname.c_str(), NULL, wcsDefault, pwcs, 2047, filename.c_str()) == 0) {
+				// FOUND BUT HAD NO VALUE	
+			}
+			else {
+				if (wcscmp(pwcs, wcsDefault) == 0) {
+					// NOT KEYS FOUND.
+					delete[] pwcs;					
+					return true;
+				}
+				else {
+					int iIndex = 0;
+					wchar_t* p;
+					wchar_t* beg = pwcs;
+					for (p = pwcs; p < pwcs + 2047; p++) {
+						if (*p == L'\0') {
+							iIndex++;
+							
+							wstring key(beg);
+							wstring value;
+							ReadValue(filename, sectionname, beg, &value);							
+
+							map.insert(std::pair<wstring,wstring>(key, value));
+
+							if (*(p + 1) == L'\0')
+								break;
+
+							beg = p + 1;
+						}// if ( *p == L'\0' ) {
+					}// for ( p = pwcs; p < pwcs+1024; p++ ) {
+				}// else {
+			}// else {
+			delete[] pwcs;
+			
+			return true;
+		}
+
+		static bool EnumerateSections( wstring filename, vector<wstring>& list)
+		{
+			if (filename.size() == 0) {
+				return false;
+			}
+			
+			wchar_t* pwcs = new wchar_t[2048];
+			wchar_t wcsDefault[] = L"1B5E632E-BDD5-4343-86D8-4C668E1C1808";
+			if (GetPrivateProfileString(NULL, L"", wcsDefault, pwcs, 2047, filename.c_str()) == 0) {
+				// FOUND BUT HAD NO VALUE		
+			}
+			else {
+				if (wcscmp(pwcs, wcsDefault) == 0) {
+					// NO SECTIONS FOUND.
+					delete[] pwcs;					
+					return true;
+				}
+				else {
+					int iIndex = 0;
+					wchar_t* p;
+					wchar_t* beg = pwcs;
+					for (p = pwcs; p < pwcs + 1024; p++) {
+						if (*p == L'\0') {
+							iIndex++;
+
+							wstring value(beg);
+							list.push_back(value);
+
+							if (*(p + 1) == L'\0')
+								break;
+
+							beg = p + 1;
+						}// if ( *p == L'\0' ) {
+					}// for ( p = pwcs; p < pwcs+1024; p++ ) {
+				}// else {
+			}// else {
+			
+			delete[] pwcs;
+			
+			return true;
+		}
+	};// ItsIniFile
 }// namespace ItSoftware::Win::Core
