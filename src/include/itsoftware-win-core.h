@@ -2814,7 +2814,9 @@ namespace ItSoftware::Win::Core
 							wstring value;
 							ReadValue(filename, sectionname, beg, &value);							
 
-							map.insert(std::pair<wstring,wstring>(key, value));
+							if (map.find(key) == map.end()) {
+								map.insert(std::pair<wstring, wstring>(key, value));
+							}
 
 							if (*(p + 1) == L'\0')
 								break;
