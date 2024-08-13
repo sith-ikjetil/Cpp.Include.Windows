@@ -352,17 +352,25 @@ namespace ItSoftware
 			return retVal;
 		}
 
-		static vector<wstring> Split( wstring data, wstring token )
+		static vector<wstring> Split(wstring data, wstring token)
 		{
 			vector<wstring> output;
+
+			if (data.length() == 0) {
+				return output;
+			}
+
 			size_t pos = wstring::npos; // size_t to avoid improbable overflow
-			do
-			{
-				pos = data.find( token );
-				output.push_back( data.substr( 0, pos ) );
-				if ( wstring::npos != pos )
-					data = data.substr( pos + token.size( ) );
-			} while ( wstring::npos != pos );
+
+			if (data.find(token) != wstring::npos) {
+				do
+				{
+					pos = data.find(token);
+					output.push_back(data.substr(0, pos));
+					if (wstring::npos != pos)
+						data = data.substr(pos + token.size());
+				} while (wstring::npos != pos);
+			}
 
 			return output;
 		}
