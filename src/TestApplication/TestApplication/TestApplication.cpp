@@ -389,8 +389,8 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
         wcout << LR"(> ")" << ItsString::Trim(L"  Ab12Cd  ") << LR"(")" << endl;
         wcout << LR"(ItsString::Replace(L"__ ABCDEF __"))" << endl;
         wcout << LR"(> ")" << ItsString::Replace(L"__ ABCDEF __", L"__", L"##") << LR"(")" << endl;
-        wcout << LR"(ItsString::Split(L"A;BC;DEF;G",L";"))" << endl;
-        auto vs = ItsString::Split(L"A;BC;DEF;G", L";");
+        wcout << LR"(ItsString::Split(L"A;BC;DEF;G;",L";"))" << endl;
+        auto vs = ItsString::Split(L"A;BC;DEF;G;", L";");
         wstringstream ss;
         ss << L"{";
         bool bFirst{ true };
