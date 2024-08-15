@@ -14,6 +14,8 @@
 #include <string>
 #include <mutex>
 #include <limits>
+#include <io.h>
+#include <fcntl.h>
 #include <chrono>
 #include "../../include/itsoftware.h"
 #include "../../include/itsoftware-com.h"
@@ -65,6 +67,7 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
     using ItSoftware::Exceptions::ItsArgumentNullException;
     using ItSoftware::Exceptions::ItsException;
     using ItSoftware::Exceptions::ItsNullReferenceException;
+    
 
     //
     // extern
@@ -143,6 +146,8 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
     //
     int wmain(int argc, const wchar_t* argv[])
     {
+        _setmode(_fileno(stdout), _O_U16TEXT);
+
         atexit(ExitFn);
 
         PrintTestApplicationEvent(L"Started");
@@ -450,6 +455,48 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
     void TestItsTextFile()
     {
         PrintTestHeader(L"ItsTextFile");
+
+        wstring poem;
+        wcout << LR"(ItsTextFile::ReadTextAll(L"poem.txt", ItsFileTextType::UTF8WithBOM)" << endl;
+        if (!ItsTextFile::ReadTextAll(L"poem.txt", ItsFileTextType::UTF8WithBOM, poem)) {
+            wcout << L"> FAILED: " << ItsError::GetLastErrorDescription() << endl;
+            wcout << endl;
+            return;
+        }
+        wcout << L"poem.txt" << endl;
+        wcout << L"Length: " << poem.length() << endl;
+        //wcout << poem << endl;
+        wcout << endl;
+
+        vector<wstring> poemAllLines;
+        wcout << LR"(ItsTextFile::ReadTextAllLines(L"poem.txt", ItsFileTextType::UTF8WithBOM, poemAllLines))" << endl;
+        if (!ItsTextFile::ReadTextAllLines(L"poem.txt", ItsFileTextType::UTF8WithBOM, poemAllLines, ItsTextFile::LineDelimiterUnix)) {
+            wcout << L"> FAILED: " << ItsError::GetLastErrorDescription() << endl;
+            wcout << endl;
+            return;
+        }
+        wcout << L"poem.txt" << endl;
+        wcout << L"Line count: " << poemAllLines.size() << endl;
+        wcout << endl;
+
+        wstring appendText(L"\n[APPEND THIS]");
+        wcout << LR"()";
+        if (!ItsTextFile::AppendText(L"poem.txt", ItsFileTextType::UTF8WithBOM, appendText)) {
+            wcout << L"> FAILED: " << ItsError::GetLastErrorDescription() << endl;
+            wcout << endl;
+            return;
+        }
+        wcout << L"> ItsTextFile::AppendText SUCCEEDED" << endl;
+        wcout << endl;
+
+        ItsFile::Delete(L"D:\\__XYZ.txt");
+        if (!ItsTextFile::CreateTextFile(L"D:\\__XYZ.txt", ItsFileTextType::UTF8WithBOM)) {
+            wcout << L"> FAILED: " << ItsError::GetLastErrorDescription() << endl;
+            wcout << endl;
+            return;
+        }
+        wcout << L"> ItsTextFile::CreateTextFile SUCCEEDED" << endl;
+        wcout << endl;
 
         ItsTextFile file{};
         wcout << LR"(file.OpenOrCreateText(g_filenameText, L"rw", L"", ItsFileOpenCreation::CreateAlways, ItsFileTextType::UTF8NoBOM))" << endl;

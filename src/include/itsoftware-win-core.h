@@ -1379,6 +1379,198 @@ namespace ItSoftware::Win::Core
 	};
 
 	//
+	// class: ItsFile
+	//
+	// (i): Wrapper for a file on Windows.
+	//
+	class ItsFile : public ItsFileBase
+	{
+	private:
+	protected:
+	public:
+
+		//
+		// Constructor
+		//
+		ItsFile()
+		{
+		}
+
+		//
+		// Method: OpenOrCreate
+		//
+		bool OpenOrCreate(wstring filename, wstring accessReadWrite, wstring shareReadWrite, ItsFileOpenCreation flagCreation)
+		{
+			if (this->m_handle.IsValid())
+			{
+				return false;
+			}
+
+			DWORD dwAccess = 0;
+			if (accessReadWrite.size() != 0)
+			{
+				if (accessReadWrite.find(L"r") != wstring::npos) {
+					dwAccess |= GENERIC_READ;
+				}
+				if (accessReadWrite.find(L"w") != wstring::npos) {
+					dwAccess |= GENERIC_WRITE;
+				}
+			}
+
+			DWORD dwShare = 0;
+			if (shareReadWrite.size() != 0)
+			{
+				if (shareReadWrite.find(L"r") != wstring::npos) {
+					dwShare |= FILE_SHARE_READ;
+				}
+				if (shareReadWrite.find(L"w") != wstring::npos) {
+					dwShare |= FILE_SHARE_WRITE;
+				}
+				if (shareReadWrite.find(L"d") != wstring::npos) {
+					dwShare |= FILE_SHARE_DELETE;
+				}
+			}
+
+			DWORD dwFlags = 0;
+			if (flagCreation == ItsFileOpenCreation::CreateAlways) {
+				dwFlags = CREATE_ALWAYS;
+			}
+			else if (flagCreation == ItsFileOpenCreation::CreateNew) {
+				dwFlags = CREATE_NEW;
+			}
+			else if (flagCreation == ItsFileOpenCreation::OpenAlways) {
+				dwFlags = OPEN_ALWAYS;
+			}
+			else if (flagCreation == ItsFileOpenCreation::OpenExisting) {
+				dwFlags = OPEN_EXISTING;
+			}
+			else if (flagCreation == ItsFileOpenCreation::TruncateExisting) {
+				dwFlags = TRUNCATE_EXISTING;
+			}
+
+			this->m_handle = CreateFile(filename.c_str(), dwAccess, dwShare, NULL, dwFlags, FILE_ATTRIBUTE_NORMAL, NULL);
+
+			return this->m_handle.IsValid();
+		}
+
+		//
+		// Method: GetFileSize
+		//
+		static bool GetFileSize(wstring filename, size_t* size)
+		{
+			ItsFile file;
+			if (!file.OpenOrCreate(filename, L"r", L"r", ItsFileOpenCreation::OpenExisting))
+			{
+				return false;
+			}
+
+			LARGE_INTEGER tmp{ 0 };
+			bool result = (bool)GetFileSizeEx(file.m_handle.p(), &tmp);
+			*size = tmp.QuadPart;
+			return result;
+		}
+
+		//
+		// Method: Delete
+		//
+		static bool Delete(wstring filename)
+		{
+			return (bool)DeleteFile(filename.c_str());
+		}
+
+		//
+		// Method: Copy
+		//
+		static bool Copy(wstring existingFilename, wstring newFilename, bool failIfExists)
+		{
+			return (bool)CopyFile(existingFilename.c_str(), newFilename.c_str(), (failIfExists) ? TRUE : FALSE);
+		}
+
+		//
+		// Method: Move
+		//
+		static bool Move(wstring existingFilename, wstring newFilename, bool failIfExists)
+		{
+			return (bool)MoveFileEx(existingFilename.c_str(), newFilename.c_str(), MOVEFILE_COPY_ALLOWED | ((failIfExists) ? MOVEFILE_REPLACE_EXISTING : 0));
+		}
+
+		//
+		// Method: Exists
+		//
+		static bool Exists(wstring filename)
+		{
+			DWORD fileAttributes = GetFileAttributes(filename.c_str());
+			return (fileAttributes != INVALID_FILE_ATTRIBUTES && !(fileAttributes & FILE_ATTRIBUTE_DIRECTORY));
+		}
+
+		//
+		// Method: SetFileSize
+		//
+		static bool SetSize(wstring filename, size_t pos)
+		{
+			ItsFile file;
+			if (!file.OpenOrCreate(filename, L"rw", L"", ItsFileOpenCreation::OpenExisting)) {
+				return false;
+			}
+			return file.SetFileSize(pos);
+		}
+
+		static bool Shred(wstring filename, bool alsoDelete)
+		{
+			if (!ItsFile::Exists(filename))
+			{
+				return false;
+			}
+
+			size_t fileSize = 0;
+			if (!ItsFile::GetFileSize(filename, &fileSize))
+			{
+				return false;
+			}
+			if (fileSize == 0)
+			{
+				return false;
+			}
+
+			ItsFile f;
+			if (!f.OpenOrCreate(filename, L"rw", L"r", ItsFileOpenCreation::OpenExisting))
+			{
+				return false;
+			}
+			if (f.IsInvalid())
+			{
+				return false;
+			}
+
+			const uint32_t bufferSize = 2048;
+			DWORD bytesWritten = 0;
+			size_t totalWritten = 0;
+			const unique_ptr<uint8_t[]> pdata = make_unique<uint8_t[]>(bufferSize);
+			for (uint32_t i = 0; i < bufferSize; i++) {
+				pdata[i] = 0xFF;
+			}
+			f.SetFilePosition(0, ItsFilePosition::FileBegin);
+			while (totalWritten < fileSize) {
+				f.Write(static_cast<const void*>(pdata.get()), static_cast<DWORD>(((fileSize - totalWritten) > bufferSize) ? bufferSize : (fileSize - totalWritten)), &bytesWritten);
+				totalWritten += bytesWritten;
+			}
+			f.Close();
+
+			if (alsoDelete)
+			{
+				return ItsFile::Delete(filename);
+			}
+
+			return true;
+		}
+
+		static bool ShredAndDelete(wstring filename)
+		{
+			return ItsFile::Shred(filename, true);
+		}
+	};
+
+	//
 	// class: ItsTextFile
 	//
 	// (i): Wrapper for text file on Windows.
@@ -1532,6 +1724,26 @@ namespace ItSoftware::Win::Core
 		}
 
 		//
+		// Function: CreateTextFile
+		// 
+		// (i): Creates a new text file (with BOM) but otherwise empty and ready to
+		// append/write text to.
+		//
+		static bool CreateTextFile(wstring filename, ItsFileTextType type) 
+		{
+			if (ItsFile::Exists(filename)) {
+				return false;
+			}
+
+			ItsTextFile file{};
+			if (!file.OpenOrCreateText(filename, L"rw", L"rw", ItsFileOpenCreation::CreateAlways, type)) {
+				return false;
+			}
+
+			return true;
+		}
+
+		//
 		// Method: ReadTextAllLines
 		//
 		bool ReadTextAllLines(vector<wstring>& lines, wstring lineDelimiter = L"\r\n")
@@ -1670,6 +1882,31 @@ namespace ItSoftware::Win::Core
 				return false;
 			}
 
+			return true;
+		}
+
+		//
+		// Function: ReadTextAllLines
+		//
+		// (i): Reads all text from a text file.
+		//
+		static bool ReadTextAllLines(wstring filename, ItsFileTextType textType, vector<wstring>& out, wstring lineDelimiter = ItsTextFile::LineDelimiterWindows)
+		{
+			if (!ItsFile::Exists(filename)) {
+				return false;
+			}
+
+			ItsTextFile file{};
+			if (!file.OpenOrCreateText(filename, L"rw", L"rw", ItsFileOpenCreation::OpenExisting, textType)) {
+				return false;
+			}
+
+			if (!file.ReadTextAllLines(out, lineDelimiter)) {
+				file.Close();
+				return false;
+			}
+
+			file.Close();
 			return true;
 		}
 
@@ -1815,6 +2052,31 @@ namespace ItSoftware::Win::Core
 		}
 
 		//
+		// Function: ReadTextAll
+		//
+		// (i): Reads all text from a text file.
+		//
+		static bool ReadTextAll(wstring filename, ItsFileTextType textType, wstring& out)
+		{
+			if (!ItsFile::Exists(filename)) {
+				return false;
+			}
+
+			ItsTextFile file{};
+			if (!file.OpenOrCreateText(filename, L"rw", L"rw", ItsFileOpenCreation::OpenExisting, textType)) {
+				return false;
+			}
+
+			if (!file.ReadTextAll(out)) {
+				file.Close();
+				return false;
+			}
+
+			file.Close();
+			return true;
+		}
+
+		//
 		// Method: WriteText
 		//
 		bool WriteText(string text)
@@ -1860,6 +2122,36 @@ namespace ItSoftware::Win::Core
 		}
 
 		//
+		// Function: ReadTextAllLines
+		//
+		// (i): Reads all text from a text file.
+		//
+		static bool AppendText(wstring filename, ItsFileTextType textType, wstring& textToWrite)
+		{
+			if (!ItsFile::Exists(filename)) {
+				return false;
+			}
+
+			ItsTextFile file{};
+			if (!file.OpenOrCreateText(filename, L"rw", L"rw", ItsFileOpenCreation::OpenExisting, textType)) {
+				return false;
+			}
+
+			if (!file.SetFilePosition(0, ItsFilePosition::FileEnd)) {
+				file.Close();
+				return false;
+			}
+
+			if (!file.WriteText(textToWrite)) {
+				file.Close();
+				return false;
+			}
+
+			file.Close();
+			return true;
+		}
+
+		//
 		// Method: WriteTextLine
 		//
 		bool WriteTextLine(string text, string lineDelimiter = "\r\n")
@@ -1891,201 +2183,7 @@ namespace ItSoftware::Win::Core
 
 			return true;
 		}
-	};
-
-
-
-	//
-	// class: ItsFile
-	//
-	// (i): Wrapper for a file on Windows.
-	//
-	class ItsFile : public ItsFileBase
-	{
-	private:
-	protected:
-	public:
-
-		//
-		// Constructor
-		//
-		ItsFile()
-		{
-		}
-
-		//
-		// Method: OpenOrCreate
-		//
-		bool OpenOrCreate(wstring filename, wstring accessReadWrite, wstring shareReadWrite, ItsFileOpenCreation flagCreation)
-		{
-			if (this->m_handle.IsValid())
-			{
-				return false;
-			}
-
-			DWORD dwAccess = 0;
-			if (accessReadWrite.size() != 0)
-			{
-				if (accessReadWrite.find(L"r") != wstring::npos) {
-					dwAccess |= GENERIC_READ;
-				}
-				if (accessReadWrite.find(L"w") != wstring::npos) {
-					dwAccess |= GENERIC_WRITE;
-				}
-			}
-
-			DWORD dwShare = 0;
-			if (shareReadWrite.size() != 0)
-			{
-				if (shareReadWrite.find(L"r") != wstring::npos) {
-					dwShare |= FILE_SHARE_READ;
-				}
-				if (shareReadWrite.find(L"w") != wstring::npos) {
-					dwShare |= FILE_SHARE_WRITE;
-				}
-				if (shareReadWrite.find(L"d") != wstring::npos) {
-					dwShare |= FILE_SHARE_DELETE;
-				}
-			}
-
-			DWORD dwFlags = 0;
-			if (flagCreation == ItsFileOpenCreation::CreateAlways) {
-				dwFlags = CREATE_ALWAYS;
-			}
-			else if (flagCreation == ItsFileOpenCreation::CreateNew) {
-				dwFlags = CREATE_NEW;
-			}
-			else if (flagCreation == ItsFileOpenCreation::OpenAlways) {
-				dwFlags = OPEN_ALWAYS;
-			}
-			else if (flagCreation == ItsFileOpenCreation::OpenExisting) {
-				dwFlags = OPEN_EXISTING;
-			}
-			else if (flagCreation == ItsFileOpenCreation::TruncateExisting) {
-				dwFlags = TRUNCATE_EXISTING;
-			}
-
-			this->m_handle = CreateFile(filename.c_str(), dwAccess, dwShare, NULL, dwFlags, FILE_ATTRIBUTE_NORMAL, NULL);
-
-			return this->m_handle.IsValid();
-		}
-
-		//
-		// Method: GetFileSize
-		//
-		static bool GetFileSize(wstring filename, size_t* size)
-		{
-			ItsFile file;
-			if (!file.OpenOrCreate(filename, L"r", L"r", ItsFileOpenCreation::OpenExisting))
-			{
-				return false;
-			}
-
-			LARGE_INTEGER tmp{ 0 };
-			bool result = (bool)GetFileSizeEx(file.m_handle.p(), &tmp);
-			*size = tmp.QuadPart;
-			return result;
-		}
-
-		//
-		// Method: Delete
-		//
-		static bool Delete(wstring filename)
-		{
-			return (bool)DeleteFile(filename.c_str());
-		}
-
-		//
-		// Method: Copy
-		//
-		static bool Copy(wstring existingFilename, wstring newFilename, bool failIfExists)
-		{
-			return (bool)CopyFile(existingFilename.c_str(), newFilename.c_str(), (failIfExists) ? TRUE : FALSE);
-		}
-
-		//
-		// Method: Move
-		//
-		static bool Move(wstring existingFilename, wstring newFilename, bool failIfExists)
-		{
-			return (bool)MoveFileEx(existingFilename.c_str(), newFilename.c_str(), MOVEFILE_COPY_ALLOWED | ((failIfExists) ? MOVEFILE_REPLACE_EXISTING : 0));
-		}
-
-		//
-		// Method: Exists
-		//
-		static bool Exists(wstring filename)
-		{
-			DWORD fileAttributes = GetFileAttributes(filename.c_str());
-			return (fileAttributes != INVALID_FILE_ATTRIBUTES && !(fileAttributes & FILE_ATTRIBUTE_DIRECTORY));
-		}
-
-		//
-		// Method: SetFileSize
-		//
-		static bool SetSize(wstring filename, size_t pos)
-		{
-			ItsFile file;
-			if (!file.OpenOrCreate(filename, L"rw", L"", ItsFileOpenCreation::OpenExisting)) {
-				return false;
-			}
-			return file.SetFileSize(pos);
-		}
-
-		static bool Shred(wstring filename, bool alsoDelete)
-		{
-			if (!ItsFile::Exists(filename))
-			{
-				return false;
-			}
-
-			size_t fileSize = 0;
-			if (!ItsFile::GetFileSize(filename, &fileSize)) 
-			{
-				return false;
-			}
-			if (fileSize == 0)
-			{
-				return false;
-			}
-
-			ItsFile f;
-			if (!f.OpenOrCreate(filename, L"rw", L"r", ItsFileOpenCreation::OpenExisting)) 
-			{
-				return false;
-			}
-			if (f.IsInvalid())
-			{
-				return false;
-			}
-
-			const uint32_t bufferSize = 2048;
-			DWORD bytesWritten = 0;
-			size_t totalWritten = 0;
-			const unique_ptr<uint8_t[]> pdata = make_unique<uint8_t[]>(bufferSize);
-			for (uint32_t i = 0; i < bufferSize; i++) {
-				pdata[i] = 0xFF;
-			}
-			f.SetFilePosition(0,ItsFilePosition::FileBegin);
-			while (totalWritten < fileSize) {
-				f.Write(static_cast<const void*>(pdata.get()), static_cast<DWORD>(((fileSize - totalWritten) > bufferSize) ? bufferSize : (fileSize - totalWritten)), &bytesWritten);
-				totalWritten += bytesWritten;
-			}
-			f.Close();
-
-			if (alsoDelete)
-			{
-				return ItsFile::Delete(filename);
-			}
-
-			return true;
-		}
-
-		static bool ShredAndDelete(wstring filename) 
-		{
-			return ItsFile::Shred(filename, true);
-		}
-	};
+	};	
 
 #pragma warning(disable: 26812)
 	enum EREGCLASS
