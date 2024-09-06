@@ -1,0 +1,1 @@
+cppcheck --enable=all --suppress=missingIncludeSystem TestApplication.cpp
