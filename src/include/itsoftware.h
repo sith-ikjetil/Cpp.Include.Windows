@@ -304,7 +304,7 @@ namespace ItSoftware
 			if (source.size() == 0) {
 				return wstring(L"");
 			}
-			if (width <= 0) {
+			if (width == 0) {
 				return wstring(L"");
 			}
 
@@ -407,7 +407,7 @@ namespace ItSoftware
 
 		static wstring Left( wstring s, unsigned int count )
 		{
-			if ( s.size( ) == 0 || count <= 0 )
+			if ( s.size( ) == 0 || count == 0 )
 			{
 				return wstring( L"" );
 			}
@@ -429,7 +429,7 @@ namespace ItSoftware
 		
 		static wstring Mid( wstring s, size_t index, size_t count )
 		{
-			if ( s.size( ) == 0 || count <= 0 || index < 0 || index >= s.size( ) )
+			if ( s.size( ) == 0 || count == 0 || index >= s.size( ) )
 			{
 				return wstring( L"" );
 			}
@@ -457,7 +457,7 @@ namespace ItSoftware
 		
 		static wstring Right( wstring s, unsigned int count )
 		{
-			if ( s.size( ) == 0 || count <= 0 )
+			if ( s.size( ) == 0 || count == 0 )
 			{
 				return wstring( L"" );
 			}
@@ -495,7 +495,7 @@ namespace ItSoftware
 			auto result = ItsString::Split(s, replace);
 			wstringstream ss;
 			bool bHit = false;
-			for (auto& t : result) {
+			for (const auto& t : result) {
 				if (bHit) {
 					ss << replace_with;
 				}
@@ -810,7 +810,7 @@ namespace ItSoftware
 		{
 			wstringstream ss;
 			bool bAddSep = false;
-			for ( auto&pk : pks ) {
+			for ( const auto&pk : pks ) {
 				if ( bAddSep ) {
 					ss << L";";
 				}
@@ -911,7 +911,7 @@ namespace ItSoftware
 			this->m_tm = timeDate;
 		}
 
-		ItsDateTime(ItsDateTime& dateTime)
+		ItsDateTime(const ItsDateTime& dateTime)
 		{
 			this->m_tm = dateTime.m_tm;
 		}
@@ -923,9 +923,9 @@ namespace ItSoftware
 
 		static ItsDateTime Now( ) 
 		{
-			time_t t;
+			time_t t{ 0 };
 			time( &t );
-			tm tm2;
+			tm tm2{ 0 };
 			localtime_s( &tm2, &t );
 
 			return ItsDateTime( tm2 );
@@ -1575,7 +1575,7 @@ namespace ItSoftware
 	public:
 		static wstring CreateID(size_t count, ItsCreateIDOptions options, bool includeNumbers)
 		{
-			if (count <= 0)
+			if (count == 0)
 			{
 				count = 16;
 			}

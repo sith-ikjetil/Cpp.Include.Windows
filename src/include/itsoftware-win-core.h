@@ -419,22 +419,18 @@ namespace ItSoftware::Win::Core
 				return false;
 			}
 
-			for (auto d : directory) {
-				for (auto i : invalidPathChars) {
-					if (d == i) {
-						return false;
-					}
-				}
-			}
+			return std::all_of(directory.begin(), directory.end(), [&](wchar_t d) {
+				return std::none_of(invalidPathChars.begin(), invalidPathChars.end(), [&](wchar_t i) {
+					return d == i;
+					});
+				});
 
-			for (auto f : filename) {
-				for (auto i : invalidFileChars) {
-					if (f == i) {
-						return false;
-					}
-				}
-			}
-
+			return std::all_of(filename.begin(), filename.end(), [&](wchar_t d) {
+				return std::none_of(invalidFileChars.begin(), invalidFileChars.end(), [&](wchar_t i) {
+					return d == i;
+					});
+				});
+			
 			return true;
 		}
 		static bool HasExtension(wstring path, wstring extension)
@@ -2126,7 +2122,7 @@ namespace ItSoftware::Win::Core
 		//
 		// (i): Reads all text from a text file.
 		//
-		static bool AppendText(wstring filename, ItsFileTextType textType, wstring& textToWrite)
+		static bool AppendText(wstring filename, ItsFileTextType textType, const wstring& textToWrite)
 		{
 			if (!ItsFile::Exists(filename)) {
 				return false;

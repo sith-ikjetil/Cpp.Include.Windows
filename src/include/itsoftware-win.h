@@ -1096,7 +1096,7 @@ namespace ItSoftware::Win
 				return false;
 			}
 
-			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_SUCCESS, category, eventid, NULL, numberofstrings, 0, (LPCWSTR*)&description, NULL);
+			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_SUCCESS, category, eventid, NULL, numberofstrings, 0, const_cast<LPCWSTR*>(&description), NULL);
 			if (!bStatus)
 			{
 				::DeregisterEventSource(hEventLog);
@@ -1141,7 +1141,7 @@ namespace ItSoftware::Win
 				return false;
 			}
 
-			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_ERROR_TYPE, category, eventid, NULL, numberofstrings, 0, (LPCWSTR*)&description, NULL);
+			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_ERROR_TYPE, category, eventid, NULL, numberofstrings, 0, const_cast<LPCWSTR*>(&description), NULL);
 			if (!bStatus)
 			{
 				::DeregisterEventSource(hEventLog);
@@ -1186,7 +1186,7 @@ namespace ItSoftware::Win
 				return false;
 			}
 
-			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_WARNING_TYPE, category, eventid, NULL, numberofstrings, 0, (LPCWSTR*)&description, NULL);
+			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_WARNING_TYPE, category, eventid, NULL, numberofstrings, 0, const_cast<LPCWSTR*>(&description), NULL);
 			if (!bStatus)
 			{
 				::DeregisterEventSource(hEventLog);
@@ -1231,7 +1231,7 @@ namespace ItSoftware::Win
 				return false;
 			}
 
-			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_INFORMATION_TYPE, category, eventid, NULL, numberofstrings, 0, (LPCWSTR*)&description, NULL);
+			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_INFORMATION_TYPE, category, eventid, NULL, numberofstrings, 0, const_cast<LPCWSTR*>(&description), NULL);
 			if (!bStatus)
 			{
 				::DeregisterEventSource(hEventLog);
@@ -1276,7 +1276,7 @@ namespace ItSoftware::Win
 				return false;
 			}
 
-			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_AUDIT_SUCCESS, category, eventid, NULL, numberofstrings, 0, (LPCWSTR*)&description, NULL);
+			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_AUDIT_SUCCESS, category, eventid, NULL, numberofstrings, 0, const_cast<LPCWSTR*>(&description), NULL);
 			if (!bStatus)
 			{
 				::DeregisterEventSource(hEventLog);
@@ -1321,7 +1321,7 @@ namespace ItSoftware::Win
 				return false;
 			}
 
-			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_AUDIT_FAILURE, category, eventid, NULL, numberofstrings, 0, (LPCWSTR*)&description, NULL);
+			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_AUDIT_FAILURE, category, eventid, NULL, numberofstrings, 0, const_cast<LPCWSTR*>(&description), NULL);
 			if (!bStatus)
 			{
 				::DeregisterEventSource(hEventLog);

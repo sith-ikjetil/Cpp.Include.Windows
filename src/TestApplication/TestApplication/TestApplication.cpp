@@ -200,7 +200,7 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
     //
     // (i): Prints a tests header.
     //
-    void PrintTestHeader(wstring txt)
+    void PrintTestHeader(const wstring txt)
     {
         static mutex m;
         lock_guard<mutex> guard(m);
@@ -221,7 +221,7 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
     //
     // (i): Prints a tests sub header.
     //
-    void PrintTestSubHeader(wstring txt)
+    void PrintTestSubHeader(const wstring txt)
     {
         wcout << CLR_RESET << CLR_GREEN;
 
@@ -978,7 +978,7 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
     //
     // (i): handle file event.
     //
-    void HandleFileEvent(ItsFileMonitorEvent& event)
+    void HandleFileEvent(const ItsFileMonitorEvent& event)
     {
         wstringstream ss;
         ss << L"Name: " << event.FileName << L", Action: ";

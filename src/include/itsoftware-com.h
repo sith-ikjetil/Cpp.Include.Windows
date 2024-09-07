@@ -229,7 +229,7 @@ namespace ItSoftware::COM
 			{
 				this->ResetStreamPosition();
 
-				HRESULT hr = ::CoUnmarshalInterface(this->m_pStream, (*piid), (void**)ptr);
+				HRESULT hr = ::CoUnmarshalInterface(this->m_pStream, (*piid), static_cast<void**>(ptr));
 				if (FAILED(hr)) {
 					return hr;
 				}
@@ -250,7 +250,7 @@ namespace ItSoftware::COM
 				this->ResetStreamPosition();
 
 				T* p = nullptr;
-				HRESULT hr = ::CoUnmarshalInterface(this->m_pStream, (*piid), (void**)&p);
+				HRESULT hr = ::CoUnmarshalInterface(this->m_pStream, (*piid), static_cast<void**>(&p));
 				if (FAILED(hr)) {
 					return hr;
 				}
@@ -310,7 +310,7 @@ namespace ItSoftware::COM
 			if (!this->m_bHasMarshaled)
 			{
 				CComPtr<IGlobalInterfaceTable> pIGIT;
-				HRESULT hr = CoCreateInstance(CLSID_StdGlobalInterfaceTable, NULL, CLSCTX_INPROC_SERVER, IID_IGlobalInterfaceTable, (void**)&pIGIT);
+				HRESULT hr = CoCreateInstance(CLSID_StdGlobalInterfaceTable, NULL, CLSCTX_INPROC_SERVER, IID_IGlobalInterfaceTable, static_cast<void**>(&pIGIT));
 				if (FAILED(hr)) {
 					return hr;
 				}
@@ -334,12 +334,12 @@ namespace ItSoftware::COM
 			if (this->m_bHasMarshaled && !this->m_bHasUnMarshaled)
 			{
 				CComPtr<IGlobalInterfaceTable> pIGIT;
-				HRESULT hr = CoCreateInstance(CLSID_StdGlobalInterfaceTable, NULL, CLSCTX_INPROC_SERVER, IID_IGlobalInterfaceTable, (void**)&pIGIT);
+				HRESULT hr = CoCreateInstance(CLSID_StdGlobalInterfaceTable, NULL, CLSCTX_INPROC_SERVER, IID_IGlobalInterfaceTable, static_cast<void**>(&pIGIT));
 				if (FAILED(hr)) {
 					return hr;
 				}
 
-				hr = pIGIT->GetInterfaceFromGlobal(this->m_dwCookie, (*piid), (void**)ptr);
+				hr = pIGIT->GetInterfaceFromGlobal(this->m_dwCookie, (*piid), static_cast<void**>(ptr));
 				if (FAILED(hr)) {
 					return hr;
 				}
@@ -357,13 +357,13 @@ namespace ItSoftware::COM
 			if (this->m_bHasMarshaled && !this->m_bHasUnMarshaled)
 			{
 				CComPtr<IGlobalInterfaceTable> pIGIT;
-				HRESULT hr = CoCreateInstance(CLSID_StdGlobalInterfaceTable, NULL, CLSCTX_INPROC_SERVER, IID_IGlobalInterfaceTable, (void**)&pIGIT);
+				HRESULT hr = CoCreateInstance(CLSID_StdGlobalInterfaceTable, NULL, CLSCTX_INPROC_SERVER, IID_IGlobalInterfaceTable, static_cast<void**>(&pIGIT));
 				if (FAILED(hr)) {
 					return hr;
 				}
 
 				T* p = nullptr;
-				hr = pIGIT->GetInterfaceFromGlobal(this->m_dwCookie, (*piid), (void**)&p);
+				hr = pIGIT->GetInterfaceFromGlobal(this->m_dwCookie, (*piid), static_cast<void**>(&p));
 				if (FAILED(hr)) {
 					return hr;
 				}
@@ -419,8 +419,10 @@ namespace ItSoftware::COM
 				}
 			}
 
+			va_end(list);
+
 			if ( failed )
-			{
+			{				
 				throw ItsComException( hr );
 			}
 		}
