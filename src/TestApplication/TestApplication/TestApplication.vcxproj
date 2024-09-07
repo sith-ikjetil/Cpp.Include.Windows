@@ -162,6 +162,9 @@
   <ItemGroup>
     <Text Include="poem.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp-check.bat" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

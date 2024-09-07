@@ -94,7 +94,7 @@ namespace ItSoftware::COM
 	public:
 
 
-		ItsComException( HRESULT hr )
+		explicit ItsComException( HRESULT hr )
 			: m_hr( hr ),
 			m_message( CComBSTR( L"" ) ),
 			m_systemMessage( GetSystemMessage( hr ) ),
@@ -102,7 +102,7 @@ namespace ItSoftware::COM
 		{
 		}
 
-		ItsComException( HRESULT hr, CComBSTR message )
+		explicit ItsComException( HRESULT hr, CComBSTR message )
 			: m_hr( hr ),
 			m_message( message ),
 			m_systemMessage( GetSystemMessage( hr ) ),
@@ -229,7 +229,7 @@ namespace ItSoftware::COM
 			{
 				this->ResetStreamPosition();
 
-				HRESULT hr = ::CoUnmarshalInterface(this->m_pStream, (*piid), static_cast<void**>(ptr));
+				HRESULT hr = ::CoUnmarshalInterface(this->m_pStream, (*piid), reinterpret_cast<void**>(ptr));
 				if (FAILED(hr)) {
 					return hr;
 				}
@@ -250,7 +250,7 @@ namespace ItSoftware::COM
 				this->ResetStreamPosition();
 
 				T* p = nullptr;
-				HRESULT hr = ::CoUnmarshalInterface(this->m_pStream, (*piid), static_cast<void**>(&p));
+				HRESULT hr = ::CoUnmarshalInterface(this->m_pStream, (*piid), reinterpret_cast<void**>(&p));
 				if (FAILED(hr)) {
 					return hr;
 				}
@@ -310,7 +310,7 @@ namespace ItSoftware::COM
 			if (!this->m_bHasMarshaled)
 			{
 				CComPtr<IGlobalInterfaceTable> pIGIT;
-				HRESULT hr = CoCreateInstance(CLSID_StdGlobalInterfaceTable, NULL, CLSCTX_INPROC_SERVER, IID_IGlobalInterfaceTable, static_cast<void**>(&pIGIT));
+				HRESULT hr = CoCreateInstance(CLSID_StdGlobalInterfaceTable, NULL, CLSCTX_INPROC_SERVER, IID_IGlobalInterfaceTable, reinterpret_cast<void**>(&pIGIT));
 				if (FAILED(hr)) {
 					return hr;
 				}
@@ -334,12 +334,12 @@ namespace ItSoftware::COM
 			if (this->m_bHasMarshaled && !this->m_bHasUnMarshaled)
 			{
 				CComPtr<IGlobalInterfaceTable> pIGIT;
-				HRESULT hr = CoCreateInstance(CLSID_StdGlobalInterfaceTable, NULL, CLSCTX_INPROC_SERVER, IID_IGlobalInterfaceTable, static_cast<void**>(&pIGIT));
+				HRESULT hr = CoCreateInstance(CLSID_StdGlobalInterfaceTable, NULL, CLSCTX_INPROC_SERVER, IID_IGlobalInterfaceTable, reinterpret_cast<void**>(&pIGIT));
 				if (FAILED(hr)) {
 					return hr;
 				}
 
-				hr = pIGIT->GetInterfaceFromGlobal(this->m_dwCookie, (*piid), static_cast<void**>(ptr));
+				hr = pIGIT->GetInterfaceFromGlobal(this->m_dwCookie, (*piid), reinterpret_cast<void**>(ptr));
 				if (FAILED(hr)) {
 					return hr;
 				}
@@ -357,13 +357,13 @@ namespace ItSoftware::COM
 			if (this->m_bHasMarshaled && !this->m_bHasUnMarshaled)
 			{
 				CComPtr<IGlobalInterfaceTable> pIGIT;
-				HRESULT hr = CoCreateInstance(CLSID_StdGlobalInterfaceTable, NULL, CLSCTX_INPROC_SERVER, IID_IGlobalInterfaceTable, static_cast<void**>(&pIGIT));
+				HRESULT hr = CoCreateInstance(CLSID_StdGlobalInterfaceTable, NULL, CLSCTX_INPROC_SERVER, IID_IGlobalInterfaceTable, reinterpret_cast<void**>(&pIGIT));
 				if (FAILED(hr)) {
 					return hr;
 				}
 
 				T* p = nullptr;
-				hr = pIGIT->GetInterfaceFromGlobal(this->m_dwCookie, (*piid), static_cast<void**>(&p));
+				hr = pIGIT->GetInterfaceFromGlobal(this->m_dwCookie, (*piid), reinterpret_cast<void**>(&p));
 				if (FAILED(hr)) {
 					return hr;
 				}
@@ -438,7 +438,7 @@ namespace ItSoftware::COM
 			}
 		}
 
-		/*static void HR(HRESULT hr, CComBSTR message, HRESULT ...)
+		static void HR(HRESULT hr, CComBSTR message, HRESULT ...)
 		{
 			if ( hr == S_OK )
 			{
@@ -462,12 +462,14 @@ namespace ItSoftware::COM
 					break;
 				}
 			}
+			
+			va_end(list);
 
 			if ( failed )
 			{
-				throw ComException( hr, message );
+				throw ItsComException( hr, message );
 			}
-		}*/
+		}
 	};
 
 	// 
@@ -492,7 +494,7 @@ namespace ItSoftware::COM
 		ItsComApartment m_apartment;
 		bool		 m_isInitialized;
 	public:
-		ItsComRuntime( ItsComApartment apartment )
+		explicit ItsComRuntime( ItsComApartment apartment )
 			: m_apartment( apartment ),
 			m_isInitialized( false )
 		{

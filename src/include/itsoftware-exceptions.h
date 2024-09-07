@@ -69,14 +69,14 @@ namespace ItSoftware::Exceptions
                     NULL,
                     errorCode,
                     MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), // Default language
-                    (wchar_t *)&lpMsgBuf,
+                    reinterpret_cast<wchar_t*>(&lpMsgBuf),
                     0,
                     NULL );
 
             if ( lpMsgBuf != nullptr )
             {
                 // Copy buffer contet to bstr...
-                wstring msg( (wchar_t *)lpMsgBuf );
+                wstring msg(reinterpret_cast<wchar_t *>(lpMsgBuf) );
 
                 // Free the buffer...
                 LocalFree( lpMsgBuf );
@@ -93,7 +93,7 @@ namespace ItSoftware::Exceptions
         wstring GetCoLastErrorMessage()
         {
             IErrorInfo *pErrInfo = nullptr;
-            HRESULT hr = GetErrorInfo( NULL, (IErrorInfo **)&pErrInfo );
+            HRESULT hr = GetErrorInfo( NULL, static_cast<IErrorInfo **>(&pErrInfo) );
             CComBSTR bstr;
             if ( hr == S_OK && pErrInfo != nullptr )
             {
@@ -106,20 +106,20 @@ namespace ItSoftware::Exceptions
             
     public:
             
-        ItsException()
+        explicit ItsException()
             : exception(),
             m_errorCode(0)
         { 
         }
             
-        ItsException(unsigned int errorCode)
+        explicit ItsException(unsigned int errorCode)
             : exception(),
             m_errorCode(errorCode)
         {
 
         }
             
-        ItsException( wstring message)
+        explicit ItsException( wstring message)
             : exception(),
             m_errorCode( 0 ),
             m_message(message)
@@ -127,7 +127,7 @@ namespace ItSoftware::Exceptions
 
         }
 
-        ItsException(ItsException& other)
+        explicit ItsException(ItsException& other)
         {
             //
             // Take over ownership
@@ -145,7 +145,7 @@ namespace ItSoftware::Exceptions
             other.m_message = L"";
         }
              
-        ItsException( ItsException&& other ) noexcept
+        explicit ItsException( ItsException&& other ) noexcept
             : exception()
         {
             //
@@ -162,7 +162,7 @@ namespace ItSoftware::Exceptions
             other.m_message = L"";
         }
 
-        ItsException( unsigned int errorCode, wstring message )
+        explicit ItsException( unsigned int errorCode, wstring message )
             :	exception(),
             m_errorCode( errorCode ),
             m_message( message )
@@ -170,30 +170,33 @@ namespace ItSoftware::Exceptions
 
         }
 
-        ItsException( unsigned int errorCode, ItsException&& inner )
-            : exception(),
-            m_errorCode( errorCode )				  
-        {
-			m_pInnerException = make_unique<ItsException>(std::move(inner));
-        }
-
-        ItsException( wstring message, ItsException&& inner )
-            : exception(),
-            m_errorCode( 0 ),
-            m_message( message )
-        {
-			m_pInnerException = make_unique<ItsException>( std::move(inner) );
-        }
-
-        ItsException( unsigned int errorCode, wstring message, ItsException&& inner )
+        explicit ItsException( unsigned int errorCode, ItsException&& inner )
             : exception(),
             m_errorCode( errorCode ),
-			m_message( message )
+            m_pInnerException(make_unique<ItsException>(std::move(inner)))
         {
-			m_pInnerException = make_unique<ItsException>( std::move(inner) );
+			
         }
 
-        virtual wstring ToString()
+        explicit ItsException( wstring message, ItsException&& inner )
+            : exception(),
+            m_errorCode( 0 ),
+            m_message( message ),
+            m_pInnerException(make_unique<ItsException>(std::move(inner)))
+        {
+			
+        }
+
+        explicit ItsException( unsigned int errorCode, wstring message, ItsException&& inner )
+            : exception(),
+            m_errorCode( errorCode ),
+			m_message( message ),
+            m_pInnerException(make_unique<ItsException>(std::move(inner)))
+        {
+			
+        }
+
+        virtual wstring ToString() 
         {
             wstringstream msg;
             msg << L"## Exception ##" << endl;
@@ -224,31 +227,31 @@ namespace ItSoftware::Exceptions
 		wstring m_argumentName;
 
 	public:
-		ItsNullReferenceException( wstring name )
+        explicit ItsNullReferenceException( wstring name )
 			: m_argumentName( name )
 		{
 		}
 
-		ItsNullReferenceException( wstring name, wstring message )
+        explicit ItsNullReferenceException( wstring name, wstring message )
 			: m_argumentName( name ),
 				ItsException(message)
 		{
 		}
 			
-		ItsNullReferenceException( wstring name, ItsException&& inner )
+        explicit ItsNullReferenceException( wstring name, ItsException&& inner )
 			: m_argumentName( name )
 		{
 			this->m_pInnerException = make_unique<ItsException>( std::move( inner ) );
 		}
 
-		ItsNullReferenceException( wstring name, wstring message, ItsException&& inner )
+        explicit ItsNullReferenceException( wstring name, wstring message, ItsException&& inner )
 		{
 			this->m_message = message;
 			this->m_pInnerException = make_unique<ItsException>( std::move( inner ) );
 			this->m_argumentName = name;					
 		}
 
-		virtual wstring ToString()
+		virtual wstring ToString() override
 		{
 			wstringstream msg;
 			msg << L"## Exception ##" << endl;
@@ -277,18 +280,18 @@ namespace ItSoftware::Exceptions
 		wstring m_argumentName;
 
 	public:
-		ItsArgumentNullException( wstring name )
+        explicit ItsArgumentNullException( wstring name )
 			: m_argumentName(name)
 		{
 		}
 
-		ItsArgumentNullException( wstring name, ItsException&& inner )
+        explicit ItsArgumentNullException( wstring name, ItsException&& inner )
 			: m_argumentName( name )
 		{
 			this->m_pInnerException = make_unique<ItsException>( std::move( inner ) );
 		}
 
-		virtual wstring ToString()
+		virtual wstring ToString() override
 		{
 			wstringstream msg;
 			msg << L"## Exception ##" << endl;
@@ -329,7 +332,7 @@ namespace ItSoftware::Exceptions
 			this->m_pInnerException = make_unique<ItsException>( std::move( inner ) );
 		}
 
-		virtual wstring ToString()
+		virtual wstring ToString() override
 		{
 			wstringstream msg;
 			msg << L"## Exception ##" << endl;

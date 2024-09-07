@@ -1,1 +1,1 @@
-cppcheck --enable=all --suppress=missingIncludeSystem --suppress=unusedFunction --suppress=unreadVariable --suppress=passedByValue TestApplication.cpp
+cppcheck --enable=all --suppress=missingIncludeSystem --suppress=unusedFunction --suppress=unreadVariable --suppress=passedByValue --suppress=missingInclude TestApplication.cpp

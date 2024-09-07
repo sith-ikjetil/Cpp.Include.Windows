@@ -142,7 +142,7 @@ namespace ItSoftware
 					return nullptr;
 				}
 
-				memcpy( (void*) pBytes, s.data( ), length );
+				memcpy( static_cast<void*>(pBytes), s.data( ), length );
 
 				*cbLength = (long) length;
 
@@ -906,17 +906,17 @@ namespace ItSoftware
 		tm m_tm;
 
 	public:
-		ItsDateTime( tm timeDate ) 
+		explicit ItsDateTime( tm timeDate )
 		{
 			this->m_tm = timeDate;
 		}
 
-		ItsDateTime(const ItsDateTime& dateTime)
+		explicit ItsDateTime(const ItsDateTime& dateTime)
 		{
 			this->m_tm = dateTime.m_tm;
 		}
 
-		ItsDateTime(ItsDateTime&& dateTime) noexcept
+		explicit ItsDateTime(ItsDateTime&& dateTime) noexcept
 		{
 			this->m_tm = dateTime.m_tm;
 		}
@@ -1413,7 +1413,7 @@ namespace ItSoftware
 			}
 			
 			CComBSTR bstr(description.c_str());
-			BOOL bStatus = ::ReportEvent(hEventLog, ConvertEnumToType(eeventlogtype), 0, 0, NULL, 1, 0, (LPCWSTR*)&bstr, NULL);
+			BOOL bStatus = ::ReportEvent(hEventLog, ConvertEnumToType(eeventlogtype), 0, 0, NULL, 1, 0, const_cast<LPCWSTR*>(reinterpret_cast<LPWSTR*>(&bstr)), NULL);
 			if (!bStatus) {
 				::DeregisterEventSource(hEventLog);
 				return -1;

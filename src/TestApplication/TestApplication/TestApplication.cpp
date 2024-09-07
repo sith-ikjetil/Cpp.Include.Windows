@@ -101,7 +101,7 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
     void PrintTestHeader(wstring txt);
     void PrintTestSubHeader(wstring txt);
     void PrintTestApplicationEvent(wstring event);
-    void HandleFileEvent(ItsFileMonitorEvent& event);
+    void HandleFileEvent(const ItsFileMonitorEvent& event);
 
     //
     // constexpr
@@ -398,10 +398,8 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
             if (!bFirst) {
                 ss << L",";
             }
-            ss << LR"(")" << s << LR"(")";
-            if (bFirst) {
-                bFirst = false;
-            }
+            ss << LR"(")" << s << LR"(")";            
+            bFirst = false;            
         }
         ss << L"}";
 

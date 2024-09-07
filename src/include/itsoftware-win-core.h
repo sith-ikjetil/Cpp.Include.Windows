@@ -526,13 +526,13 @@ namespace ItSoftware::Win::Core
 				NULL,
 				GetLastError(),
 				MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-				(wchar_t*)&lpMsgBuf,
+				reinterpret_cast<wchar_t*>(&lpMsgBuf),
 				0,
 				NULL);
 
 			// Copy buffer contet to bstr...
 			CComBSTR bstr;
-			bstr += (wchar_t*)lpMsgBuf;
+			bstr += reinterpret_cast<wchar_t*>(lpMsgBuf);
 
 			// Free the buffer...
 			LocalFree(lpMsgBuf);
@@ -553,13 +553,13 @@ namespace ItSoftware::Win::Core
 				NULL,
 				dwError,
 				MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-				(wchar_t*)&lpMsgBuf,
+				reinterpret_cast<wchar_t*>(&lpMsgBuf),
 				0,
 				NULL);
 
 			// Copy buffer contet to bstr...
 			CComBSTR bstr;
-			bstr += (wchar_t*)lpMsgBuf;
+			bstr += reinterpret_cast<wchar_t*>(lpMsgBuf);
 
 			// Free the buffer...
 			LocalFree(lpMsgBuf);
@@ -574,7 +574,7 @@ namespace ItSoftware::Win::Core
 		static wstring GetCoLastErrorInfoDescription()
 		{
 			IErrorInfo* pErrInfo = nullptr;
-			HRESULT hr = GetErrorInfo(NULL, (IErrorInfo**)&pErrInfo);
+			HRESULT hr = GetErrorInfo(NULL, static_cast<IErrorInfo**>(&pErrInfo));
 			CComBSTR bstr;
 			if (hr == S_OK && pErrInfo)
 			{
@@ -1175,7 +1175,7 @@ namespace ItSoftware::Win::Core
 			this->m_handle = CreateEvent(NULL, TRUE, FALSE, NULL);
 		}
 
-		ItsEvent(bool signaled)
+		explicit ItsEvent(bool signaled)
 		{
 			this->m_handle = CreateEvent(NULL, TRUE, (signaled) ? TRUE : FALSE, NULL);
 		}
@@ -1771,20 +1771,20 @@ namespace ItSoftware::Win::Core
 
 				DWORD dwRead{ 0 };
 
-				this->Read((BYTE*)text.get(), readBuffSize, &dwRead);
+				this->Read(reinterpret_cast<BYTE*>(text.get()), readBuffSize, &dwRead);
 
 				read_pos += dwRead;
 
 				while (dwRead > 0 && (read_pos + 0) < size)
 				{
-					this->Read((BYTE*)&(text.get()[read_pos]), readBuffSize, &dwRead);
+					this->Read(reinterpret_cast<BYTE*>(&(text.get()[read_pos])), readBuffSize, &dwRead);
 
 					read_pos += dwRead;
 				}
 
 				text.get()[size] = '\0';
 
-				string all((char*)text.get());
+				string all(reinterpret_cast<char*>(text.get()));
 				wstring out_all(all.begin(), all.end());
 				lines = ItsString::Split(out_all, lineDelimiter);
 			}
@@ -1799,13 +1799,13 @@ namespace ItSoftware::Win::Core
 
 				DWORD dwRead{ 0 };
 
-				this->Read((BYTE*)text.get(), readBuffSize, &dwRead);
+				this->Read(reinterpret_cast<BYTE*>(text.get()), readBuffSize, &dwRead);
 
 				read_pos += dwRead;
 
 				while (dwRead > 0 && (read_pos + 2) < size)
 				{
-					this->Read((BYTE*)&(text.get()[read_pos]), readBuffSize, &dwRead);
+					this->Read(reinterpret_cast<BYTE*>(&(text.get()[read_pos])), readBuffSize, &dwRead);
 
 					read_pos += dwRead;
 				}
@@ -1813,7 +1813,7 @@ namespace ItSoftware::Win::Core
 				text.get()[size - 2] = '\0';
 				text.get()[size - 1] = '\0';
 
-				wstring all((wchar_t*)text.get());
+				wstring all(reinterpret_cast<wchar_t*>(text.get()));
 				lines = ItsString::Split(all, lineDelimiter);
 			}
 			else if (this->m_textType == ItsFileTextType::UTF8WithBOM)
@@ -1827,13 +1827,13 @@ namespace ItSoftware::Win::Core
 
 				DWORD dwRead{ 0 };
 
-				this->Read((BYTE*)text.get(), readBuffSize, &dwRead);
+				this->Read(reinterpret_cast<BYTE*>(text.get()), readBuffSize, &dwRead);
 
 				read_pos += dwRead;
 
 				while (dwRead > 0 && (read_pos + 3) < size)
 				{
-					this->Read((BYTE*)&(text.get()[read_pos]), readBuffSize, &dwRead);
+					this->Read(reinterpret_cast<BYTE*>(&(text.get()[read_pos])), readBuffSize, &dwRead);
 
 					read_pos += dwRead;
 				}
@@ -1842,7 +1842,7 @@ namespace ItSoftware::Win::Core
 				text.get()[size - 2] = '\0';
 				text.get()[size - 1] = '\0';
 
-				wstring all = ItSoftware::Encoding::UTF8::ToString((char*)text.get());
+				wstring all = ItSoftware::Encoding::UTF8::ToString(reinterpret_cast<char*>(text.get()));
 				lines = ItsString::Split(all, lineDelimiter);
 			}
 			else if (this->m_textType == ItsFileTextType::UTF8NoBOM)
@@ -1856,13 +1856,13 @@ namespace ItSoftware::Win::Core
 
 				DWORD dwRead{ 0 };
 
-				this->Read((BYTE*)text.get(), readBuffSize, &dwRead);
+				this->Read(reinterpret_cast<BYTE*>(text.get()), readBuffSize, &dwRead);
 
 				read_pos += dwRead;
 
 				while (dwRead > 0 && (read_pos + 3) < size)
 				{
-					this->Read((BYTE*)&(text.get()[read_pos]), readBuffSize, &dwRead);
+					this->Read(reinterpret_cast<BYTE*>(&(text.get()[read_pos])), readBuffSize, &dwRead);
 
 					read_pos += dwRead;
 				}
@@ -1871,7 +1871,7 @@ namespace ItSoftware::Win::Core
 				text.get()[size - 2] = '\0';
 				text.get()[size - 1] = '\0';
 
-				wstring all = ItSoftware::Encoding::UTF8::ToString((char*)text.get());
+				wstring all = ItSoftware::Encoding::UTF8::ToString(reinterpret_cast<char*>(text.get()));
 				lines = ItsString::Split(all, lineDelimiter);
 			}
 			else {
@@ -1937,20 +1937,20 @@ namespace ItSoftware::Win::Core
 
 				DWORD dwRead{ 0 };
 
-				this->Read((BYTE*)text.get(), readBuffSize, &dwRead);
+				this->Read(reinterpret_cast<BYTE*>(text.get()), readBuffSize, &dwRead);
 
 				read_pos += dwRead;
 
 				while (dwRead > 0 && (read_pos + 0) < size)
 				{
-					this->Read((BYTE*)&(text.get()[read_pos]), readBuffSize, &dwRead);
+					this->Read(reinterpret_cast<BYTE*>(&(text.get()[read_pos])), readBuffSize, &dwRead);
 
 					read_pos += dwRead;
 				}
 
 				text.get()[size] = '\0';
 
-				string all((char*)text.get());
+				string all(reinterpret_cast<char*>(text.get()));
 				wstring out_all(all.begin(), all.end());
 				out = out_all;
 			}
@@ -1965,13 +1965,13 @@ namespace ItSoftware::Win::Core
 
 				DWORD dwRead{ 0 };
 
-				this->Read((BYTE*)text.get(), readBuffSize, &dwRead);
+				this->Read(reinterpret_cast<BYTE*>(text.get()), readBuffSize, &dwRead);
 
 				read_pos += dwRead;
 
 				while (dwRead > 0 && (read_pos + 2) < size)
 				{
-					this->Read((BYTE*)&(text.get()[read_pos]), readBuffSize, &dwRead);
+					this->Read(reinterpret_cast<BYTE*>(&(text.get()[read_pos])), readBuffSize, &dwRead);
 
 					read_pos += dwRead;
 				}
@@ -1979,7 +1979,7 @@ namespace ItSoftware::Win::Core
 				text.get()[size - 2] = '\0';
 				text.get()[size - 1] = '\0';
 
-				wstring all((wchar_t*)text.get());
+				wstring all(reinterpret_cast<wchar_t*>(text.get()));
 				out = all;
 			}
 			else if (this->m_textType == ItsFileTextType::UTF8WithBOM)
@@ -1993,13 +1993,13 @@ namespace ItSoftware::Win::Core
 
 				DWORD dwRead{ 0 };
 
-				this->Read((BYTE*)text.get(), readBuffSize, &dwRead);
+				this->Read(reinterpret_cast<BYTE*>(text.get()), readBuffSize, &dwRead);
 
 				read_pos += dwRead;
 
 				while (dwRead > 0 && (read_pos + 3) < size)
 				{
-					this->Read((BYTE*)&(text.get()[read_pos]), readBuffSize, &dwRead);
+					this->Read(reinterpret_cast<BYTE*>(&(text.get()[read_pos])), readBuffSize, &dwRead);
 
 					read_pos += dwRead;
 				}
@@ -2008,7 +2008,7 @@ namespace ItSoftware::Win::Core
 				text.get()[size - 2] = '\0';
 				text.get()[size - 1] = '\0';
 
-				wstring all = ItSoftware::Encoding::UTF8::ToString((char*)text.get());
+				wstring all = ItSoftware::Encoding::UTF8::ToString(reinterpret_cast<char*>(text.get()));
 				out = all;
 			}
 			else if (this->m_textType == ItsFileTextType::UTF8NoBOM)
@@ -2022,13 +2022,13 @@ namespace ItSoftware::Win::Core
 
 				DWORD dwRead{ 0 };
 
-				this->Read((BYTE*)text.get(), readBuffSize, &dwRead);
+				this->Read(reinterpret_cast<BYTE*>(text.get()), readBuffSize, &dwRead);
 
 				read_pos += dwRead;
 
 				while (dwRead > 0 && (read_pos + 3) < size)
 				{
-					this->Read((BYTE*)&(text.get()[read_pos]), readBuffSize, &dwRead);
+					this->Read(reinterpret_cast<BYTE*>(&(text.get()[read_pos])), readBuffSize, &dwRead);
 
 					read_pos += dwRead;
 				}
@@ -2037,7 +2037,7 @@ namespace ItSoftware::Win::Core
 				text.get()[size - 2] = '\0';
 				text.get()[size - 1] = '\0';
 
-				wstring all = ItSoftware::Encoding::UTF8::ToString((char*)text.get());
+				wstring all = ItSoftware::Encoding::UTF8::ToString(reinterpret_cast<char*>(text.get()));
 				out = all;
 			}
 			else {
@@ -2095,11 +2095,11 @@ namespace ItSoftware::Win::Core
 			{
 				string txt(text.begin(), text.end());
 				DWORD dwWritten{ 0 };
-				return this->Write((BYTE*)txt.data(), (DWORD)txt.size(), &dwWritten);
+				return this->Write(reinterpret_cast<BYTE*>(txt.data()), (DWORD)txt.size(), &dwWritten);
 			}
 			else if (this->m_textType == ItsFileTextType::Unicode) {
 				DWORD dwWritten{ 0 };
-				return this->Write((BYTE*)text.data(), (DWORD)(text.size() * sizeof(wchar_t)), &dwWritten);
+				return this->Write(reinterpret_cast<BYTE*>(text.data()), (DWORD)(text.size() * sizeof(wchar_t)), &dwWritten);
 			}
 			else if (this->m_textType == ItsFileTextType::UTF8WithBOM) {
 				long cbLength{ 0 };
@@ -2385,7 +2385,7 @@ namespace ItSoftware::Win::Core
 			}
 
 			wchar_t* pszBuffer = new wchar_t[lSize / sizeof(wchar_t)];
-			lResult = RegQueryValueEx(hOpenKey, value.c_str(), 0, &dwType, (BYTE*)pszBuffer, &lSize);
+			lResult = RegQueryValueEx(hOpenKey, value.c_str(), 0, &dwType, reinterpret_cast<BYTE*>(pszBuffer), &lSize);
 			if (lResult != ERROR_SUCCESS)
 			{
 				RegCloseKey(hOpenKey);
@@ -2472,7 +2472,7 @@ namespace ItSoftware::Win::Core
 
 			// Set default value.	
 			if (default_data.size() > 0) {
-				lResult = RegSetValueEx(hNewKey, NULL, 0, REG_SZ, (CONST BYTE*)default_data.data(), (static_cast<DWORD>(default_data.size()) * sizeof(wchar_t)) + 2);
+				lResult = RegSetValueEx(hNewKey, NULL, 0, REG_SZ, reinterpret_cast<const BYTE*>(default_data.data()), (static_cast<DWORD>(default_data.size()) * sizeof(wchar_t)) + 2);
 				if (lResult != ERROR_SUCCESS) {
 					RegCloseKey(hNewKey);	// Close New Key				
 					return false;
