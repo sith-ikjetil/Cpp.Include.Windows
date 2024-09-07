@@ -111,7 +111,7 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
 
 			unique_handle_handle	hThread1(::CreateThread(NULL, 1024 * 1024, COM1_THREAD1, (LPVOID)&pMarshal1, 0, &dwThreadID1));
 			unique_handle_handle	hThread2(::CreateThread(NULL, 1024 * 1024, COM1_THREAD2, (LPVOID)&pMarshal2, 0, &dwThreadID2));
-			thread					pThread3(COM1_THREAD3, (void*)&pMarshal3);
+			thread					pThread3(COM1_THREAD3, reinterpret_cast<void*>(&pMarshal3));
 
 			MSG msg = {};
 			::GetMessage(&msg, NULL, 0, 0);
@@ -143,6 +143,12 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
 			{
 				CComPtr<ITestCOM> pIStaObject;
 				HRESULT hr = pM->UnMarshal(&pIStaObject);
+				if (FAILED(hr)) {
+					PrintLineToConsole(L"ERROR STA UnMarshal Thread 1: " + ItsError::GetErrorDescription(hr));
+					g_bThread1Fin = true;
+					PostPotentialQuitMessageToMainThread();
+					return 1;
+				}
 
 				CComBSTR bstr;
 				hr = pIStaObject->GetMessage(&bstr);
@@ -176,6 +182,12 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
 			{
 				CComPtr<ITestCOM> pIStaObject;
 				HRESULT hr = pM->UnMarshal(&pIStaObject);
+				if (FAILED(hr)) {
+					PrintLineToConsole(L"ERROR MTA UnMarshal Thread 2: " + ItsError::GetErrorDescription(hr));
+					g_bThread2Fin = true;
+					PostPotentialQuitMessageToMainThread();
+					return 1;
+				}
 
 				CComBSTR bstr;
 				hr = pIStaObject->GetMessage(&bstr);
@@ -209,6 +221,12 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
 			{
 				CComPtr<ITestCOM> pIStaObject;
 				HRESULT hr = pM->UnMarshal(&pIStaObject);
+				if (FAILED(hr)) {
+					PrintLineToConsole(L"ERROR STA UnMarshal Thread 3: " + ItsError::GetErrorDescription(hr));
+					g_bThread3Fin = true;
+					PostPotentialQuitMessageToMainThread();
+					return;
+				}
 
 				CComBSTR bstr;
 				hr = pIStaObject->GetMessage(&bstr);
