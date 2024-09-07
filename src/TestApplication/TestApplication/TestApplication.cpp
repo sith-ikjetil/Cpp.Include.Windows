@@ -98,9 +98,9 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
     void TestItsFileMonitorStop();
     void TestException();
     void ExitFn();
-    void PrintTestHeader(wstring txt);
-    void PrintTestSubHeader(wstring txt);
-    void PrintTestApplicationEvent(wstring event);
+    void PrintTestHeader(const wchar_t* txt);
+    void PrintTestSubHeader(const wchar_t* txt);
+    void PrintTestApplicationEvent(const wchar_t* event);
     void HandleFileEvent(const ItsFileMonitorEvent& event);
 
     //
@@ -184,7 +184,7 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
     //
     // (i): prints application event string.
     //
-    void PrintTestApplicationEvent(wstring event)
+    void PrintTestApplicationEvent(const wchar_t* event)
     {
         wcout << CLR_RESET << CLR_GREEN;
 
@@ -200,7 +200,7 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
     //
     // (i): Prints a tests header.
     //
-    void PrintTestHeader(const wstring txt)
+    void PrintTestHeader(const wchar_t* txt)
     {
         static mutex m;
         lock_guard<mutex> guard(m);
@@ -211,7 +211,7 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
 
         wstringstream ss;
         ss << " " << txt << " ";
-        wcout << ItsString::WidthExpand(ss.str(), 80, '_', ItsExpandDirection::Middle) << endl;
+        wcout << ItsString::WidthExpand(ss.str().c_str(), 80, '_', ItsExpandDirection::Middle) << endl;
 
         wcout << CLR_RESET << CLR_WHITE;
     }
@@ -221,7 +221,7 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
     //
     // (i): Prints a tests sub header.
     //
-    void PrintTestSubHeader(const wstring txt)
+    void PrintTestSubHeader(const wchar_t* txt)
     {
         wcout << CLR_RESET << CLR_GREEN;
 
@@ -479,7 +479,7 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
 
         wstring appendText(L"\n[APPEND THIS]");
         wcout << LR"()";
-        if (!ItsTextFile::AppendText(L"poem.txt", ItsFileTextType::UTF8WithBOM, appendText)) {
+        if (!ItsTextFile::AppendText(L"poem.txt", ItsFileTextType::UTF8WithBOM, appendText.c_str())) {
             wcout << L"> FAILED: " << ItsError::GetLastErrorDescription() << endl;
             wcout << endl;
             return;
@@ -498,7 +498,7 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
 
         ItsTextFile file{};
         wcout << LR"(file.OpenOrCreateText(g_filenameText, L"rw", L"", ItsFileOpenCreation::CreateAlways, ItsFileTextType::UTF8NoBOM))" << endl;
-        bool bResult = file.OpenOrCreateText(g_filenameText, L"rw", L"", ItsFileOpenCreation::CreateAlways, ItsFileTextType::UTF8NoBOM);
+        bool bResult = file.OpenOrCreateText(g_filenameText.c_str(), L"rw", L"", ItsFileOpenCreation::CreateAlways, ItsFileTextType::UTF8NoBOM);
         if (!bResult) {
             wcout << L"> FAILED: " << ItsError::GetLastErrorDescription() << endl;
             wcout << endl;
@@ -507,7 +507,10 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
         wcout << LR"(> Success opening or creating )" << g_filenameText << endl;
 
         wcout << LR"(file.WriteText(L"Small step for man." + wstring(ItsTextFile::LineDelimiterUnix) + L"Large leap for mankind."))" << endl;
-        bResult = file.WriteText(L"Small step for man." + wstring(ItsTextFile::LineDelimiterUnix) + L"Large leap for mankind.");
+        wstring text = L"Small step for man.";
+        text += +ItsTextFile::LineDelimiterUnix;
+        text += L"Large leap for mankind.";
+        bResult = file.WriteText(text.c_str());
         if (!bResult) {
             wcout << L"> FAILED: " << ItsError::GetLastErrorDescription() << endl;
             wcout << endl;
@@ -538,7 +541,7 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
 
         ItsFile file{};
         wcout << LR"(file.OpenOrCreate(g_filenameBinary, L"rw", L"", ItsFileOpenCreation::CreateAlways))" << endl;
-        bool bResult = file.OpenOrCreate(g_filenameBinary, L"rw", L"", ItsFileOpenCreation::CreateAlways);
+        bool bResult = file.OpenOrCreate(g_filenameBinary.c_str(), L"rw", L"", ItsFileOpenCreation::CreateAlways);
         if (!bResult) {
             wcout << L"> FAILED: " << ItsError::GetLastErrorDescription() << endl;
             wcout << endl;
@@ -567,7 +570,7 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
 
         size_t size{ 0 };
         wcout << LR"(ItsFile::GetFileSize(g_filenameBinary, &size))" << endl;
-        if (!ItsFile::GetFileSize(g_filenameBinary, &size)) {
+        if (!ItsFile::GetFileSize(g_filenameBinary.c_str(), &size)) {
             wcout << L"> FAILED: " << ItsError::GetLastErrorDescription() << endl;
             wcout << endl;
             return;
@@ -575,7 +578,7 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
         wcout << L"> Success. File " << g_filenameBinary << L" is " << size << L" bytes in size" << endl;
 
         wcout << LR"(ItsFile::Copy(g_filenameBinary, g_filenameShred, false))" << endl;
-        if (!ItsFile::Copy(g_filenameBinary, g_filenameShred, false)) {
+        if (!ItsFile::Copy(g_filenameBinary.c_str(), g_filenameShred.c_str(), false)) {
             wcout << L"> FAILED: " << ItsError::GetLastErrorDescription() << endl;
             wcout << endl;
             return;
@@ -583,7 +586,7 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
         wcout << L"> Success. File " << g_filenameBinary << " successfully copied to " << g_filenameShred << endl;
 
         wcout << LR"(ItsFile::Copy(g_filenameBinary, g_filenameBinaryCopyTo, false))" << endl;
-        if (!ItsFile::Copy(g_filenameBinary, g_filenameBinaryCopyTo, false)) {
+        if (!ItsFile::Copy(g_filenameBinary.c_str(), g_filenameBinaryCopyTo.c_str(), false)) {
             wcout << L"> FAILED: " << ItsError::GetLastErrorDescription() << endl;
             wcout << endl;
             return;
@@ -591,7 +594,7 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
         wcout << L"> Success. File " << g_filenameBinary << " successfully copied to " << g_filenameBinaryCopyTo << endl;
 
         wcout << LR"(ItsFile::Exists(g_filenameBinaryCopyTo))" << endl;
-        if (!ItsFile::Exists(g_filenameBinaryCopyTo)) {
+        if (!ItsFile::Exists(g_filenameBinaryCopyTo.c_str())) {
             wcout << L"> File " << g_filenameBinaryCopyTo << " does not exist" << endl;
         }
         else {
@@ -599,7 +602,7 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
         }
 
         wcout << LR"(ItsFile::Delete(g_filenameBinaryCopyTo))" << endl;
-        if (!ItsFile::Delete(g_filenameBinaryCopyTo)) {
+        if (!ItsFile::Delete(g_filenameBinaryCopyTo.c_str())) {
             wcout << L"> FAILED: " << ItsError::GetLastErrorDescription() << endl;
             wcout << endl;
             return;
@@ -607,7 +610,7 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
         wcout << L"> Success. File " << g_filenameBinaryCopyTo << " successfully deleted" << endl;
 
         wcout << LR"(ItsFile::Shred(g_filenameShred, true))" << endl;
-        if (!ItsFile::Shred(g_filenameShred, true)) {
+        if (!ItsFile::Shred(g_filenameShred.c_str(), true)) {
             wcout << L"> FAILED: " << ItsError::GetLastErrorDescription() << endl;
             wcout << endl;
             return;
@@ -664,8 +667,8 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
     {
         PrintTestHeader(L"ItsPath");
 
-        wstring path = ItsPath::Combine(g_path1, g_path2);
-        if (ItsPath::Exists(path)) {
+        wstring path = ItsPath::Combine(g_path1.c_str(), g_path2.c_str());
+        if (ItsPath::Exists(path.c_str())) {
             wcout << L"> Path: " << path << L" exists" << endl;
         }
         else {
@@ -673,27 +676,27 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
         }
 
         wcout << LR"(ItsPath::IsFile(path))" << endl;
-        wcout << LR"(> )" << ((ItsPath::IsFile(path)) ? "true" : "false") << endl;
+        wcout << LR"(> )" << ((ItsPath::IsFile(path.c_str())) ? "true" : "false") << endl;
         wcout << LR"(ItsPath::IsDirectory(path))" << endl;
-        wcout << LR"(> )" << ((ItsPath::IsDirectory(path)) ? "true" : "false") << endl;
+        wcout << LR"(> )" << ((ItsPath::IsDirectory(path.c_str())) ? "true" : "false") << endl;
         wcout << LR"(ItsPath::GetVolume(path))" << endl;
-        wcout << LR"(> ")" << ItsPath::GetVolume(path) << LR"(")" << endl;
+        wcout << LR"(> ")" << ItsPath::GetVolume(path.c_str()) << LR"(")" << endl;
         wcout << LR"(ItsPath::GetDirectory(path))" << endl;
-        wcout << LR"(> ")" << ItsPath::GetDirectory(path) << LR"(")" << endl;
+        wcout << LR"(> ")" << ItsPath::GetDirectory(path.c_str()) << LR"(")" << endl;
         wcout << LR"(ItsPath::GetFilename(path))" << endl;
-        wcout << LR"(> ")" << ItsPath::GetFilename(path) << LR"(")" << endl;
+        wcout << LR"(> ")" << ItsPath::GetFilename(path.c_str()) << LR"(")" << endl;
         wcout << LR"(ItsPath::GetExtension(path))" << endl;
-        wcout << LR"(> ")" << ItsPath::GetExtension(path) << LR"(")" << endl;
+        wcout << LR"(> ")" << ItsPath::GetExtension(path.c_str()) << LR"(")" << endl;
         wcout << LR"(ItsPath::HasExtension(path, L".html"))" << endl;
-        wcout << LR"(> )" << ((ItsPath::HasExtension(path, L".html")) ? L"true" : L"false") << endl;
+        wcout << LR"(> )" << ((ItsPath::HasExtension(path.c_str(), L".html")) ? L"true" : L"false") << endl;
         wcout << LR"(ItsPath::HasExtension(path, L".js"))" << endl;
-        wcout << LR"(> )" << ((ItsPath::HasExtension(path, L".js")) ? L"true" : L"false") << endl;
+        wcout << LR"(> )" << ((ItsPath::HasExtension(path.c_str(), L".js")) ? L"true" : L"false") << endl;
         wcout << LR"(ItsPath::ChangeExtension(path,L".js"))" << endl;
-        wcout << LR"(> ")" << ItsPath::ChangeExtension(path, L".js") << LR"(")" << endl;
+        wcout << LR"(> ")" << ItsPath::ChangeExtension(path.c_str(), L".js") << LR"(")" << endl;
         wcout << LR"(ItsPath::IsPathValid(path))" << endl;
-        wcout << LR"(> )" << ((ItsPath::IsPathValid(path)) ? L"true" : L"false") << endl;
+        wcout << LR"(> )" << ((ItsPath::IsPathValid(path.c_str())) ? L"true" : L"false") << endl;
         wcout << LR"(ItsPath::IsPathValid(g_invalidPath))" << endl;
-        wcout << LR"(> )" << ((ItsPath::IsPathValid(g_invalidPath)) ? L"true" : L"false") << endl;
+        wcout << LR"(> )" << ((ItsPath::IsPathValid(g_invalidPath.c_str())) ? L"true" : L"false") << endl;
         wcout << LR"(ItsPath::GetParentDirectory("D:\Temp\t2"))" << endl;
         wcout << LR"(> )" << ItsPath::GetParentDirectory(L"D:\\Temp\\t2") << endl;
 
@@ -718,7 +721,7 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
         }
 
         wcout << LR"(ItsDirectory::GetDirectories(g_directoryRoot))" << endl;
-        auto result = ItsDirectory::GetDirectories(g_directoryRoot);
+        auto result = ItsDirectory::GetDirectories(g_directoryRoot.c_str());
         if (result.size() > 0) {
             wcout << L"> Success. Found " << result.size() << L" sub-directories under " << g_directoryRoot << endl;
             for (auto r : result) {
@@ -730,7 +733,7 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
         }
 
         wcout << LR"(ItsDirectory::GetFiles(g_directoryRoot))" << endl;
-        auto result2 = ItsDirectory::GetFiles(g_directoryRoot);
+        auto result2 = ItsDirectory::GetFiles(g_directoryRoot.c_str());
         if (result2.size() > 0) {
             wcout << L"> Success. Found " << result2.size() << L" files under " << g_directoryRoot << endl;
             for (auto r : result2) {
@@ -892,7 +895,7 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
     //
     void TestItsFileMonitorStart()
     {
-        g_fm = make_unique<ItsFileMonitor>(g_fileMonDirectory, false, ItsFileMonitorMask::ChangeLastWrite, HandleFileEvent);
+        g_fm = make_unique<ItsFileMonitor>(g_fileMonDirectory.c_str(), false, ItsFileMonitorMask::ChangeLastWrite, HandleFileEvent);
 
         PrintTestHeader(L"ItsFileMonitor Start");
         wcout << L"File monitor monitoring directory '" << g_fileMonDirectory << L"' with mask 'ItsFileMonitorMask::ChangeLastWrite'" << endl;

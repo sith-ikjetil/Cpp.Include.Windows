@@ -56,7 +56,7 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
 	extern bool g_bThread1Fin;
 	extern bool g_bThread2Fin;
 	extern bool g_bThread3Fin;
-	extern void PrintTestHeader(wstring text);
+	extern void PrintTestHeader(const wchar_t* text);
 
 	//
 	// main
@@ -138,7 +138,9 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
 				CComPtr<ITestCOM> pIStaObject;
 				HRESULT hr = pM->UnMarshal(&pIStaObject);
 				if (FAILED(hr)) {
-					PrintLineToConsole(L"ERROR STA UnMarshal Thread 1: " + ItsError::GetErrorDescription(hr));
+					wstringstream ss;
+					ss << L"ERROR STA UnMarshal Thread 1: " << ItsError::GetErrorDescription(hr);
+					PrintLineToConsole(ss.str().c_str());
 					g_bThread1Fin = true;
 					PostPotentialQuitMessageToMainThread();
 					return 1;
@@ -147,7 +149,9 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
 				CComBSTR bstr;
 				hr = pIStaObject->GetMessage(&bstr);
 				if (FAILED(hr)) {
-					PrintLineToConsole(L"ERROR STA Thread 1: " + ItsError::GetErrorDescription(hr));
+					wstringstream ss;
+					ss << L"ERROR STA Thread 1: " << ItsError::GetErrorDescription(hr);
+					PrintLineToConsole(ss.str().c_str());
 					g_bThread1Fin = true;
 					PostPotentialQuitMessageToMainThread();
 					return 1;
@@ -155,7 +159,7 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
 
 				wstring str(L"Message from STA Thread 1: ");
 				wstring str2 = str.append(bstr.operator LPWSTR());
-				PrintLineToConsole(str2);
+				PrintLineToConsole(str2.c_str());
 			}
 
 			g_bThread1Fin = true;
@@ -177,7 +181,9 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
 				CComPtr<ITestCOM> pIStaObject;
 				HRESULT hr = pM->UnMarshal(&pIStaObject);
 				if (FAILED(hr)) {
-					PrintLineToConsole(L"ERROR MTA UnMarshal Thread 2: " + ItsError::GetErrorDescription(hr));
+					wstringstream ss;
+					ss << L"ERROR MTA UnMarshal Thread 2: " << ItsError::GetErrorDescription(hr);
+					PrintLineToConsole(ss.str().c_str());
 					g_bThread2Fin = true;
 					PostPotentialQuitMessageToMainThread();
 					return 1;
@@ -186,7 +192,9 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
 				CComBSTR bstr;
 				hr = pIStaObject->GetMessage(&bstr);
 				if (FAILED(hr)) {
-					PrintLineToConsole(L"ERROR MTA Thread 2: " + ItsError::GetErrorDescription(hr));
+					wstringstream ss;
+					ss << L"ERROR MTA Thread 2: " << ItsError::GetErrorDescription(hr);
+					PrintLineToConsole(ss.str().c_str());
 					g_bThread2Fin = true;
 					PostPotentialQuitMessageToMainThread();
 					return 1;
@@ -194,7 +202,7 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
 
 				wstring str(L"Message from MTA Thread 2: ");
 				wstring str2 = str.append(bstr.operator LPWSTR());
-				PrintLineToConsole(str2);
+				PrintLineToConsole(str2.c_str());
 			}
 
 			g_bThread2Fin = true;
@@ -216,7 +224,9 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
 				CComPtr<ITestCOM> pIStaObject;
 				HRESULT hr = pM->UnMarshal(&pIStaObject);
 				if (FAILED(hr)) {
-					PrintLineToConsole(L"ERROR STA UnMarshal Thread 3: " + ItsError::GetErrorDescription(hr));
+					wstringstream ss;
+					ss << L"ERROR STA UnMarshal Thread 3: " << ItsError::GetErrorDescription(hr);
+					PrintLineToConsole(ss.str().c_str());
 					g_bThread3Fin = true;
 					PostPotentialQuitMessageToMainThread();
 					return;
@@ -225,7 +235,9 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
 				CComBSTR bstr;
 				hr = pIStaObject->GetMessage(&bstr);
 				if (FAILED(hr)) {
-					PrintLineToConsole(L"ERROR STA Thread 3: " + ItsError::GetErrorDescription(hr));
+					wstringstream ss;
+					ss << L"ERROR STA Thread 3: " << ItsError::GetErrorDescription(hr);
+					PrintLineToConsole(ss.str().c_str());
 					g_bThread3Fin = true;
 					PostPotentialQuitMessageToMainThread();
 					return;
@@ -234,7 +246,7 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
 				wstring str(L"Message from STA Thread 3: ");
 				wstring str2 = str.append(bstr.operator LPWSTR());
 
-				PrintLineToConsole(str2);
+				PrintLineToConsole(str2.c_str());
 			}
 
 			g_bThread3Fin = true;

@@ -23,5 +23,5 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
 	// function prototypes
 	//
 	void PostPotentialQuitMessageToMainThread();
-	void PrintLineToConsole(wstring text);
+	void PrintLineToConsole(const wchar_t* text);
 }

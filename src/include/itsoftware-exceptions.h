@@ -119,7 +119,7 @@ namespace ItSoftware::Exceptions
 
         }
             
-        explicit ItsException( wstring message)
+        explicit ItsException(const wchar_t* message)
             : exception(),
             m_errorCode( 0 ),
             m_message(message)
@@ -162,7 +162,7 @@ namespace ItSoftware::Exceptions
             other.m_message = L"";
         }
 
-        explicit ItsException( unsigned int errorCode, wstring message )
+        explicit ItsException( unsigned int errorCode, const wchar_t* message )
             :	exception(),
             m_errorCode( errorCode ),
             m_message( message )
@@ -178,7 +178,7 @@ namespace ItSoftware::Exceptions
 			
         }
 
-        explicit ItsException( wstring message, ItsException&& inner )
+        explicit ItsException(const wchar_t* message, ItsException&& inner )
             : exception(),
             m_errorCode( 0 ),
             m_message( message ),
@@ -187,7 +187,7 @@ namespace ItSoftware::Exceptions
 			
         }
 
-        explicit ItsException( unsigned int errorCode, wstring message, ItsException&& inner )
+        explicit ItsException( unsigned int errorCode, const wchar_t* message, ItsException&& inner )
             : exception(),
             m_errorCode( errorCode ),
 			m_message( message ),
@@ -227,24 +227,24 @@ namespace ItSoftware::Exceptions
 		wstring m_argumentName;
 
 	public:
-        explicit ItsNullReferenceException( wstring name )
+        explicit ItsNullReferenceException(const wchar_t* name )
 			: m_argumentName( name )
 		{
 		}
 
-        explicit ItsNullReferenceException( wstring name, wstring message )
+        explicit ItsNullReferenceException(const wchar_t* name, const wchar_t* message )
 			: m_argumentName( name ),
 				ItsException(message)
 		{
 		}
 			
-        explicit ItsNullReferenceException( wstring name, ItsException&& inner )
+        explicit ItsNullReferenceException(const wchar_t* name, ItsException&& inner )
 			: m_argumentName( name )
 		{
 			this->m_pInnerException = make_unique<ItsException>( std::move( inner ) );
 		}
 
-        explicit ItsNullReferenceException( wstring name, wstring message, ItsException&& inner )
+        explicit ItsNullReferenceException(const wchar_t* name, const wchar_t* message, ItsException&& inner )
 		{
 			this->m_message = message;
 			this->m_pInnerException = make_unique<ItsException>( std::move( inner ) );
@@ -280,12 +280,12 @@ namespace ItSoftware::Exceptions
 		wstring m_argumentName;
 
 	public:
-        explicit ItsArgumentNullException( wstring name )
+        explicit ItsArgumentNullException(const wchar_t* name )
 			: m_argumentName(name)
 		{
 		}
 
-        explicit ItsArgumentNullException( wstring name, ItsException&& inner )
+        explicit ItsArgumentNullException(const wchar_t* name, ItsException&& inner )
 			: m_argumentName( name )
 		{
 			this->m_pInnerException = make_unique<ItsException>( std::move( inner ) );
@@ -319,13 +319,13 @@ namespace ItSoftware::Exceptions
 		wstring m_argumentName;
 
 	public:
-		ItsArgumentException( wstring name, wstring message )
+		ItsArgumentException(const wchar_t* name, const wchar_t* message )
 			: ItsException(message),
 				m_argumentName( name )
 		{
 		}        
 
-		ItsArgumentException( wstring name, wstring message, ItsException&& inner )
+		ItsArgumentException( const wchar_t* name, const wchar_t* message, ItsException&& inner )
 			: ItsException(message),
 				m_argumentName( name )
 		{

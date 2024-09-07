@@ -46,7 +46,7 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
 	//
 	// PrintLineToConsole
 	//
-	void PrintLineToConsole(wstring text)
+	void PrintLineToConsole(const wchar_t* text)
 	{
 		static mutex m;
 		lock_guard<mutex> guard(m);
