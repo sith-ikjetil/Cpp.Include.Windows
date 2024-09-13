@@ -603,12 +603,12 @@ namespace ItSoftware::Win::Core
 			return wstring(bstr.operator LPWSTR());;
 		}// inline CComBSTR GetLastErrorDesc( )
 
-		CComBSTR GetHResultErrorInfo(HRESULT hr)
+		static wstring GetHResultErrorInfo(HRESULT hr)
 		{
 			wchar_t wszMsg[1024];
 			::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, hr, 0, wszMsg, 1024, NULL);
-			CComBSTR bstr(wszMsg);
-			return bstr;
+			wstring str(wszMsg);
+			return str;
 		}
 
 		//
