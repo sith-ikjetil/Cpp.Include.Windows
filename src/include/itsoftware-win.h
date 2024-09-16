@@ -122,7 +122,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowInformationMessage
 		//
-		static void ShowInformationMessage(const wchar_t* message)
+		static void ShowInformationMessage(wstring message)
 		{
 			ShowInformationMessage(NULL, L"Information!", message);
 		}
@@ -130,7 +130,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowInformationMessage
 		//
-		static void ShowInformationMessage(const wchar_t* title, const wchar_t* message)
+		static void ShowInformationMessage(wstring title, wstring message)
 		{
 			ShowInformationMessage(NULL, title, message);
 		}
@@ -138,7 +138,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowInformationMessage
 		//
-		static void ShowInformationMessage(HWND hWnd, const wchar_t* message)
+		static void ShowInformationMessage(HWND hWnd, wstring message)
 		{
 			ShowInformationMessage(hWnd, L"Information!", message);
 		}
@@ -146,24 +146,24 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowInformationMessage
 		//
-		static void ShowInformationMessage(HWND hWnd, const wchar_t* title, const wchar_t* message)
+		static void ShowInformationMessage(HWND hWnd, wstring title, wstring message)
 		{
 			if (hWnd != NULL)
 			{
 				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				MessageBox(hWnd, message, title, MB_OK | MB_ICONINFORMATION);
+				MessageBox(hWnd, message.c_str(), title.c_str(), MB_OK | MB_ICONINFORMATION);
 				UnhookWindowsHookEx(g_hCBTHook);
 			}
 			else
 			{
-				MessageBox(hWnd, message, title, MB_OK | MB_ICONINFORMATION);
+				MessageBox(hWnd, message.c_str(), title.c_str(), MB_OK | MB_ICONINFORMATION);
 			}
 		}
 
 		//
 		// Function: ShowInformationMessageYesNo
 		//
-		static int ShowInformationMessageYesNo(const wchar_t* message)
+		static int ShowInformationMessageYesNo(wstring message)
 		{
 			return ShowInformationMessageYesNo(NULL, L"Information!", message);
 		}
@@ -171,7 +171,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowInformationMessageYesNo
 		//
-		static int ShowInformationMessageYesNo(const wchar_t* title, const wchar_t* message)
+		static int ShowInformationMessageYesNo(wstring title, wstring message)
 		{
 			return ShowInformationMessageYesNo(NULL, title, message);
 		}
@@ -179,18 +179,18 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowInformationMessageYesNo
 		//
-		static int ShowInformationMessageYesNo(HWND hWnd, const wchar_t* title, const wchar_t* message)
+		static int ShowInformationMessageYesNo(HWND hWnd, wstring title, wstring message)
 		{
 			int result = 0;
 			if (hWnd != NULL)
 			{
 				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				result = MessageBox(hWnd, message, title, MB_ICONINFORMATION | MB_YESNO);
+				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONINFORMATION | MB_YESNO);
 				UnhookWindowsHookEx(g_hCBTHook);
 			}
 			else
 			{
-				result = MessageBox(hWnd, message, title, MB_ICONINFORMATION | MB_YESNO);
+				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONINFORMATION | MB_YESNO);
 			}
 
 			return result;
@@ -199,7 +199,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowInformationMessageYesNoCancel
 		//
-		static int ShowInformationMessageYesNoCancel(const wchar_t* message)
+		static int ShowInformationMessageYesNoCancel(wstring message)
 		{
 			return ShowInformationMessageYesNoCancel(NULL, L"Information!", message);
 		}
@@ -207,7 +207,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowInformationMessageYesNoCancel
 		//
-		static int ShowInformationMessageYesNoCancel(const wchar_t* title, const wchar_t* message)
+		static int ShowInformationMessageYesNoCancel(wstring title, wstring message)
 		{
 			return ShowInformationMessageYesNoCancel(NULL, title, message);
 		}
@@ -215,18 +215,18 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowInformationMessageYesNoCancel
 		//
-		static int ShowInformationMessageYesNoCancel(HWND hWnd, const wchar_t* title, const wchar_t* message)
+		static int ShowInformationMessageYesNoCancel(HWND hWnd, wstring title, wstring message)
 		{
 			int result = 0;
 			if (hWnd != NULL)
 			{
 				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				result = MessageBox(hWnd, message, title, MB_ICONINFORMATION | MB_YESNOCANCEL);
+				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONINFORMATION | MB_YESNOCANCEL);
 				UnhookWindowsHookEx(g_hCBTHook);
 			}
 			else
 			{
-				result = MessageBox(hWnd, message, title, MB_ICONINFORMATION | MB_YESNOCANCEL);
+				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONINFORMATION | MB_YESNOCANCEL);
 			}
 
 			return result;
@@ -235,7 +235,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowInformationMessageAbortRetryIgnore
 		//
-		static int ShowInformationMessageAbortRetryIgnore(const wchar_t* message)
+		static int ShowInformationMessageAbortRetryIgnore(wstring message)
 		{
 			return ShowInformationMessageAbortRetryIgnore(NULL, L"Information!", message);
 		}
@@ -243,7 +243,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowInformationMessageAbortRetryIgnore
 		//
-		static int ShowInformationMessageAbortRetryIgnore(const wchar_t* title, const wchar_t* message)
+		static int ShowInformationMessageAbortRetryIgnore(wstring title, wstring message)
 		{
 			return ShowInformationMessageAbortRetryIgnore(NULL, title, message);
 		}
@@ -251,7 +251,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowWarningMessageAbortRetryIgnore
 		//
-		static int ShowInformationMessageAbortRetryIgnore(HWND hWnd, const wchar_t* message)
+		static int ShowInformationMessageAbortRetryIgnore(HWND hWnd, wstring message)
 		{
 			return ShowInformationMessageAbortRetryIgnore(hWnd, L"Information!", message);
 		}
@@ -259,18 +259,18 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowInformationMessageAbortRetryIgnore
 		//
-		static int ShowInformationMessageAbortRetryIgnore(HWND hWnd, const wchar_t* title, const wchar_t* message)
+		static int ShowInformationMessageAbortRetryIgnore(HWND hWnd, wstring title, wstring message)
 		{
 			int result = 0;
 			if (hWnd != NULL)
 			{
 				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				result = MessageBox(hWnd, message, title, MB_ICONINFORMATION | MB_ABORTRETRYIGNORE);
+				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONINFORMATION | MB_ABORTRETRYIGNORE);
 				UnhookWindowsHookEx(g_hCBTHook);
 			}
 			else
 			{
-				result = MessageBox(hWnd, message, title, MB_ICONINFORMATION | MB_ABORTRETRYIGNORE);
+				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONINFORMATION | MB_ABORTRETRYIGNORE);
 			}
 
 			return result;
@@ -283,7 +283,7 @@ namespace ItSoftware::Win
 		//
 		// ShowWarningMessage
 		//
-		static void ShowWarningMessage(const wchar_t* message)
+		static void ShowWarningMessage(wstring message)
 		{
 			ShowWarningMessage(NULL, L"Warning!", message);
 		}
@@ -291,7 +291,7 @@ namespace ItSoftware::Win
 		//
 		// ShowWarningMessage
 		//
-		static void ShowWarningMessage(const wchar_t* title, const wchar_t* message)
+		static void ShowWarningMessage(wstring title, wstring message)
 		{
 			ShowWarningMessage(NULL, title, message);
 		}
@@ -299,7 +299,7 @@ namespace ItSoftware::Win
 		//
 		// ShowWarningMessage
 		//
-		static void ShowWarningMessage(HWND hWnd, const wchar_t* message)
+		static void ShowWarningMessage(HWND hWnd, wstring message)
 		{
 			ShowWarningMessage(hWnd, L"Warning!", message);
 		}
@@ -307,24 +307,24 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowWarningMessage
 		//
-		static void ShowWarningMessage(HWND hWnd, const wchar_t* title, const wchar_t* message)
+		static void ShowWarningMessage(HWND hWnd, wstring title, wstring message)
 		{
 			if (hWnd != NULL)
 			{
 				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				MessageBox(hWnd, message, title, MB_OK | MB_ICONWARNING);
+				MessageBox(hWnd, message.c_str(), title.c_str(), MB_OK | MB_ICONWARNING);
 				UnhookWindowsHookEx(g_hCBTHook);
 			}
 			else
 			{
-				MessageBox(hWnd, message, title, MB_OK | MB_ICONWARNING);
+				MessageBox(hWnd, message.c_str(), title.c_str(), MB_OK | MB_ICONWARNING);
 			}
 		}
 
 		//
 		// Function: ShowWarningMessageYesNo
 		//
-		static int ShowWarningMessageYesNo(const wchar_t* message)
+		static int ShowWarningMessageYesNo(wstring message)
 		{
 			return ShowWarningMessageYesNo(NULL, L"Warning!", message);
 		}
@@ -332,7 +332,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowWarningMessageYesNo
 		//
-		static int ShowWarningMessageYesNo(const wchar_t* title, const wchar_t* message)
+		static int ShowWarningMessageYesNo(wstring title, wstring message)
 		{
 			return ShowWarningMessageYesNo(NULL, title, message);
 		}
@@ -340,7 +340,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowWarningMessageYesNo
 		//
-		static int ShowWarningMessageYesNo(HWND hWnd, const wchar_t* message)
+		static int ShowWarningMessageYesNo(HWND hWnd, wstring message)
 		{
 			return ShowWarningMessageYesNo(hWnd, L"Warning!", message);
 		}
@@ -348,18 +348,18 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowWarningMessageYesNo
 		//
-		static int ShowWarningMessageYesNo(HWND hWnd, const wchar_t* title, const wchar_t* message)
+		static int ShowWarningMessageYesNo(HWND hWnd, wstring title, wstring message)
 		{
 			int result = 0;
 			if (hWnd != NULL)
 			{
 				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				result = MessageBox(hWnd, message, title, MB_ICONWARNING | MB_YESNO);
+				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONWARNING | MB_YESNO);
 				UnhookWindowsHookEx(g_hCBTHook);
 			}
 			else
 			{
-				result = MessageBox(hWnd, message, title, MB_ICONWARNING | MB_YESNO);
+				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONWARNING | MB_YESNO);
 			}
 
 			return result;
@@ -368,7 +368,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowWarningMessageYesNoCancel
 		//
-		static int ShowWarningMessageYesNoCancel(const wchar_t* message)
+		static int ShowWarningMessageYesNoCancel(wstring message)
 		{
 			return ShowWarningMessageYesNoCancel(NULL, L"Warning!", message);
 		}
@@ -376,7 +376,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowWarningMessageYesNoCancel
 		//
-		static int ShowWarningMessageYesNoCancel(const wchar_t* title, const wchar_t* message)
+		static int ShowWarningMessageYesNoCancel(wstring title, wstring message)
 		{
 			return ShowWarningMessageYesNoCancel(NULL, title, message);
 		}
@@ -384,7 +384,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowWarningMessageYesNoCancel
 		//
-		static int ShowWarningMessageYesNoCancel(HWND hWnd, const wchar_t* message)
+		static int ShowWarningMessageYesNoCancel(HWND hWnd, wstring message)
 		{
 			return ShowWarningMessageYesNoCancel(hWnd, L"Warning!", message);
 		}
@@ -392,18 +392,18 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowWarningMessageYesNoCancel
 		//
-		static int ShowWarningMessageYesNoCancel(HWND hWnd, const wchar_t* title, const wchar_t* message)
+		static int ShowWarningMessageYesNoCancel(HWND hWnd, wstring title, wstring message)
 		{
 			int result = 0;
 			if (hWnd != NULL)
 			{
 				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				result = MessageBox(hWnd, message, title, MB_ICONWARNING | MB_YESNO);
+				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONWARNING | MB_YESNO);
 				UnhookWindowsHookEx(g_hCBTHook);
 			}
 			else
 			{
-				result = MessageBox(hWnd, message, title, MB_ICONWARNING | MB_YESNO);
+				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONWARNING | MB_YESNO);
 			}
 
 			return result;
@@ -412,7 +412,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowWarningMessageAbortRetryIgnore
 		//
-		static int ShowWarningMessageAbortRetryIgnore(const wchar_t* message)
+		static int ShowWarningMessageAbortRetryIgnore(wstring message)
 		{
 			return ShowWarningMessageAbortRetryIgnore(NULL, L"Warning!", message);
 		}
@@ -420,7 +420,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowWarningMessageAbortRetryIgnore
 		//
-		static int ShowWarningMessageAbortRetryIgnore(const wchar_t* title, const wchar_t* message)
+		static int ShowWarningMessageAbortRetryIgnore(wstring title, wstring message)
 		{
 			return ShowWarningMessageAbortRetryIgnore(NULL, title, message);
 		}
@@ -428,7 +428,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowWarningMessageAbortRetryIgnore
 		//
-		static int ShowWarningMessageAbortRetryIgnore(HWND hWnd, const wchar_t* message)
+		static int ShowWarningMessageAbortRetryIgnore(HWND hWnd, wstring message)
 		{
 			return ShowWarningMessageAbortRetryIgnore(hWnd, L"Warning!", message);
 		}
@@ -436,18 +436,18 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowWarningMessageAbortRetryIgnore
 		//
-		static int ShowWarningMessageAbortRetryIgnore(HWND hWnd, const wchar_t* title, const wchar_t* message)
+		static int ShowWarningMessageAbortRetryIgnore(HWND hWnd, wstring title, wstring message)
 		{
 			int result = 0;
 			if (hWnd != NULL)
 			{
 				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				result = MessageBox(hWnd, message, title, MB_ICONWARNING | MB_ABORTRETRYIGNORE);
+				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONWARNING | MB_ABORTRETRYIGNORE);
 				UnhookWindowsHookEx(g_hCBTHook);
 			}
 			else
 			{
-				result = MessageBox(hWnd, message, title, MB_ICONWARNING | MB_ABORTRETRYIGNORE);
+				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONWARNING | MB_ABORTRETRYIGNORE);
 			}
 
 			return result;
@@ -460,7 +460,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowHandMessage
 		//
-		static void ShowHandMessage(const wchar_t* message)
+		static void ShowHandMessage(wstring message)
 		{
 			ShowHandMessage(NULL, L"Hand!", message);
 		}
@@ -468,7 +468,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowHandMessage
 		//
-		static void ShowHandMessage(const wchar_t* title, const wchar_t* message)
+		static void ShowHandMessage(wstring title, wstring message)
 		{
 			ShowHandMessage(NULL, title, message);
 		}
@@ -476,7 +476,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowHandMessage
 		//
-		static void ShowHandMessage(HWND hWnd, const wchar_t* message)
+		static void ShowHandMessage(HWND hWnd, wstring message)
 		{
 			ShowHandMessage(hWnd, L"Hand!", message);
 		}
@@ -484,24 +484,24 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowHandMessage
 		//
-		static void ShowHandMessage(HWND hWnd, const wchar_t* title, const wchar_t* message)
+		static void ShowHandMessage(HWND hWnd, wstring title, wstring message)
 		{
 			if (hWnd != NULL)
 			{
 				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				MessageBox(hWnd, message, title, MB_OK | MB_ICONHAND);
+				MessageBox(hWnd, message.c_str(), title.c_str(), MB_OK | MB_ICONHAND);
 				UnhookWindowsHookEx(g_hCBTHook);
 			}
 			else
 			{
-				MessageBox(hWnd, message, title, MB_OK | MB_ICONHAND);
+				MessageBox(hWnd, message.c_str(), title.c_str(), MB_OK | MB_ICONHAND);
 			}
 		}
 
 		//
 		// Function: ShowHandMessageYesNo
 		//
-		static int ShowHandMessageYesNo(const wchar_t* message)
+		static int ShowHandMessageYesNo(wstring message)
 		{
 			return ShowHandMessageYesNo(NULL, L"Hand!", message);
 		}
@@ -509,7 +509,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowHandMessageYesNo
 		//
-		static int ShowHandMessageYesNo(const wchar_t* title, const wchar_t* message)
+		static int ShowHandMessageYesNo(wstring title, wstring message)
 		{
 			return ShowHandMessageYesNo(NULL, title, message);
 		}
@@ -517,18 +517,18 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowHandMessageYesNo
 		//
-		static int ShowHandMessageYesNo(HWND hWnd, const wchar_t* title, const wchar_t* message)
+		static int ShowHandMessageYesNo(HWND hWnd, wstring title, wstring message)
 		{
 			int result = 0;
 			if (hWnd != NULL)
 			{
 				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				result = MessageBox(hWnd, message, title, MB_ICONHAND | MB_YESNO);
+				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONHAND | MB_YESNO);
 				UnhookWindowsHookEx(g_hCBTHook);
 			}
 			else
 			{
-				result = MessageBox(hWnd, message, title, MB_ICONHAND | MB_YESNO);
+				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONHAND | MB_YESNO);
 			}
 
 			return result;
@@ -537,7 +537,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowHandMessageYesNoCancel
 		//
-		static int ShowHandMessageYesNoCancel(const wchar_t* message)
+		static int ShowHandMessageYesNoCancel(wstring message)
 		{
 			return ShowHandMessageYesNoCancel(NULL, L"Hand!", message);
 		}
@@ -545,7 +545,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowHandMessageYesNoCancel
 		//
-		static int ShowHandMessageYesNoCancel(const wchar_t* title, const wchar_t* message)
+		static int ShowHandMessageYesNoCancel(wstring title, wstring message)
 		{
 			return ShowHandMessageYesNoCancel(NULL, title, message);
 		}
@@ -553,18 +553,18 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowHandMessageYesNoCancel
 		//
-		static int ShowHandMessageYesNoCancel(HWND hWnd, const wchar_t* title, const wchar_t* message)
+		static int ShowHandMessageYesNoCancel(HWND hWnd, wstring title, wstring message)
 		{
 			int result = 0;
 			if (hWnd != NULL)
 			{
 				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				result = MessageBox(hWnd, message, title, MB_ICONHAND | MB_YESNOCANCEL);
+				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONHAND | MB_YESNOCANCEL);
 				UnhookWindowsHookEx(g_hCBTHook);
 			}
 			else
 			{
-				result = MessageBox(hWnd, message, title, MB_ICONHAND | MB_YESNOCANCEL);
+				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONHAND | MB_YESNOCANCEL);
 			}
 
 			return result;
@@ -573,7 +573,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowHandMessageAbortRetryIgnore
 		//
-		static int ShowHandMessageAbortRetryIgnore(const wchar_t* message)
+		static int ShowHandMessageAbortRetryIgnore(wstring message)
 		{
 			return ShowHandMessageAbortRetryIgnore(NULL, L"Hand!", message);
 		}
@@ -581,7 +581,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowHandMessageAbortRetryIgnore
 		//
-		static int ShowHandMessageAbortRetryIgnore(const wchar_t* title, const wchar_t* message)
+		static int ShowHandMessageAbortRetryIgnore(wstring title, wstring message)
 		{
 			return ShowHandMessageAbortRetryIgnore(NULL, title, message);
 		}
@@ -589,7 +589,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowHandMessageAbortRetryIgnore
 		//
-		static int ShowHandMessageAbortRetryIgnore(HWND hWnd, const wchar_t* message)
+		static int ShowHandMessageAbortRetryIgnore(HWND hWnd, wstring message)
 		{
 			return ShowHandMessageAbortRetryIgnore(hWnd, L"Hand!", message);
 		}
@@ -597,18 +597,18 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowHandMessageAbortRetryIgnore
 		//
-		static int ShowHandMessageAbortRetryIgnore(HWND hWnd, const wchar_t* title, const wchar_t* message)
+		static int ShowHandMessageAbortRetryIgnore(HWND hWnd, wstring title, wstring message)
 		{
 			int result = 0;
 			if (hWnd != NULL)
 			{
 				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				result = MessageBox(hWnd, message, title, MB_ICONHAND | MB_ABORTRETRYIGNORE);
+				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONHAND | MB_ABORTRETRYIGNORE);
 				UnhookWindowsHookEx(g_hCBTHook);
 			}
 			else
 			{
-				result = MessageBox(hWnd, message, title, MB_ICONHAND | MB_ABORTRETRYIGNORE);
+				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONHAND | MB_ABORTRETRYIGNORE);
 			}
 
 			return result;
@@ -621,7 +621,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowErrorMessage
 		//
-		static void ShowErrorMessage(const wchar_t* message)
+		static void ShowErrorMessage(wstring message)
 		{
 			ShowErrorMessage(NULL, L"Error!", message);
 		}
@@ -629,7 +629,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowErrorMessage
 		//
-		static void ShowErrorMessage(const wchar_t* title, const wchar_t* message)
+		static void ShowErrorMessage(wstring title, wstring message)
 		{
 			ShowErrorMessage(NULL, title, message);
 		}
@@ -637,7 +637,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowErrorMessage
 		//
-		static void ShowErrorMessage(HWND hWnd, const wchar_t* message)
+		static void ShowErrorMessage(HWND hWnd, wstring message)
 		{
 			ShowErrorMessage(hWnd, L"Error!", message);
 		}
@@ -645,24 +645,24 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowErrorMessage
 		//
-		static void ShowErrorMessage(HWND hWnd, const wchar_t* title, const wchar_t* message)
+		static void ShowErrorMessage(HWND hWnd, wstring title, wstring message)
 		{
 			if (hWnd != NULL)
 			{
 				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				MessageBox(hWnd, message, title, MB_OK | MB_ICONERROR);
+				MessageBox(hWnd, message.c_str(), title.c_str(), MB_OK | MB_ICONERROR);
 				UnhookWindowsHookEx(g_hCBTHook);
 			}
 			else
 			{
-				MessageBox(hWnd, message, title, MB_OK | MB_ICONERROR);
+				MessageBox(hWnd, message.c_str(), title.c_str(), MB_OK | MB_ICONERROR);
 			}
 		}
 
 		//
 		// Function: ShowErrorMessageYesNo
 		//
-		static int ShowErrorMessageYesNo(const wchar_t* message)
+		static int ShowErrorMessageYesNo(wstring message)
 		{
 			return ShowErrorMessageYesNo(NULL, L"Error!", message);
 		}
@@ -670,7 +670,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowErrorMessageYesNo
 		//
-		static int ShowErrorMessageYesNo(const wchar_t* title, const wchar_t* message)
+		static int ShowErrorMessageYesNo(wstring title, wstring message)
 		{
 			return ShowErrorMessageYesNo(NULL, title, message);
 		}
@@ -678,7 +678,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowErrorMessageYesNo
 		//
-		static int ShowErrorMessageYesNo(HWND hWnd, const wchar_t* message)
+		static int ShowErrorMessageYesNo(HWND hWnd, wstring message)
 		{
 			return ShowErrorMessageYesNo(hWnd, L"Error!", message);
 		}
@@ -686,18 +686,18 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowErrorMessageYesNo
 		//
-		static int ShowErrorMessageYesNo(HWND hWnd, const wchar_t* title, const wchar_t* message)
+		static int ShowErrorMessageYesNo(HWND hWnd, wstring title, wstring message)
 		{
 			int result = 0;
 			if (hWnd != NULL)
 			{
 				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				result = MessageBox(hWnd, message, title, MB_ICONERROR | MB_YESNO);
+				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONERROR | MB_YESNO);
 				UnhookWindowsHookEx(g_hCBTHook);
 			}
 			else
 			{
-				result = MessageBox(hWnd, message, title, MB_ICONERROR | MB_YESNO);
+				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONERROR | MB_YESNO);
 			}
 
 			return result;
@@ -706,7 +706,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowErrorMessageYesNoCancel
 		//
-		static int ShowErrorMessageYesNoCancel(const wchar_t* message)
+		static int ShowErrorMessageYesNoCancel(wstring message)
 		{
 			return ShowErrorMessageYesNoCancel(NULL, L"Error!", message);
 		}
@@ -714,7 +714,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowErrorMessageYesNoCancel
 		//
-		static int ShowErrorMessageYesNoCancel(const wchar_t* title, const wchar_t* message)
+		static int ShowErrorMessageYesNoCancel(wstring title, wstring message)
 		{
 			return ShowErrorMessageYesNoCancel(NULL, title, message);
 		}
@@ -722,7 +722,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowErrorMessageYesNoCancel
 		//
-		static int ShowErrorMessageYesNoCancel(HWND hWnd, const wchar_t* message)
+		static int ShowErrorMessageYesNoCancel(HWND hWnd, wstring message)
 		{
 			return ShowErrorMessageYesNoCancel(hWnd, L"Error!", message);
 		}
@@ -730,18 +730,18 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowErrorMessageYesNoCancel
 		//
-		static int ShowErrorMessageYesNoCancel(HWND hWnd, const wchar_t* title, const wchar_t* message)
+		static int ShowErrorMessageYesNoCancel(HWND hWnd, wstring title, wstring message)
 		{
 			int result = 0;
 			if (hWnd != NULL)
 			{
 				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				result = MessageBox(hWnd, message, title, MB_ICONERROR | MB_YESNOCANCEL);
+				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONERROR | MB_YESNOCANCEL);
 				UnhookWindowsHookEx(g_hCBTHook);
 			}
 			else
 			{
-				result = MessageBox(hWnd, message, title, MB_ICONERROR | MB_YESNOCANCEL);
+				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONERROR | MB_YESNOCANCEL);
 			}
 
 			return result;
@@ -750,7 +750,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowErrorMessageAbortRetryIgnore
 		//
-		static int ShowErrorMessageAbortRetryIgnore(const wchar_t* message)
+		static int ShowErrorMessageAbortRetryIgnore(wstring message)
 		{
 			return ShowErrorMessageAbortRetryIgnore(NULL, L"Error!", message);
 		}
@@ -758,7 +758,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowErrorMessageAbortRetryIgnore
 		//
-		static int ShowErrorMessageAbortRetryIgnore(const wchar_t* title, const wchar_t* message)
+		static int ShowErrorMessageAbortRetryIgnore(wstring title, wstring message)
 		{
 			return ShowErrorMessageAbortRetryIgnore(NULL, title, message);
 		}
@@ -766,7 +766,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowErrorMessageAbortRetryIgnore
 		//
-		static int ShowErrorMessageAbortRetryIgnore(HWND hWnd, const wchar_t* message)
+		static int ShowErrorMessageAbortRetryIgnore(HWND hWnd, wstring message)
 		{
 			return ShowErrorMessageAbortRetryIgnore(hWnd, L"Error!", message);
 		}
@@ -774,18 +774,18 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowErrorMessageAbortRetryIgnore
 		//
-		static int ShowErrorMessageAbortRetryIgnore(HWND hWnd, const wchar_t* title, const wchar_t* message)
+		static int ShowErrorMessageAbortRetryIgnore(HWND hWnd, wstring title, wstring message)
 		{
 			int result = 0;
 			if (hWnd != NULL)
 			{
 				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				result = MessageBox(hWnd, message, title, MB_ICONERROR | MB_ABORTRETRYIGNORE);
+				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONERROR | MB_ABORTRETRYIGNORE);
 				UnhookWindowsHookEx(g_hCBTHook);
 			}
 			else
 			{
-				result = MessageBox(hWnd, message, title, MB_ICONERROR | MB_ABORTRETRYIGNORE);
+				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONERROR | MB_ABORTRETRYIGNORE);
 			}
 
 			return result;
@@ -798,7 +798,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowQuestionMessageYesNo
 		//
-		static int ShowQuestionMessageYesNo(const wchar_t* message)
+		static int ShowQuestionMessageYesNo(wstring message)
 		{
 			return ShowQuestionMessageYesNo(NULL, L"Question!", message);
 		}
@@ -806,7 +806,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowQuestionMessageYesNo
 		//
-		static int ShowQuestionMessageYesNo(const wchar_t* title, const wchar_t* message)
+		static int ShowQuestionMessageYesNo(wstring title, wstring message)
 		{
 			return ShowQuestionMessageYesNo(NULL, title, message);
 		}
@@ -814,7 +814,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowQuestionMessageYesNo
 		//
-		static int ShowQuestionMessageYesNo(HWND hWnd, const wchar_t* message)
+		static int ShowQuestionMessageYesNo(HWND hWnd, wstring message)
 		{
 			return ShowQuestionMessageYesNo(hWnd, L"Question!", message);
 		}
@@ -822,18 +822,18 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowQuestionMessageYesNo
 		//
-		static int ShowQuestionMessageYesNo(HWND hWnd, const wchar_t* title, const wchar_t* message)
+		static int ShowQuestionMessageYesNo(HWND hWnd, wstring title, wstring message)
 		{
 			int result = 0;
 			if (hWnd != NULL)
 			{
 				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				result = MessageBox(hWnd, message, title, MB_ICONQUESTION | MB_YESNO);
+				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONQUESTION | MB_YESNO);
 				UnhookWindowsHookEx(g_hCBTHook);
 			}
 			else
 			{
-				result = MessageBox(hWnd, message, title, MB_ICONQUESTION | MB_YESNO);
+				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONQUESTION | MB_YESNO);
 			}
 
 			return result;
@@ -842,7 +842,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowQuestionMessageYesNoCancel
 		//
-		static int ShowQuestionMessageYesNoCancel(const wchar_t* message)
+		static int ShowQuestionMessageYesNoCancel(wstring message)
 		{
 			return ShowQuestionMessageYesNoCancel(NULL, L"Question!", message);
 		}
@@ -850,7 +850,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowQuestionMessageYesNoCancel
 		//
-		static int ShowQuestionMessageYesNoCancel(const wchar_t* title, const wchar_t* message)
+		static int ShowQuestionMessageYesNoCancel(wstring title, wstring message)
 		{
 			return ShowQuestionMessageYesNoCancel(NULL, title, message);
 		}
@@ -858,7 +858,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowQuestionMessageYesNoCancel
 		//
-		static int ShowQuestionMessageYesNoCancel(HWND hWnd, const wchar_t* message)
+		static int ShowQuestionMessageYesNoCancel(HWND hWnd, wstring message)
 		{
 			return ShowQuestionMessageYesNoCancel(hWnd, L"Question!", message);
 		}
@@ -866,18 +866,18 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowQuestionMessageYesNoCancel
 		//
-		static int ShowQuestionMessageYesNoCancel(HWND hWnd, const wchar_t* title, const wchar_t* message)
+		static int ShowQuestionMessageYesNoCancel(HWND hWnd, wstring title, wstring message)
 		{
 			int result = 0;
 			if (hWnd != NULL)
 			{
 				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				result = MessageBox(hWnd, message, title, MB_ICONQUESTION | MB_YESNOCANCEL);
+				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONQUESTION | MB_YESNOCANCEL);
 				UnhookWindowsHookEx(g_hCBTHook);
 			}
 			else
 			{
-				result = MessageBox(hWnd, message, title, MB_ICONQUESTION | MB_YESNOCANCEL);
+				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONQUESTION | MB_YESNOCANCEL);
 			}
 
 			return result;
@@ -886,7 +886,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowQuestionMessageAbortRetryIgnore
 		//
-		static int ShowQuestionMessageAbortRetryIgnore(const wchar_t* message)
+		static int ShowQuestionMessageAbortRetryIgnore(wstring message)
 		{
 			return ShowQuestionMessageAbortRetryIgnore(NULL, L"Question!", message);
 		}
@@ -894,7 +894,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowQuestionMessageAbortRetryIgnore
 		//
-		static int ShowQuestionMessageAbortRetryIgnore(const wchar_t* title, const wchar_t* message)
+		static int ShowQuestionMessageAbortRetryIgnore(wstring title, wstring message)
 		{
 			return ShowQuestionMessageAbortRetryIgnore(NULL, title, message);
 		}
@@ -902,7 +902,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowQuestionMessageAbortRetryIgnore
 		//
-		static int ShowQuestionMessageAbortRetryIgnore(HWND hWnd, const wchar_t* message)
+		static int ShowQuestionMessageAbortRetryIgnore(HWND hWnd, wstring message)
 		{
 			return ShowQuestionMessageAbortRetryIgnore(hWnd, L"Question!", message);
 		}
@@ -910,18 +910,18 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowQuestionMessageAbortRetryIgnore
 		//
-		static int ShowQuestionMessageAbortRetryIgnore(HWND hWnd, const wchar_t* title, const wchar_t* message)
+		static int ShowQuestionMessageAbortRetryIgnore(HWND hWnd, wstring title, wstring message)
 		{
 			int result = 0;
 			if (hWnd != NULL)
 			{
 				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				result = MessageBox(hWnd, message, title, MB_ICONQUESTION | MB_ABORTRETRYIGNORE);
+				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONQUESTION | MB_ABORTRETRYIGNORE);
 				UnhookWindowsHookEx(g_hCBTHook);
 			}
 			else
 			{
-				result = MessageBox(hWnd, message, title, MB_ICONQUESTION | MB_ABORTRETRYIGNORE);
+				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONQUESTION | MB_ABORTRETRYIGNORE);
 			}
 
 			return result;
@@ -934,7 +934,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowStopMessageYesNo
 		//
-		static int ShowStopMessageYesNo(const wchar_t* message)
+		static int ShowStopMessageYesNo(wstring message)
 		{
 			return ShowStopMessageYesNo(NULL, L"Stop!", message);
 		}
@@ -942,7 +942,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowStopMessageYesNo
 		//
-		static int ShowStopMessageYesNo(const wchar_t* title, const wchar_t* message)
+		static int ShowStopMessageYesNo(wstring title, wstring message)
 		{
 			return ShowStopMessageYesNo(NULL, title, message);
 		}
@@ -950,7 +950,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowStopMessageYesNo
 		//
-		static int ShowStopMessageYesNo(HWND hWnd, const wchar_t* message)
+		static int ShowStopMessageYesNo(HWND hWnd, wstring message)
 		{
 			return ShowStopMessageYesNo(hWnd, L"Stop!", message);
 		}
@@ -958,18 +958,18 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowStopMessageYesNo
 		//
-		static int ShowStopMessageYesNo(HWND hWnd, const wchar_t* title, const wchar_t* message)
+		static int ShowStopMessageYesNo(HWND hWnd, wstring title, wstring message)
 		{
 			int result = 0;
 			if (hWnd != NULL)
 			{
 				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				result = MessageBox(hWnd, message, title, MB_ICONSTOP | MB_YESNO);
+				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONSTOP | MB_YESNO);
 				UnhookWindowsHookEx(g_hCBTHook);
 			}
 			else
 			{
-				result = MessageBox(hWnd, message, title, MB_ICONSTOP | MB_YESNO);
+				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONSTOP | MB_YESNO);
 			}
 
 			return result;
@@ -978,7 +978,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowStopMessageYesNoCancel
 		//
-		static int ShowStopMessageYesNoCancel(const wchar_t* message)
+		static int ShowStopMessageYesNoCancel(wstring message)
 		{
 			return ShowStopMessageYesNoCancel(NULL, L"Stop!", message);
 		}
@@ -986,7 +986,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowStopMessageYesNoCancel
 		//
-		static int ShowStopMessageYesNoCancel(const wchar_t* title, const wchar_t* message)
+		static int ShowStopMessageYesNoCancel(wstring title, wstring message)
 		{
 			return ShowStopMessageYesNoCancel(NULL, title, message);
 		}
@@ -994,7 +994,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowStopMessageYesNoCancel
 		//
-		static int ShowStopMessageYesNoCancel(HWND hWnd, const wchar_t* message)
+		static int ShowStopMessageYesNoCancel(HWND hWnd, wstring message)
 		{
 			return ShowStopMessageYesNoCancel(hWnd, L"Stop!", message);
 		}
@@ -1002,18 +1002,18 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowStopMessageYesNoCancel
 		//
-		static int ShowStopMessageYesNoCancel(HWND hWnd, const wchar_t* title, const wchar_t* message)
+		static int ShowStopMessageYesNoCancel(HWND hWnd, wstring title, wstring message)
 		{
 			int result = 0;
 			if (hWnd != NULL)
 			{
 				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				result = MessageBox(hWnd, message, title, MB_ICONSTOP | MB_YESNOCANCEL);
+				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONSTOP | MB_YESNOCANCEL);
 				UnhookWindowsHookEx(g_hCBTHook);
 			}
 			else
 			{
-				result = MessageBox(hWnd, message, title, MB_ICONSTOP | MB_YESNOCANCEL);
+				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONSTOP | MB_YESNOCANCEL);
 			}
 
 			return result;
@@ -1022,7 +1022,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowStopMessageAbortRetryIgnore
 		//
-		static int ShowStopMessageAbortRetryIgnore(const wchar_t* message)
+		static int ShowStopMessageAbortRetryIgnore(wstring message)
 		{
 			return ShowStopMessageAbortRetryIgnore(NULL, L"Stop!", message);
 		}
@@ -1030,7 +1030,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowStopMessageAbortRetryIgnore
 		//
-		static int ShowStopMessageAbortRetryIgnore(const wchar_t* title, const wchar_t* message)
+		static int ShowStopMessageAbortRetryIgnore(wstring title, wstring message)
 		{
 			return ShowStopMessageAbortRetryIgnore(NULL, title, message);
 		}
@@ -1038,7 +1038,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowStopMessageAbortRetryIgnore
 		//
-		static int ShowStopMessageAbortRetryIgnore(HWND hWnd, const wchar_t* message)
+		static int ShowStopMessageAbortRetryIgnore(HWND hWnd, wstring message)
 		{
 			return ShowStopMessageAbortRetryIgnore(hWnd, L"Stop!", message);
 		}
@@ -1046,18 +1046,18 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowStopMessageYesNoCancel
 		//
-		static int ShowStopMessageAbortRetryIgnore(HWND hWnd, const wchar_t* title, const wchar_t* message)
+		static int ShowStopMessageAbortRetryIgnore(HWND hWnd, wstring title, wstring message)
 		{
 			int result = 0;
 			if (hWnd != NULL)
 			{
 				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				result = MessageBox(hWnd, message, title, MB_ICONSTOP | MB_ABORTRETRYIGNORE);
+				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONSTOP | MB_ABORTRETRYIGNORE);
 				UnhookWindowsHookEx(g_hCBTHook);
 			}
 			else
 			{
-				result = MessageBox(hWnd, message, title, MB_ICONSTOP | MB_ABORTRETRYIGNORE);
+				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONSTOP | MB_ABORTRETRYIGNORE);
 			}
 
 			return result;
@@ -1070,33 +1070,33 @@ namespace ItSoftware::Win
 		//
 		// Function: ReportSuccessEventLogEntry
 		//
-		static bool ReportSuccessEventLogEntry(const wchar_t* sourcename, const wchar_t* text)
+		static bool ReportSuccessEventLogEntry(const wstring sourcename, const wstring text)
 		{
-			if (sourcename == nullptr || text == nullptr)
+			if (sourcename.size() == 0)
 			{
 				return false;
 			}
 
-			return ReportSuccessEventLogEntry(sourcename, 0, 0, 1, text);
+			return ReportSuccessEventLogEntry(sourcename, 0, 0, 1, text.c_str());
 		}
 
 		//
 		// Function: ReportSuccessEventLogEntry
 		//
-		static bool ReportSuccessEventLogEntry(const wchar_t* sourcename, short category, long eventid, short numberofstrings, const wchar_t* description)
+		static bool ReportSuccessEventLogEntry(wstring sourcename, short category, long eventid, short numberofstrings, const wchar_t* description)
 		{
-			if (sourcename == nullptr || description == nullptr || (numberofstrings > 0 && wcslen(description) == 0))
+			if (sourcename.size() == 0 || (numberofstrings > 0 && wcslen(description) == 0))
 			{
 				return false;
 			}
 
-			HANDLE hEventLog = ::RegisterEventSource(NULL, sourcename);
+			HANDLE hEventLog = ::RegisterEventSource(NULL, sourcename.c_str());
 			if (hEventLog == NULL)
 			{
 				return false;
 			}
 
-			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_SUCCESS, category, eventid, NULL, numberofstrings, 0, const_cast<LPCWSTR*>(&description), NULL);
+			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_SUCCESS, category, eventid, NULL, numberofstrings, 0, (LPCWSTR*)&description, NULL);
 			if (!bStatus)
 			{
 				::DeregisterEventSource(hEventLog);
@@ -1115,33 +1115,33 @@ namespace ItSoftware::Win
 		//
 		// Function: ReportErrorEventLogEntry
 		//
-		static bool ReportErrorEventLogEntry(const wchar_t* sourcename, const wchar_t* text)
+		static bool ReportErrorEventLogEntry(const wstring sourcename, const wstring text)
 		{
-			if (sourcename == nullptr || text == nullptr)
+			if (sourcename.size() == 0)
 			{
 				return false;
 			}
 
-			return ReportErrorEventLogEntry(sourcename, 0, 0, 1, text);
+			return ReportErrorEventLogEntry(sourcename, 0, 0, 1, text.c_str());
 		}
 
 		//
 		// Function: ReportErrorEventLogEntry
 		//
-		static bool ReportErrorEventLogEntry(const wchar_t* sourcename, short category, long eventid, short numberofstrings, const wchar_t* description)
+		static bool ReportErrorEventLogEntry(const wstring sourcename, short category, long eventid, short numberofstrings, const wchar_t* description)
 		{
-			if (sourcename == nullptr || description == nullptr || (numberofstrings > 0 && wcslen(description) == 0))
+			if (sourcename.size() == 0 || (numberofstrings > 0 && wcslen(description) == 0))
 			{
 				return false;
 			}
 
-			HANDLE hEventLog = ::RegisterEventSource(NULL, sourcename);
+			HANDLE hEventLog = ::RegisterEventSource(NULL, sourcename.c_str());
 			if (hEventLog == NULL)
 			{
 				return false;
 			}
 
-			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_ERROR_TYPE, category, eventid, NULL, numberofstrings, 0, const_cast<LPCWSTR*>(&description), NULL);
+			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_ERROR_TYPE, category, eventid, NULL, numberofstrings, 0, (LPCWSTR*)&description, NULL);
 			if (!bStatus)
 			{
 				::DeregisterEventSource(hEventLog);
@@ -1160,33 +1160,33 @@ namespace ItSoftware::Win
 		//
 		// Function: ReportWarningEventLogEntry
 		//
-		static bool ReportWarningEventLogEntry(const wchar_t* sourcename, const wchar_t* text)
+		static bool ReportWarningEventLogEntry(const wstring sourcename, const wstring text)
 		{
-			if (sourcename == nullptr || text == nullptr)
+			if (sourcename.size() == 0)
 			{
 				return false;
 			}
 
-			return ReportWarningEventLogEntry(sourcename, 0, 0, 1, text);
+			return ReportWarningEventLogEntry(sourcename, 0, 0, 1, text.c_str());
 		}
 
 		//
 		// Function: ReportWarningEventLogEntry
 		//
-		static bool ReportWarningEventLogEntry(const wchar_t* sourcename, short category, long eventid, short numberofstrings, const wchar_t* description)
+		static bool ReportWarningEventLogEntry(const wstring sourcename, short category, long eventid, short numberofstrings, const wchar_t* description)
 		{
-			if (sourcename == nullptr || description == nullptr || (numberofstrings > 0 && wcslen(description) == 0))
+			if (sourcename.size() == 0 || (numberofstrings > 0 && wcslen(description) == 0))
 			{
 				return false;
 			}
 
-			HANDLE hEventLog = ::RegisterEventSource(NULL, sourcename);
+			HANDLE hEventLog = ::RegisterEventSource(NULL, sourcename.c_str());
 			if (hEventLog == NULL)
 			{
 				return false;
 			}
 
-			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_WARNING_TYPE, category, eventid, NULL, numberofstrings, 0, const_cast<LPCWSTR*>(&description), NULL);
+			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_WARNING_TYPE, category, eventid, NULL, numberofstrings, 0, (LPCWSTR*)&description, NULL);
 			if (!bStatus)
 			{
 				::DeregisterEventSource(hEventLog);
@@ -1205,33 +1205,33 @@ namespace ItSoftware::Win
 		//
 		// Function: ReportInformationEventLogEntry
 		//
-		static bool ReportInformationEventLogEntry(const wchar_t* sourcename, const wchar_t* text)
+		static bool ReportInformationEventLogEntry(const wstring sourcename, const wstring text)
 		{
-			if (sourcename == nullptr || text == nullptr)
+			if (sourcename.size() == 0)
 			{
 				return false;
 			}
 
-			return ReportInformationEventLogEntry(sourcename, 0, 0, 1, text);
+			return ReportInformationEventLogEntry(sourcename, 0, 0, 1, text.c_str());
 		}
 
 		//
 		// Function: ReportInformationEventLogEntry
 		//
-		static bool ReportInformationEventLogEntry(const wchar_t* sourcename, short category, long eventid, short numberofstrings, const wchar_t* description)
+		static bool ReportInformationEventLogEntry(const wstring sourcename, short category, long eventid, short numberofstrings, const wchar_t* description)
 		{
-			if (sourcename == nullptr || description == nullptr || (numberofstrings > 0 && wcslen(description) == 0))
+			if (sourcename.size() == 0 || (numberofstrings > 0 && wcslen(description) == 0))
 			{
 				return false;
 			}
 
-			HANDLE hEventLog = ::RegisterEventSource(NULL, sourcename);
+			HANDLE hEventLog = ::RegisterEventSource(NULL, sourcename.c_str());
 			if (hEventLog == NULL)
 			{
 				return false;
 			}
 
-			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_INFORMATION_TYPE, category, eventid, NULL, numberofstrings, 0, const_cast<LPCWSTR*>(&description), NULL);
+			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_INFORMATION_TYPE, category, eventid, NULL, numberofstrings, 0, (LPCWSTR*)&description, NULL);
 			if (!bStatus)
 			{
 				::DeregisterEventSource(hEventLog);
@@ -1250,33 +1250,33 @@ namespace ItSoftware::Win
 		//
 		// Function: ReportAuditSuccessEventLogEntry
 		//
-		static bool ReportAuditSuccessEventLogEntry(const wchar_t* sourcename, const wchar_t* text)
+		static bool ReportAuditSuccessEventLogEntry(const wstring sourcename, const wstring text)
 		{
-			if (sourcename == nullptr || text == nullptr)
+			if (sourcename.size() == 0)
 			{
 				return false;
 			}
 
-			return ReportAuditSuccessEventLogEntry(sourcename, 0, 0, 1, text);
+			return ReportAuditSuccessEventLogEntry(sourcename, 0, 0, 1, text.c_str());
 		}
 
 		//
 		// Function: ReportAuditSuccessEventLogEntry
 		//
-		static bool ReportAuditSuccessEventLogEntry(const wchar_t* sourcename, short category, long eventid, short numberofstrings, const wchar_t* description)
+		static bool ReportAuditSuccessEventLogEntry(const wstring sourcename, short category, long eventid, short numberofstrings, const wchar_t* description)
 		{
-			if (sourcename == nullptr || description == nullptr || (numberofstrings > 0 && wcslen(description) == 0))
+			if (sourcename.size() == 0 || (numberofstrings > 0 && wcslen(description) == 0))
 			{
 				return false;
 			}
 
-			HANDLE hEventLog = ::RegisterEventSource(NULL, sourcename);
+			HANDLE hEventLog = ::RegisterEventSource(NULL, sourcename.c_str());
 			if (hEventLog == NULL)
 			{
 				return false;
 			}
 
-			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_AUDIT_SUCCESS, category, eventid, NULL, numberofstrings, 0, const_cast<LPCWSTR*>(&description), NULL);
+			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_AUDIT_SUCCESS, category, eventid, NULL, numberofstrings, 0, (LPCWSTR*)&description, NULL);
 			if (!bStatus)
 			{
 				::DeregisterEventSource(hEventLog);
@@ -1295,33 +1295,33 @@ namespace ItSoftware::Win
 		//
 		// Function: ReportAuditFailureEventLogEntry
 		//
-		static bool ReportAuditFailureEventLogEntry(const wchar_t* sourcename, const wchar_t* text)
+		static bool ReportAuditFailureEventLogEntry(const wstring sourcename, const wstring text)
 		{
-			if (sourcename == nullptr || text == nullptr)
+			if (sourcename.size() == 0)
 			{
 				return false;
 			}
 
-			return ReportAuditFailureEventLogEntry(sourcename, 0, 0, 1, text);
+			return ReportAuditFailureEventLogEntry(sourcename, 0, 0, 1, text.c_str());
 		}
 
 		//
 		// Function: ReportAuditFailureEventLogEntry
 		//
-		static bool ReportAuditFailureEventLogEntry(const wchar_t* sourcename, short category, long eventid, short numberofstrings, const wchar_t* description)
+		static bool ReportAuditFailureEventLogEntry(const wstring sourcename, short category, long eventid, short numberofstrings, const wchar_t* description)
 		{
-			if (sourcename == nullptr || description == nullptr || (numberofstrings > 0 && wcslen(description) == 0))
+			if (sourcename.size() == 0 || (numberofstrings > 0 && wcslen(description) == 0))
 			{
 				return false;
 			}
 
-			HANDLE hEventLog = ::RegisterEventSource(NULL, sourcename);
+			HANDLE hEventLog = ::RegisterEventSource(NULL, sourcename.c_str());
 			if (hEventLog == NULL)
 			{
 				return false;
 			}
 
-			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_AUDIT_FAILURE, category, eventid, NULL, numberofstrings, 0, const_cast<LPCWSTR*>(&description), NULL);
+			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_AUDIT_FAILURE, category, eventid, NULL, numberofstrings, 0, (LPCWSTR*)&description, NULL);
 			if (!bStatus)
 			{
 				::DeregisterEventSource(hEventLog);
