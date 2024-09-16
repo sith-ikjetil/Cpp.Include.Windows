@@ -22,6 +22,11 @@
 #include <memory>
 
 //
+// disable warning
+//
+#pragma warning(disable: 4244)
+
+//
 // namespace
 //
 namespace ItSoftware::Exceptions
@@ -30,10 +35,11 @@ namespace ItSoftware::Exceptions
     // using
     //
 	using std::wstring;
+    using std::string;
 	using std::endl;
     using std::wstringstream;
 	using std::exception;
-	using std::unique_ptr;
+	using std::shared_ptr;
 	using std::make_unique;
 
     //
@@ -48,19 +54,20 @@ namespace ItSoftware::Exceptions
     protected:
 		unsigned int				m_errorCode;
 		wstring						m_message;
-		unique_ptr<ItsException>	m_pInnerException;
+        string                      m_messageA;
+		shared_ptr<ItsException>	m_pInnerException;
 
         //
         //
         //
         wstring GetWin32ErrorMessage()
         {
-            return this->GetWin32ErrorMessage( this->m_errorCode );
+            return ItsException::GetWin32ErrorMessage( this->m_errorCode );
         }
         //
         //
         //
-        wstring GetWin32ErrorMessage(unsigned int errorCode)
+        static wstring GetWin32ErrorMessage(unsigned int errorCode)
         {
             LPVOID lpMsgBuf = nullptr;
             FormatMessageW( FORMAT_MESSAGE_ALLOCATE_BUFFER |
@@ -90,7 +97,7 @@ namespace ItSoftware::Exceptions
         //
         //
         //
-        wstring GetCoLastErrorMessage()
+        static wstring GetCoLastErrorMessage()
         {
             IErrorInfo *pErrInfo = nullptr;
             HRESULT hr = GetErrorInfo( NULL, static_cast<IErrorInfo **>(&pErrInfo) );
@@ -112,240 +119,88 @@ namespace ItSoftware::Exceptions
         { 
         }
             
-        explicit ItsException(unsigned int errorCode)
+        explicit ItsException(const unsigned int errorCode)
             : exception(),
             m_errorCode(errorCode)
         {
 
         }
             
-        explicit ItsException(const wchar_t* message)
+        explicit ItsException(const wstring& message)
             : exception(),
             m_errorCode( 0 ),
             m_message(message)
         {
-
+            m_messageA = string(this->m_message.begin(), this->m_message.end());
         }
 
-        explicit ItsException(ItsException& other)
-        {
-            //
-            // Take over ownership
-            //
+        explicit ItsException(const ItsException& other)
+        {            
             this->m_errorCode = other.m_errorCode;
-            if (other.m_pInnerException != nullptr) {
-                this->m_pInnerException.reset(other.m_pInnerException.get());
-            }
-            this->m_message = other.m_message;
-
-            //
-            // Clean up other
-            //
-            other.m_errorCode = 0;
-            other.m_message = L"";
-        }
-             
-        explicit ItsException( ItsException&& other ) noexcept
-            : exception()
-        {
-            //
-            // Take over ownership
-            //
-            this->m_errorCode = other.m_errorCode;
-            this->m_pInnerException = std::move(other.m_pInnerException);
-            this->m_message = other.m_message;
-                
-            //
-            // Clean up other
-            //
-            other.m_errorCode = 0;                
-            other.m_message = L"";
+            this->m_pInnerException = other.m_pInnerException;				
+            this->m_message = other.m_message;            
+            m_messageA = string(this->m_message.begin(), this->m_message.end());
         }
 
-        explicit ItsException( unsigned int errorCode, const wchar_t* message )
+        ItsException( const unsigned int errorCode, const wstring& message )
             :	exception(),
             m_errorCode( errorCode ),
             m_message( message )
         {
-
+            m_messageA = string(this->m_message.begin(), this->m_message.end());
         }
 
-        explicit ItsException( unsigned int errorCode, ItsException&& inner )
+        ItsException( const unsigned int errorCode, const ItsException& inner )
             : exception(),
             m_errorCode( errorCode ),
-            m_pInnerException(make_unique<ItsException>(std::move(inner)))
+            m_pInnerException(inner.m_pInnerException)
         {
 			
-        }
+        }        
 
-        explicit ItsException(const wchar_t* message, ItsException&& inner )
-            : exception(),
-            m_errorCode( 0 ),
-            m_message( message ),
-            m_pInnerException(make_unique<ItsException>(std::move(inner)))
-        {
-			
-        }
-
-        explicit ItsException( unsigned int errorCode, const wchar_t* message, ItsException&& inner )
+        ItsException( const unsigned int errorCode, const wstring& message, const ItsException& inner )
             : exception(),
             m_errorCode( errorCode ),
 			m_message( message ),
-            m_pInnerException(make_unique<ItsException>(std::move(inner)))
+            m_pInnerException(inner.m_pInnerException)
         {
-			
+            m_messageA = string(this->m_message.begin(), this->m_message.end());
         }
 
-        virtual wstring ToString() 
+		virtual const char* what() const override
+		{            
+            return m_messageA.c_str();
+		}
+
+        wstring Message() const {
+            return this->m_message;
+        }
+
+        unsigned int ErrorCode() const {
+            return this->m_errorCode;
+        }
+
+        wstring ToString() 
         {
             wstringstream msg;
-            msg << L"## Exception ##" << endl;
-            msg << L"Type:" << endl << L"ItsException" << endl << endl;
-            msg << L"Error Code:" << endl << L"0x" << std::hex << this->m_errorCode << endl << endl;
-            msg << L"Message:" << endl << this->m_message << endl << endl;
-            msg << L"Win32 Error Code Message:" << endl << this->GetWin32ErrorMessage() << endl << endl;
-            msg << L"COM Last Error Message:" << endl << this->GetCoLastErrorMessage() << endl << endl;
+            msg << L"> (e): Exception" << endl;
+            msg << L"> (e): Type          : " << L"ItsException" << endl;
+            msg << L"> (e): Error Code    : 0x" << L"0x" << std::hex << this->m_errorCode << endl;
+            msg << L"> (e): Message       : " << this->m_message << endl;
+            msg << L"> (e): Win32 Message : " << this->GetWin32ErrorMessage() << endl;
+            wstring com_msg = ItsException::GetCoLastErrorMessage();
+            if (com_msg.length() > 0) {
+                msg << L"> (e): COM Message   : " << com_msg << endl;
+            }
 
             if ( this->m_pInnerException != nullptr )
             {
+                msg << endl;
                 msg << this->m_pInnerException->ToString() << endl;
             }				
 				
-            return msg.str();
+            wstring str = msg.str();
+            return str;
         }	
     };// class ItsException
-
-	//
-	// Class: ItsNullReferenceException
-	//
-	// (i): Generic root exception
-	//
-	class ItsNullReferenceException : public ItsException
-	{
-	private:
-	protected:
-		wstring m_argumentName;
-
-	public:
-        explicit ItsNullReferenceException(const wchar_t* name )
-			: m_argumentName( name )
-		{
-		}
-
-        explicit ItsNullReferenceException(const wchar_t* name, const wchar_t* message )
-			: m_argumentName( name ),
-				ItsException(message)
-		{
-		}
-			
-        explicit ItsNullReferenceException(const wchar_t* name, ItsException&& inner )
-			: m_argumentName( name )
-		{
-			this->m_pInnerException = make_unique<ItsException>( std::move( inner ) );
-		}
-
-        explicit ItsNullReferenceException(const wchar_t* name, const wchar_t* message, ItsException&& inner )
-		{
-			this->m_message = message;
-			this->m_pInnerException = make_unique<ItsException>( std::move( inner ) );
-			this->m_argumentName = name;					
-		}
-
-		virtual wstring ToString() override
-		{
-			wstringstream msg;
-			msg << L"## Exception ##" << endl;
-			msg << L"Type:" << endl << L"ItsNullReferenceException" << endl << endl;
-			msg << L"Parameter Name:" << endl << this->m_argumentName << endl << endl;
-			msg << L"Message: " << endl << this->m_message << endl << endl;
-
-			if ( this->m_pInnerException != nullptr )
-			{
-				msg << this->m_pInnerException->ToString() << endl;
-			}
-
-			return msg.str();
-		}
-	};// class ItsNullReferenceException
-
-	//
-	// Class: ItsArgumentNullException
-	//
-	// (i): Generic root exception
-	//
-	class ItsArgumentNullException : public ItsException
-	{			
-	private:
-	protected:
-		wstring m_argumentName;
-
-	public:
-        explicit ItsArgumentNullException(const wchar_t* name )
-			: m_argumentName(name)
-		{
-		}
-
-        explicit ItsArgumentNullException(const wchar_t* name, ItsException&& inner )
-			: m_argumentName( name )
-		{
-			this->m_pInnerException = make_unique<ItsException>( std::move( inner ) );
-		}
-
-		virtual wstring ToString() override
-		{
-			wstringstream msg;
-			msg << L"## Exception ##" << endl;
-			msg << L"Type:" << endl << L"ItsArgumentNullException" << endl << endl;
-			msg << L"Parameter Name:" << endl << this->m_argumentName << endl << endl;				
-
-			if ( this->m_pInnerException != nullptr )
-			{
-				msg << this->m_pInnerException->ToString() << endl;
-			}
-
-			return msg.str();
-		}
-	};// class ItsArgumentNullException
-
-	//
-	// Class: ItsArgumentException
-	//
-	// (i): Generic root exception
-	//
-	class ItsArgumentException : public ItsException
-	{
-	private:
-	protected:
-		wstring m_argumentName;
-
-	public:
-		ItsArgumentException(const wchar_t* name, const wchar_t* message )
-			: ItsException(message),
-				m_argumentName( name )
-		{
-		}        
-
-		ItsArgumentException( const wchar_t* name, const wchar_t* message, ItsException&& inner )
-			: ItsException(message),
-				m_argumentName( name )
-		{
-			this->m_pInnerException = make_unique<ItsException>( std::move( inner ) );
-		}
-
-		virtual wstring ToString() override
-		{
-			wstringstream msg;
-			msg << L"## Exception ##" << endl;
-			msg << L"Type:" << endl << L"ItsArgumentException" << endl << endl;
-			msg << L"Parameter Name:" << endl << this->m_argumentName << endl << endl;
-			msg << L"Message:" << endl << this->m_message << endl << endl;
-
-			if ( this->m_pInnerException != nullptr )
-			{
-				msg << this->m_pInnerException->ToString() << endl;
-			}
-				
-			return msg.str();
-		}
-	};// class ItsArgumentException
 }// namespace ItSoftware::Exceptions

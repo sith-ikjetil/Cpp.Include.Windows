@@ -43,28 +43,26 @@ namespace ItSoftware
 	using std::stringstream;
 	using std::wstringstream;
 	using std::endl;
-	using ItSoftware::Exceptions::ItsException;
-	using ItSoftware::Exceptions::ItsArgumentException;
-	using ItSoftware::Exceptions::ItsArgumentNullException;
+	using ItSoftware::Exceptions::ItsException;	
 
 	// 
 	// Macros
 	//
-	#define DECIMALTOSTRING2(d) #d
-	#define DECIMALTOSTRING1(d) DECIMALTOSTRING2(d)
-	#define ERR_AT_LOCATION(e) __FILE__ "(" DECIMALTOSTRING1(__LINE__) "): " #e 
-	#define ERROR_HERE __FILE__ "(" DECIMALTOSTRING2(__LINE__) "): "  
-	#define CHAR_BIT 8
-	#define BitsCount( val ) ( sizeof( val ) * CHAR_BIT )
-	#define Shift( val, steps ) ( steps % BitsCount( val ) )
-	#define ROL( val, steps ) ( ( val << Shift( val, steps ) ) | ( val >> ( BitsCount( val ) - Shift( val, steps ) ) ) )
-	#define ROR( val, steps ) ( ( val >> Shift( val, steps ) ) | ( val << ( BitsCount( val ) - Shift( val, steps ) ) ) )	
-	#define AddFlag( val, flag ) (val | flag)
-	#define RemoveFlag(val, flag) (val & ~flag)
-	
-	//
-	// Function: as_const
-	//
+#define DECIMALTOSTRING2(d) #d
+#define DECIMALTOSTRING1(d) DECIMALTOSTRING2(d)
+#define ERR_AT_LOCATION(e) __FILE__ "(" DECIMALTOSTRING1(__LINE__) "): " #e 
+#define ERROR_HERE __FILE__ "(" DECIMALTOSTRING2(__LINE__) "): "  
+#define CHAR_BIT 8
+#define BitsCount( val ) ( sizeof( val ) * CHAR_BIT )
+#define Shift( val, steps ) ( steps % BitsCount( val ) )
+#define ROL( val, steps ) ( ( val << Shift( val, steps ) ) | ( val >> ( BitsCount( val ) - Shift( val, steps ) ) ) )
+#define ROR( val, steps ) ( ( val >> Shift( val, steps ) ) | ( val << ( BitsCount( val ) - Shift( val, steps ) ) ) )	
+#define AddFlag( val, flag ) (val | flag)
+#define RemoveFlag(val, flag) (val & ~flag)
+
+//
+// Function: as_const
+//
 	template<typename T>
 	const T& as_const(const T& item) { return item; }
 
@@ -85,7 +83,7 @@ namespace ItSoftware
 	{
 		return value & ~flag;
 	}
-	
+
 	//
 	// Encoding
 	//
@@ -99,7 +97,7 @@ namespace ItSoftware
 		struct UTF8
 		{
 
-			static std::wstring ToString( const std::string& str )
+			static std::wstring ToString(const std::string& str)
 			{
 				/*typedef std::codecvt_utf8<wchar_t> convert_typeX;
 				std::wstring_convert<convert_typeX, wchar_t> converterX;
@@ -112,7 +110,7 @@ namespace ItSoftware
 				return wstrTo;
 			}
 
-			static std::string ToString( const std::wstring& wstr )
+			static std::string ToString(const std::wstring& wstr)
 			{
 				/*typedef std::codecvt_utf8<wchar_t> convert_typeX;
 				std::wstring_convert<convert_typeX, wchar_t> converterX;
@@ -125,7 +123,7 @@ namespace ItSoftware
 				return strTo;
 			}
 
-			static unsigned char* ToBytes( const std::wstring& wstr, long* cbLength )
+			static unsigned char* ToBytes(const std::wstring& wstr, long* cbLength)
 			{
 				/*typedef std::codecvt_utf8<wchar_t> convert_typeX;
 				std::wstring_convert<convert_typeX, wchar_t> converterX;
@@ -134,23 +132,23 @@ namespace ItSoftware
 
 				std::string s = UTF8::ToString(wstr);
 
-				size_t length = s.length( ) * sizeof( char );
-				unsigned char* pBytes = new ( std::nothrow ) unsigned char[length];
-				if ( pBytes == nullptr )
+				size_t length = s.length() * sizeof(char);
+				unsigned char* pBytes = new (std::nothrow) unsigned char[length];
+				if (pBytes == nullptr)
 				{
 					*cbLength = 0;
 					return nullptr;
 				}
 
-				memcpy( static_cast<void*>(pBytes), s.data( ), length );
+				memcpy((void*)pBytes, s.data(), length);
 
-				*cbLength = (long) length;
+				*cbLength = (long)length;
 
 				return pBytes;
 			}
 		};
 	}
-	
+
 	//
 	// struct: ItsTime
 	//
@@ -158,7 +156,7 @@ namespace ItSoftware
 	//
 	struct ItsTime
 	{
-		static void SplitMsToHourMinuteSeconds( size_t time_ms, size_t* part_hours, size_t* part_minutes, size_t* part_seconds, size_t* part_ms )
+		static void SplitMsToHourMinuteSeconds(size_t time_ms, size_t* part_hours, size_t* part_minutes, size_t* part_seconds, size_t* part_ms)
 		{
 			size_t seconds = time_ms / 1000;
 
@@ -168,12 +166,12 @@ namespace ItSoftware
 			*part_ms = 0;
 
 			*part_hours = seconds / 3600;
-			*part_minutes = ( seconds - ( *part_hours * 3600 ) ) / 60;
-			*part_seconds = seconds - ( *part_hours * 3600 ) - ( *part_minutes * 60 );
-			*part_ms = time_ms - ( *part_seconds * 1000 ) - ( *part_minutes * 60 * 1000 ) - ( *part_hours * 3600 * 1000 );
-		}		
+			*part_minutes = (seconds - (*part_hours * 3600)) / 60;
+			*part_seconds = seconds - (*part_hours * 3600) - (*part_minutes * 60);
+			*part_ms = time_ms - (*part_seconds * 1000) - (*part_minutes * 60 * 1000) - (*part_hours * 3600 * 1000);
+		}
 
-		static void SplitHourToYearWeekDayHour( size_t houIn, size_t* houRest, size_t* day, size_t* week, size_t* year )
+		static void SplitHourToYearWeekDayHour(size_t houIn, size_t* houRest, size_t* day, size_t* week, size_t* year)
 		{
 			*houRest = houIn;
 
@@ -181,17 +179,17 @@ namespace ItSoftware
 			*week = *day / 7;
 			*year = *week / 52;
 
-			*day -= ( *week * 7 );
+			*day -= (*week * 7);
 
-			*week -= ( *year * 52 );
+			*week -= (*year * 52);
 
 			*houRest -= *week * 7 * 24;
 			*houRest -= *day * 24;
 			*houRest -= *year * 52 * 7 * 24;
-		}		
+		}
 
 		static wstring RenderMsToFullString(size_t milliseconds, bool bWithMilliseconds)
-		{			
+		{
 			size_t hou = 0;
 			size_t min = 0;
 			size_t sec = 0;
@@ -299,49 +297,47 @@ namespace ItSoftware
 	//
 	struct ItsString
 	{
-		static wstring WidthExpand(const wchar_t* source, size_t width, wchar_t fill, ItsExpandDirection direction)
+		static wstring WidthExpand(wstring source, size_t width, wchar_t fill, ItsExpandDirection direction)
 		{
-			if (source == nullptr || wcslen(source) == 0) {
+			if (source.size() == 0) {
 				return wstring(L"");
 			}
-			if (width == 0) {
+			if (width <= 0) {
 				return wstring(L"");
 			}
 
-			wstring source_str = source;
-
-			if (source_str.size() >= width) {
-				return source_str.substr(0, width);
+			if (source.size() >= width) {
+				return source.substr(0, width);
 			}
 
 			wstringstream result;
-			if (direction == ItsExpandDirection::Left) 
+			if (direction == ItsExpandDirection::Left)
 			{
-				for (size_t i = 0; i < (width - source_str.size()); i++)
+				for (size_t i = 0; i < (width - source.size()); i++)
 				{
 					result << fill;
 				}
-				result << source_str;
+				result << source;
 			}
 			else if (direction == ItsExpandDirection::Middle)
 			{
-				for (size_t i = 0; i < ((width - source_str.size()) / 2); i++)
+				for (size_t i = 0; i < ((width - source.size()) / 2); i++)
 				{
 					result << fill;
 				}
 
-				result << source_str;
+				result << source;
 
 				for (size_t i = result.str().size(); i < width; i++)
 				{
 					result << fill;
 				}
 			}
-			else if (direction == ItsExpandDirection::Right) 
+			else if (direction == ItsExpandDirection::Right)
 			{
-				result << source_str;
+				result << source;
 
-				for (size_t i = 0; i < (width - source_str.size()); i++)
+				for (size_t i = 0; i < (width - source.size()); i++)
 				{
 					result << fill;
 				}
@@ -354,144 +350,135 @@ namespace ItSoftware
 			return retVal;
 		}
 
-		static vector<wstring> Split(const wchar_t* input, const wchar_t* delimiter)
+		static vector<wstring> Split(wstring input, wstring delimiter)
 		{
 			vector<wstring> result;
 
-			if (input == nullptr || wcslen(input) == 0 || delimiter == nullptr || wcslen(delimiter) == 0) {
+			if (input.size() == 0 || delimiter.size() == 0) {
 				return result;
 			}
 
-			wstring input_str = input;
-			wstring delimiter_str = delimiter;
-
 			size_t start = 0;
-			size_t end = input_str.find(delimiter);
+			size_t end = input.find(delimiter);
 
 			while (end != std::string::npos) {
-				result.push_back(input_str.substr(start, end - start));
-				start = end + delimiter_str.length();
-				end = input_str.find(delimiter_str, start);
+				result.push_back(input.substr(start, end - start));
+				start = end + delimiter.length();
+				end = input.find(delimiter, start);
 			}
 
 			// Add the last segment
-			result.push_back(input_str.substr(start));
+			result.push_back(input.substr(start));
 
 			return result;
 		}
 
-		static wstring ToLowerCase(const wchar_t* s )
+		static wstring ToLowerCase(wstring s)
 		{
-			wstring str = s;
-			std::transform(str.begin( ), str.end( ), str.begin( ), ::tolower );
+			std::transform(s.begin(), s.end(), s.begin(), ::tolower);
 			return s;
 		}
 
-		static wstring ToUpperCase(const wchar_t* s )
+		static wstring ToUpperCase(wstring s)
 		{
-			wstring str = s;
-			std::transform(str.begin( ), str.end( ), str.begin( ), ::toupper );
+			std::transform(s.begin(), s.end(), s.begin(), ::toupper);
 			return s;
 		}
 
-		static wstring TrimLeft(const wchar_t* s, const wchar_t* t = L" \t\n\r\f\v" )
+		static wstring TrimLeft(wstring s, const wchar_t* t = L" \t\n\r\f\v")
 		{
-			wstring str = s;
-			str.erase( 0, str.find_first_not_of( t ) );
-			return str;
+			s.erase(0, s.find_first_not_of(t));
+			return s;
 		}
 
-		static wstring TrimRight(const wchar_t* s, const wchar_t* t = L" \t\n\r\f\v" )
+		static wstring TrimRight(wstring s, const wchar_t* t = L" \t\n\r\f\v")
 		{
-			wstring str = s;
-			str.erase(str.find_last_not_of( t ) + 1 );
-			return str;
+			s.erase(s.find_last_not_of(t) + 1);
+			return s;
 		}
 
-		static wstring Trim(const wchar_t* s, const wchar_t* t = L" \t\n\r\f\v" )
+		static wstring Trim(wstring s, const wchar_t* t = L" \t\n\r\f\v")
 		{
-			wstring str = s;
-			wstring right = TrimRight(str.c_str(), t);
-			return TrimLeft( right.c_str(), t);
+			wstring right = TrimRight(s, t);
+			return TrimLeft(right, t);
 		}
 
-		static wstring Left(const wchar_t* s, unsigned int count )
+		static wstring Left(wstring s, unsigned int count)
 		{
-			if ( s == nullptr || wcslen(s) == 0 || count == 0 )
+			if (s.size() == 0 || count <= 0)
 			{
-				return wstring( L"" );
+				return wstring(L"");
 			}
 
-			if ( count >= wcslen(s) )
+			if (count >= s.size())
 			{
 				return s;
 			}
 
 			wstringstream ss;
-			for ( unsigned int i = 0; i < count; i++ )
+			for (unsigned int i = 0; i < count; i++)
 			{
 				ss << s[i];
 			}
 
-			wstring str = ss.str( );
+			wstring str = ss.str();
 			return str;
 		}
-		
-		static wstring Mid(const wchar_t* s, size_t index, size_t count )
+
+		static wstring Mid(wstring s, size_t index, size_t count)
 		{
-			if ( s == nullptr || wcslen(s) == 0 || count == 0 || index >= wcslen(s))
+			if (s.size() == 0 || count <= 0 || index < 0 || index >= s.size())
 			{
-				return wstring( L"" );
+				return wstring(L"");
 			}
 
-			if ( index + count >= wcslen(s) )
+			if (index + count >= s.size())
 			{
 				wstringstream ss;
-				for ( size_t i = index; i < wcslen(s); i++ )
+				for (size_t i = index; i < s.size(); i++)
 				{
 					ss << s[i];
 				}
-				wstring str = ss.str( );
+				wstring str = ss.str();
 				return str;
 			}
 
 			wstringstream ss;
-			for ( size_t i = index; i < index + count; i++ )
+			for (size_t i = index; i < index + count; i++)
 			{
 				ss << s[i];
 			}
 
-			wstring str = ss.str( );
+			wstring str = ss.str();
 			return str;
 		}
-		
-		static wstring Right(const wchar_t* s, unsigned int count )
+
+		static wstring Right(wstring s, unsigned int count)
 		{
-			if ( s == nullptr || wcslen(s) == 0 || count == 0 )
+			if (s.size() == 0 || count <= 0)
 			{
-				return wstring( L"" );
+				return wstring(L"");
 			}
 
-			wstring str = s;
-			if ( count >= str.size( ) )
+			if (count >= s.size())
 			{
 				return s;
 			}
 
 			wstringstream ss;
-			for ( size_t i = str.size( ) - count; i < str.size( ); i++ )
+			for (size_t i = s.size() - count; i < s.size(); i++)
 			{
-				ss << str[i];
+				ss << s[i];
 			}
 
-			wstring str_ret = ss.str( );
-			return str_ret;
+			wstring str = ss.str();
+			return str;
 		}
 
 
-		static wstring Replace(const wchar_t* s, const wchar_t* replace, const wchar_t* replace_with )
+		static wstring Replace(wstring s, wstring replace, wstring replace_with)
 		{
-			if (s == nullptr || replace == nullptr)
+			if (s.size() == 0 || replace.size() == 0 || replace.size() > s.size())
 			{
 				return wstring(L"");
 			}
@@ -506,7 +493,7 @@ namespace ItSoftware
 			auto result = ItsString::Split(s, replace);
 			wstringstream ss;
 			bool bHit = false;
-			for (const auto& t : result) {
+			for (auto& t : result) {
 				if (bHit) {
 					ss << replace_with;
 				}
@@ -573,7 +560,7 @@ namespace ItSoftware
 			else {//(type == ItsDataSizeStringType::Recommended) { // defaults to this notation
 				szSize = { L"B", L"KB", L"MB", L"GB", L"TB", L"PB", L"EB", L"ZB", L"YB", L"BB", L"GP" };
 			}
-	
+
 			size_t tst = (size_t)dSize;
 			ss << tst;
 			if (digits > 0) {
@@ -585,11 +572,11 @@ namespace ItSoftware
 				else {
 					ws += L".000";
 				}
-				ss << ws.substr(1, static_cast<size_t>(digits)+1);
+				ss << ws.substr(1, static_cast<size_t>(digits) + 1);
 			}
 			ss << L" ";
 			ss << ((index > (szSize.size() - 1) || index < 0) ? L"?" : szSize[index]);
-			
+
 			wstring retVal = ss.str();
 			return retVal;
 		}
@@ -598,7 +585,7 @@ namespace ItSoftware
 		template<typename Numeric>
 		static Numeric ToNumber(const wstring& str)
 		{
-			if (std::is_same_v<Numeric, char>) 
+			if (std::is_same_v<Numeric, char>)
 			{
 				return static_cast<char>(std::stoi(str));
 			}
@@ -696,47 +683,47 @@ namespace ItSoftware
 			return tos;
 		}
 
-		static wstring ToStringFormatted( size_t number, wchar_t thousandSep = L',')
+		static wstring ToStringFormatted(size_t number, wchar_t thousandSep = L',')
 		{
-			wstring txt = ItsConvert::ToString( number );
-			
+			wstring txt = ItsConvert::ToString(number);
+
 			wstringstream ss;
 
-			int groupSize = 3;			
+			int groupSize = 3;
 			int i = groupSize;
 			size_t iCount = 0;
-			size_t iSize = txt.size( );
-			for ( auto itr = txt.rbegin( ); itr < txt.rend( ); itr++ )
+			size_t iSize = txt.size();
+			for (auto itr = txt.rbegin(); itr < txt.rend(); itr++)
 			{
-				if ( i-- > 0 )
+				if (i-- > 0)
 				{
 					ss << *itr;
 					iCount++;
 				}
 				else
 				{
-					if ( iCount < iSize )
+					if (iCount < iSize)
 					{
 						ss << thousandSep;
 						ss << *itr;
 						iCount++;
 						i = groupSize - 1;
-					}					
+					}
 					else {
 						i = groupSize;
 					}
 				}
-				
+
 			}
 
-			txt = ss.str( );
+			txt = ss.str();
 			wstringstream ss2;
-			for ( auto itr = txt.rbegin( ); itr < txt.rend( ); itr++ )
+			for (auto itr = txt.rbegin(); itr < txt.rend(); itr++)
 			{
 				ss2 << *itr;
 			}
 
-			wstring retVal = ss2.str( );
+			wstring retVal = ss2.str();
 
 			return retVal;
 		}
@@ -763,48 +750,46 @@ namespace ItSoftware
 			wstring tos = ss.str();
 			return tos;
 		}
-		
-		static wstring ToString( tm dateTime ) {
-			wstringstream ss;
-			ss << std::setfill( L'0' ) << std::setw( 4 ) << ( dateTime.tm_year + 1900 );
-			ss << L"-" << std::setfill( L'0' ) << std::setw( 2 ) << ( dateTime.tm_mon + 1 );
-			ss << L"-" << std::setfill( L'0' ) << std::setw(2) << dateTime.tm_mday;						
-			ss << L"T";
-			ss << std::setfill( L'0' ) << std::setw( 2 ) << dateTime.tm_hour;
-			ss << L":" << std::setfill( L'0' ) << std::setw( 2 ) << dateTime.tm_min;
-			ss << L":" << std::setfill( L'0' ) << std::setw( 2 ) << dateTime.tm_sec;			
 
-			wstring tos = ss.str( );
+		static wstring ToString(tm dateTime) {
+			wstringstream ss;
+			ss << std::setfill(L'0') << std::setw(4) << (dateTime.tm_year + 1900);
+			ss << L"-" << std::setfill(L'0') << std::setw(2) << (dateTime.tm_mon + 1);
+			ss << L"-" << std::setfill(L'0') << std::setw(2) << dateTime.tm_mday;
+			ss << L"T";
+			ss << std::setfill(L'0') << std::setw(2) << dateTime.tm_hour;
+			ss << L":" << std::setfill(L'0') << std::setw(2) << dateTime.tm_min;
+			ss << L":" << std::setfill(L'0') << std::setw(2) << dateTime.tm_sec;
+
+			wstring tos = ss.str();
 			return tos;
 		}
 
-		static tm ToTM(const wchar_t* dateTime )
+		static tm ToTM(wstring dateTime)
 		{
 			tm t = { 0 };
 
-			wstring dt = dateTime;
-
-			t.tm_year = ItsConvert::ToNumber<int>(dt.substr( 0, 4 ) ) - 1900;
-			t.tm_mon = ItsConvert::ToNumber<int>(dt.substr( 5, 2 ) ) - 1;
-			t.tm_mday = ItsConvert::ToNumber<int>(dt.substr( 8, 2 ));
-			t.tm_hour = ItsConvert::ToNumber<int>(dt.substr( 11, 2 ) );
-			t.tm_min = ItsConvert::ToNumber<int>(dt.substr( 14, 2 ) );
-			t.tm_sec = ItsConvert::ToNumber<int>(dt.substr( 17, 2 ) );
+			t.tm_year = ItsConvert::ToNumber<int>(dateTime.substr(0, 4)) - 1900;
+			t.tm_mon = ItsConvert::ToNumber<int>(dateTime.substr(5, 2)) - 1;
+			t.tm_mday = ItsConvert::ToNumber<int>(dateTime.substr(8, 2));
+			t.tm_hour = ItsConvert::ToNumber<int>(dateTime.substr(11, 2));
+			t.tm_min = ItsConvert::ToNumber<int>(dateTime.substr(14, 2));
+			t.tm_sec = ItsConvert::ToNumber<int>(dateTime.substr(17, 2));
 
 			return t;
 		}
 
-		static bool ToBool( wstring flag ) {
-						
-			flag = ItsString::ToLowerCase( flag.c_str() );
+		static bool ToBool(wstring flag) {
 
-			if ( !wcscmp( flag.c_str( ), L"true" ) ) {
+			flag = ItsString::ToLowerCase(flag);
+
+			if (!wcscmp(flag.c_str(), L"true")) {
 				return true;
 			}
-			else if ( !wcscmp( flag.c_str( ), L"1" ) ) {
+			else if (!wcscmp(flag.c_str(), L"1")) {
 				return true;
 			}
-			else if ( !wcscmp( flag.c_str( ), L"yes" ) ) {
+			else if (!wcscmp(flag.c_str(), L"yes")) {
 				return true;
 			}
 			else if (!wcscmp(flag.c_str(), L"on")) {
@@ -813,28 +798,28 @@ namespace ItSoftware
 			return false;
 		}
 
-		static COLORREF ToRGB(const wchar_t* color )
+		static COLORREF ToRGB(wstring color)
 		{
-			auto rgb = ItsString::Split( color, L"," );
-			return (COLORREF)(RGB( ItsConvert::ToNumber<int>(rgb[0]), ItsConvert::ToNumber<int>(rgb[1]), ItsConvert::ToNumber<int>(rgb[2]) ));
+			auto rgb = ItsString::Split(color, L",");
+			return (COLORREF)(RGB(ItsConvert::ToNumber<int>(rgb[0]), ItsConvert::ToNumber<int>(rgb[1]), ItsConvert::ToNumber<int>(rgb[2])));
 		}
 
-		static wstring ToString( vector<long long> pks ) 
+		static wstring ToString(vector<long long> pks)
 		{
 			wstringstream ss;
 			bool bAddSep = false;
-			for ( const auto&pk : pks ) {
-				if ( bAddSep ) {
+			for (auto& pk : pks) {
+				if (bAddSep) {
 					ss << L";";
 				}
 				ss << pk;
 				bAddSep = true;
 			}
-			wstring tos = ss.str( );
+			wstring tos = ss.str();
 			return tos;
 		}
 
-		static vector<long long> ToPK( wstring pks ) 
+		static vector<long long> ToPK(wstring pks)
 		{
 			//using convert_typeX = std::codecvt_utf8<wchar_t>;
 			//std::wstring_convert<convert_typeX, wchar_t> converterX;
@@ -846,21 +831,21 @@ namespace ItSoftware
 
 			string item;
 			vector<long long> topk;
-			while ( getline( ss, item, ';' ) ) 
+			while (getline(ss, item, ';'))
 			{
-				if ( !item.empty( ) ) 
+				if (!item.empty())
 				{
-					topk.push_back( ItsConvert::ToNumber<long long>( wstring(item.begin(), item.end())) );
+					topk.push_back(ItsConvert::ToNumber<long long>(wstring(item.begin(), item.end())));
 				}
 			}
 
 			return topk;
-		}		
+		}
 
-		static SYSTEMTIME ToSYSTEMTIME( tm dateTime ) 
+		static SYSTEMTIME ToSYSTEMTIME(tm dateTime)
 		{
 			SYSTEMTIME st = { 0 };
-			
+
 			st.wYear = static_cast<WORD>(dateTime.tm_year + 1900);
 			st.wMonth = static_cast<WORD>(dateTime.tm_mon + 1);
 			st.wDay = static_cast<WORD>(dateTime.tm_mday);
@@ -871,10 +856,10 @@ namespace ItSoftware
 			return st;
 		}
 
-		static tm ToTM( SYSTEMTIME st )
+		static tm ToTM(SYSTEMTIME st)
 		{
 			tm t = { 0 };
-			
+
 			t.tm_year = st.wYear - 1900;
 			t.tm_mon = st.wMonth - 1;
 			t.tm_mday = st.wDay;
@@ -884,8 +869,8 @@ namespace ItSoftware
 
 			return t;
 		}
-	};	
-	
+	};
+
 	//
 	// Function: ItsRandom
 	//
@@ -914,34 +899,34 @@ namespace ItSoftware
 	// (i): Represents a date and time.
 	//
 	struct ItsDateTime
-	{		
+	{
 	private:
 		tm m_tm;
 
 	public:
-		explicit ItsDateTime( tm timeDate )
+		ItsDateTime(tm timeDate)
 		{
 			this->m_tm = timeDate;
 		}
 
-		explicit ItsDateTime(const ItsDateTime& dateTime)
+		ItsDateTime(ItsDateTime& dateTime)
 		{
 			this->m_tm = dateTime.m_tm;
 		}
 
-		explicit ItsDateTime(ItsDateTime&& dateTime) noexcept
+		ItsDateTime(ItsDateTime&& dateTime) noexcept
 		{
 			this->m_tm = dateTime.m_tm;
 		}
 
-		static ItsDateTime Now( ) 
+		static ItsDateTime Now()
 		{
-			time_t t{ 0 };
-			time( &t );
-			tm tm2{ 0 };
-			localtime_s( &tm2, &t );
+			time_t t;
+			time(&t);
+			tm tm2;
+			localtime_s(&tm2, &t);
 
-			return ItsDateTime( tm2 );
+			return ItsDateTime(tm2);
 		}
 
 		bool operator==(const ItsDateTime& other)
@@ -987,7 +972,7 @@ namespace ItSoftware
 			this->m_tm.tm_wday = other.m_tm.tm_wday;
 			this->m_tm.tm_isdst = other.m_tm.tm_isdst;
 			this->m_tm.tm_yday = other.m_tm.tm_yday;
-			
+
 			return *this;
 		}
 
@@ -995,43 +980,43 @@ namespace ItSoftware
 			return this->ToString(L"s");
 		}
 
-		wstring ToString( )
+		wstring ToString()
 		{
 			wstringstream ss;
-			ss << std::setfill( L'0' ) << std::setw( 4 ) << ( this->m_tm.tm_year + 1900 );
-			ss << L"-" << std::setfill( L'0' ) << std::setw( 2 ) << ( this->m_tm.tm_mon + 1 );
-			ss << L"-" << std::setfill( L'0' ) << std::setw( 2 ) << this->m_tm.tm_mday;
+			ss << std::setfill(L'0') << std::setw(4) << (this->m_tm.tm_year + 1900);
+			ss << L"-" << std::setfill(L'0') << std::setw(2) << (this->m_tm.tm_mon + 1);
+			ss << L"-" << std::setfill(L'0') << std::setw(2) << this->m_tm.tm_mday;
 			ss << L" ";
-			ss << std::setfill( L'0' ) << std::setw( 2 ) << this->m_tm.tm_hour;
-			ss << L":" << std::setfill( L'0' ) << std::setw( 2 ) << this->m_tm.tm_min;
-			ss << L":" << std::setfill( L'0' ) << std::setw( 2 ) << this->m_tm.tm_sec;
+			ss << std::setfill(L'0') << std::setw(2) << this->m_tm.tm_hour;
+			ss << L":" << std::setfill(L'0') << std::setw(2) << this->m_tm.tm_min;
+			ss << L":" << std::setfill(L'0') << std::setw(2) << this->m_tm.tm_sec;
 
-			wstring tos = ss.str( );
+			wstring tos = ss.str();
 			return tos;
 		}
 
-		wstring ToString( wstring option )
+		wstring ToString(wstring option)
 		{
-			if ( option == L"s" || option == L"S" )
+			if (option == L"s" || option == L"S")
 			{
 				wstringstream ss;
-				ss << std::setfill( L'0' ) << std::setw( 4 ) << ( this->m_tm.tm_year + 1900 );
-				ss << L"-" << std::setfill( L'0' ) << std::setw( 2 ) << ( this->m_tm.tm_mon + 1 );
-				ss << L"-" << std::setfill( L'0' ) << std::setw( 2 ) << this->m_tm.tm_mday;
+				ss << std::setfill(L'0') << std::setw(4) << (this->m_tm.tm_year + 1900);
+				ss << L"-" << std::setfill(L'0') << std::setw(2) << (this->m_tm.tm_mon + 1);
+				ss << L"-" << std::setfill(L'0') << std::setw(2) << this->m_tm.tm_mday;
 				ss << L"T";
-				ss << std::setfill( L'0' ) << std::setw( 2 ) << this->m_tm.tm_hour;
-				ss << L":" << std::setfill( L'0' ) << std::setw( 2 ) << this->m_tm.tm_min;
-				ss << L":" << std::setfill( L'0' ) << std::setw( 2 ) << this->m_tm.tm_sec;
+				ss << std::setfill(L'0') << std::setw(2) << this->m_tm.tm_hour;
+				ss << L":" << std::setfill(L'0') << std::setw(2) << this->m_tm.tm_min;
+				ss << L":" << std::setfill(L'0') << std::setw(2) << this->m_tm.tm_sec;
 
-				wstring tos = ss.str( );
+				wstring tos = ss.str();
 				return tos;
 			}
-			
+
 			// day
-			int d = this->GetDay( );
-			wstring str_d = ItsConvert::ToString( d );
+			int d = this->GetDay();
+			wstring str_d = ItsConvert::ToString(d);
 			wstring str_dd;
-			if ( d < 10 )
+			if (d < 10)
 			{
 				str_dd = L"0";
 				str_dd += str_d;
@@ -1042,10 +1027,10 @@ namespace ItSoftware
 			}
 
 			// month
-			int m = this->GetMonth( );
-			wstring str_m = ItsConvert::ToString( m );
+			int m = this->GetMonth();
+			wstring str_m = ItsConvert::ToString(m);
 			wstring str_mm;
-			if ( m < 10 )
+			if (m < 10)
 			{
 				str_mm = L"0";
 				str_mm += str_m;
@@ -1056,15 +1041,15 @@ namespace ItSoftware
 			}
 
 			// year
-			int y = this->GetYear( );
-			wstring str_yyyy = ItsConvert::ToString( y );
-			wstring str_yy = ItsString::Right( str_yyyy.c_str(), 2 );
+			int y = this->GetYear();
+			wstring str_yyyy = ItsConvert::ToString(y);
+			wstring str_yy = ItsString::Right(str_yyyy, 2);
 
 			// hour			
-			int h = this->GetHour( );
-			wstring str_h = ItsConvert::ToString( h );
+			int h = this->GetHour();
+			wstring str_h = ItsConvert::ToString(h);
 			wstring str_hh;
-			if ( h < 10 )
+			if (h < 10)
 			{
 				str_hh = L"0";
 				str_hh += str_h;
@@ -1075,10 +1060,10 @@ namespace ItSoftware
 			}
 
 			// minute
-			int min = this->GetMinute( );
-			wstring str_min = ItsConvert::ToString( min );
+			int min = this->GetMinute();
+			wstring str_min = ItsConvert::ToString(min);
 			wstring str_minmin;
-			if ( min < 10 )
+			if (min < 10)
 			{
 				str_minmin = L"0";
 				str_minmin += str_min;
@@ -1089,10 +1074,10 @@ namespace ItSoftware
 			}
 
 			// second
-			int s = this->GetSecond( );
-			wstring str_s = ItsConvert::ToString( s );
+			int s = this->GetSecond();
+			wstring str_s = ItsConvert::ToString(s);
 			wstring str_ss;
-			if ( s < 10 )
+			if (s < 10)
 			{
 				str_ss = L"0";
 				str_ss += str_s;
@@ -1104,85 +1089,85 @@ namespace ItSoftware
 
 			wstring wdd = wstring(L"dd");
 			wstring wd = wstring(L"d");
-			option = ItsString::Replace( option.c_str(), wdd.c_str(), str_dd.c_str());
-			option = ItsString::Replace( option.c_str(), wd.c_str(), str_d.c_str());
+			option = ItsString::Replace(option, wdd, str_dd);
+			option = ItsString::Replace(option, wd, str_d);
 
 			wstring wMM = wstring(L"MM");
 			wstring wM = wstring(L"M");
-			option = ItsString::Replace( option.c_str(), wMM.c_str(), str_mm.c_str());
-			option = ItsString::Replace( option.c_str(), wM.c_str(), str_m.c_str());
+			option = ItsString::Replace(option, wMM, str_mm);
+			option = ItsString::Replace(option, wM, str_m);
 
 			wstring wyyyy = wstring(L"yyyy");
 			wstring wyy = wstring(L"yy");
-			option = ItsString::Replace( option.c_str(), wyyyy.c_str(), str_yyyy.c_str());
-			option = ItsString::Replace( option.c_str(), wyy.c_str(), str_yy.c_str());
+			option = ItsString::Replace(option, wyyyy, str_yyyy);
+			option = ItsString::Replace(option, wyy, str_yy);
 
 			wstring wHH = wstring(L"HH");
 			wstring wH = wstring(L"H");
-			option = ItsString::Replace( option.c_str(), wHH.c_str(), str_hh.c_str());
-			option = ItsString::Replace( option.c_str(), wH.c_str(), str_h.c_str());
+			option = ItsString::Replace(option, wHH, str_hh);
+			option = ItsString::Replace(option, wH, str_h);
 
 			wstring wmm = wstring(L"mm");
 			wstring wm = wstring(L"m");
-			option = ItsString::Replace( option.c_str(), wmm.c_str(), str_minmin.c_str());
-			option = ItsString::Replace( option.c_str(), wm.c_str(), str_min.c_str());
+			option = ItsString::Replace(option, wmm, str_minmin);
+			option = ItsString::Replace(option, wm, str_min);
 
 			wstring wss = wstring(L"ss");
 			wstring ws = wstring(L"s");
-			option = ItsString::Replace( option.c_str(), wss.c_str(), str_ss.c_str());
-			option = ItsString::Replace( option.c_str(), ws.c_str(), str_s.c_str());
+			option = ItsString::Replace(option, wss, str_ss);
+			option = ItsString::Replace(option, ws, str_s);
 
-			return option;			
+			return option;
 		}
 
-		const tm& TM( )
+		const tm& TM()
 		{
 			return this->m_tm;
 		}
 
-		void AddYears( int year )
+		void AddYears(int year)
 		{
-			this->m_tm.tm_year += year;			
+			this->m_tm.tm_year += year;
 
-			mktime( &this->m_tm );
+			mktime(&this->m_tm);
 		}
 
-		void AddMonths( int month )
-		{			
+		void AddMonths(int month)
+		{
 			this->m_tm.tm_mon += month;
 
-			mktime( &this->m_tm );
+			mktime(&this->m_tm);
 		}
 
-		void AddDays( int day )
+		void AddDays(int day)
 		{
 			this->m_tm.tm_mday += day;
 
-			mktime( &this->m_tm );
+			mktime(&this->m_tm);
 		}
 
-		void AddHours( int hour )
+		void AddHours(int hour)
 		{
 			this->m_tm.tm_hour += hour;
 
-			mktime( &this->m_tm );
+			mktime(&this->m_tm);
 		}
 
-		void AddMinutes( int min )
+		void AddMinutes(int min)
 		{
 			this->m_tm.tm_min += min;
 
-			mktime( &this->m_tm );
+			mktime(&this->m_tm);
 		}
 
-		void AddSeconds( int sec )
+		void AddSeconds(int sec)
 		{
 			this->m_tm.tm_sec += sec;
 
-			mktime( &this->m_tm );
+			mktime(&this->m_tm);
 		}
 
-		void Add( int year, int month, int day, int hour, int min, int sec ) 
+		void Add(int year, int month, int day, int hour, int min, int sec)
 		{
 			this->m_tm.tm_year += year;
 			this->m_tm.tm_mon += month;
@@ -1191,52 +1176,52 @@ namespace ItSoftware
 			this->m_tm.tm_min += min;
 			this->m_tm.tm_sec += sec;
 
-			mktime( &this->m_tm );
+			mktime(&this->m_tm);
 		}
 
-		void SubtractYears( int year )
+		void SubtractYears(int year)
 		{
-			this->m_tm.tm_year -= year;			
+			this->m_tm.tm_year -= year;
 
-			mktime( &this->m_tm );
+			mktime(&this->m_tm);
 		}
 
-		void SubtractMonths( int month )
+		void SubtractMonths(int month)
 		{
 			this->m_tm.tm_mon -= month;
-		
-			mktime( &this->m_tm );
+
+			mktime(&this->m_tm);
 		}
 
-		void SubtractDays( int day )
+		void SubtractDays(int day)
 		{
 			this->m_tm.tm_mday -= day;
 
-			mktime( &this->m_tm );
+			mktime(&this->m_tm);
 		}
 
-		void SubtractHours( int hour )
+		void SubtractHours(int hour)
 		{
 			this->m_tm.tm_hour -= hour;
 
-			mktime( &this->m_tm );
+			mktime(&this->m_tm);
 		}
 
-		void SubtractMinutes( int min )
+		void SubtractMinutes(int min)
 		{
 			this->m_tm.tm_min -= min;
 
-			mktime( &this->m_tm );		
+			mktime(&this->m_tm);
 		}
 
-		void SubtractSeconds( int sec )
+		void SubtractSeconds(int sec)
 		{
 			this->m_tm.tm_sec -= sec;
 
-			mktime( &this->m_tm );
+			mktime(&this->m_tm);
 		}
 
-		void Subtract( int year, int month, int day, int hour, int min, int sec )
+		void Subtract(int year, int month, int day, int hour, int min, int sec)
 		{
 			this->m_tm.tm_year -= year;
 			this->m_tm.tm_mon -= month;
@@ -1245,40 +1230,40 @@ namespace ItSoftware
 			this->m_tm.tm_min -= min;
 			this->m_tm.tm_sec -= sec;
 
-			mktime( &this->m_tm );
+			mktime(&this->m_tm);
 		}
 
-		int GetYear( )
+		int GetYear()
 		{
 			return this->m_tm.tm_year + 1900;
 		}
 
-		int GetMonth( )
+		int GetMonth()
 		{
 			return this->m_tm.tm_mon + 1;
 		}
 
-		int GetDay( )
+		int GetDay()
 		{
 			return this->m_tm.tm_mday;
 		}
 
-		int GetHour( )
+		int GetHour()
 		{
 			return this->m_tm.tm_hour;
 		}
 
-		int GetMinute( )
+		int GetMinute()
 		{
 			return this->m_tm.tm_min;
 		}
 
-		int GetSecond( ) 
+		int GetSecond()
 		{
 			return this->m_tm.tm_sec;
 		}
 
-		ItsDateTime& operator=( const tm& timeDate )
+		ItsDateTime& operator=(const tm& timeDate)
 		{
 			this->m_tm = timeDate;
 			return *this;
@@ -1337,11 +1322,11 @@ namespace ItSoftware
 	//
 	// (i): Log item for ItsLog
 	//
-	struct ItsLogItem 
+	struct ItsLogItem
 	{
 		ItsLogType Type{ ItsLogType::Information };
-		wstring	Description{L""};
-		tm When{0};
+		wstring	Description{ L"" };
+		tm When{ 0 };
 
 		wstring ToString()
 		{
@@ -1352,9 +1337,9 @@ namespace ItSoftware
 			wstring rep_nl(L" ");
 			wstring rep_s(L";");
 
-			auto description = ItsString::Replace(this->Description.c_str(), nl1.c_str(), rep_nl.c_str());
-			description = ItsString::Replace(description.c_str(), nl2.c_str(), rep_nl.c_str());
-			description = ItsString::Replace(description.c_str(), s1.c_str(), rep_s.c_str());
+			auto description = ItsString::Replace(this->Description, nl1, rep_nl);
+			description = ItsString::Replace(description, nl2, rep_nl);
+			description = ItsString::Replace(description, s1, rep_s);
 			ss << L"Type=" << ItsLogUtil::LogTypeToString(this->Type) << L" " << L"When=" << ItsDateTime(this->When).ToString(L"s") << L" " << L"Description=" << description;
 
 			wstring retVal = ss.str();
@@ -1414,9 +1399,9 @@ namespace ItSoftware
 			return wType;
 		}
 
-		int ReportEvent( EEVENTLOGTYPE eeventlogtype, const wchar_t* description)
+		int ReportEvent(EEVENTLOGTYPE eeventlogtype, const wstring description)
 		{
-			if (this->m_sourceName.size() == 0 || description == nullptr) {
+			if (this->m_sourceName.size() == 0 || description.size() == 0) {
 				return -1;
 			}
 
@@ -1424,9 +1409,9 @@ namespace ItSoftware
 			if (hEventLog == NULL) {
 				return -1;
 			}
-			
-			CComBSTR bstr(description);
-			BOOL bStatus = ::ReportEvent(hEventLog, ConvertEnumToType(eeventlogtype), 0, 0, NULL, 1, 0, const_cast<LPCWSTR*>(reinterpret_cast<LPWSTR*>(&bstr)), NULL);
+
+			CComBSTR bstr(description.c_str());
+			BOOL bStatus = ::ReportEvent(hEventLog, ConvertEnumToType(eeventlogtype), 0, 0, NULL, 1, 0, (LPCWSTR*)&bstr, NULL);
 			if (!bStatus) {
 				::DeregisterEventSource(hEventLog);
 				return -1;
@@ -1437,15 +1422,15 @@ namespace ItSoftware
 			return 0;
 		}
 	public:
-		ItsLog(const wchar_t* sourceName, bool logToEventLog)
-			:	m_sourceName(sourceName),
-				m_bLogToEventLog(logToEventLog)
+		ItsLog(wstring sourceName, bool logToEventLog)
+			: m_sourceName(sourceName),
+			m_bLogToEventLog(logToEventLog)
 		{
 		}
 		~ItsLog()
 		{
 		}
-		void LogInformation(const wchar_t* description)
+		void LogInformation(wstring description)
 		{
 			ItsLogItem item;
 			item.When = ItsDateTime::Now().TM();
@@ -1455,11 +1440,11 @@ namespace ItSoftware
 			this->m_items.push_back(item);
 
 			if (this->m_bLogToEventLog) {
-				this->ReportEvent(ItsLog::EEVENTLOGTYPE::EET_INFORMATION_TYPE, item.ToString().c_str());
+				this->ReportEvent(ItsLog::EEVENTLOGTYPE::EET_INFORMATION_TYPE, item.ToString());
 			}
 		}
 
-		void LogWarning(const wchar_t* description)
+		void LogWarning(wstring description)
 		{
 			ItsLogItem item;
 			item.When = ItsDateTime::Now().TM();
@@ -1469,11 +1454,11 @@ namespace ItSoftware
 			this->m_items.push_back(item);
 
 			if (this->m_bLogToEventLog) {
-				this->ReportEvent(ItsLog::EEVENTLOGTYPE::EET_WARNING_TYPE, item.ToString().c_str());
+				this->ReportEvent(ItsLog::EEVENTLOGTYPE::EET_WARNING_TYPE, item.ToString());
 			}
 		}
 
-		void LogError(const wchar_t* description)
+		void LogError(wstring description)
 		{
 			ItsLogItem item;
 			item.When = ItsDateTime::Now().TM();
@@ -1483,11 +1468,11 @@ namespace ItSoftware
 			this->m_items.push_back(item);
 
 			if (this->m_bLogToEventLog) {
-				this->ReportEvent(ItsLog::EEVENTLOGTYPE::EET_ERROR_TYPE, item.ToString().c_str());
+				this->ReportEvent(ItsLog::EEVENTLOGTYPE::EET_ERROR_TYPE, item.ToString());
 			}
 		}
 
-		void LogOther(const wchar_t* description)
+		void LogOther(wstring description)
 		{
 			ItsLogItem item;
 			item.When = ItsDateTime::Now().TM();
@@ -1497,11 +1482,11 @@ namespace ItSoftware
 			this->m_items.push_back(item);
 
 			if (this->m_bLogToEventLog) {
-				this->ReportEvent(ItsLog::EEVENTLOGTYPE::EET_INFORMATION_TYPE, item.ToString().c_str());
+				this->ReportEvent(ItsLog::EEVENTLOGTYPE::EET_INFORMATION_TYPE, item.ToString());
 			}
 		}
 
-		void LogDebug(const wchar_t* description)
+		void LogDebug(wstring description)
 		{
 			ItsLogItem item;
 			item.When = ItsDateTime::Now().TM();
@@ -1511,11 +1496,11 @@ namespace ItSoftware
 			this->m_items.push_back(item);
 
 			if (this->m_bLogToEventLog) {
-				this->ReportEvent(ItsLog::EEVENTLOGTYPE::EET_INFORMATION_TYPE, item.ToString().c_str());
+				this->ReportEvent(ItsLog::EEVENTLOGTYPE::EET_INFORMATION_TYPE, item.ToString());
 			}
 		}
 
-		const vector<ItsLogItem>& GetItems() 
+		const vector<ItsLogItem>& GetItems()
 		{
 			return this->m_items;
 		}
@@ -1588,7 +1573,7 @@ namespace ItSoftware
 	public:
 		static wstring CreateID(size_t count, ItsCreateIDOptions options, bool includeNumbers)
 		{
-			if (count == 0)
+			if (count <= 0)
 			{
 				count = 16;
 			}
@@ -1634,7 +1619,7 @@ namespace ItSoftware
 				id << data[j];
 
 			} while (++i < count);
-			
+
 			wstring retVal = id.str();
 			return retVal;
 		}
