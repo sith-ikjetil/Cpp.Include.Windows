@@ -208,7 +208,7 @@ namespace ItSoftware::Win::Core
 		}
 	};
 
-			
+
 	//
 	// struct: ItsPath
 	// 
@@ -221,9 +221,9 @@ namespace ItSoftware::Win::Core
 		static const wchar_t PathSeparator = '\\';
 		static const wchar_t AlternatePathSeparator = '/';
 		static const wchar_t ExtensionSeparator = '.';
-		static wstring NormalizePath(const wchar_t* path)
+		static wstring NormalizePath(wstring path)
 		{
-			if (path == nullptr) {
+			if (path.size() == 0) {
 				return wstring(L"");
 			}
 
@@ -233,10 +233,9 @@ namespace ItSoftware::Win::Core
 			wstring ps;
 			ps += ItsPath::PathSeparator;
 
-			wstring path_str = path;
-			path_str = ItsString::Replace(path_str.c_str(), aps.c_str(), ps.c_str());
+			path = ItsString::Replace(path, aps, ps);
 
-			return path_str;
+			return path;
 
 		}
 		static const vector<wchar_t> GetInvalidPathCharacters()
@@ -290,17 +289,17 @@ namespace ItSoftware::Win::Core
 			chars.push_back(static_cast<wchar_t>(0x002f));
 			return chars;
 		}
-		static wstring Combine(const wchar_t* path1, const wchar_t* path2)
+		static wstring Combine(wstring path1, wstring path2)
 		{
-			if (path1 == nullptr && path2 == nullptr) {
+			if (path1.size() == 0 && path2.size() == 0) {
 				return wstring(L"");
 			}
 
-			if (wcslen(path1) == 0) {
+			if (path1.size() == 0) {
 				return path2;
 			}
 
-			if (wcslen(path2) == 0) {
+			if (path2.size() == 0) {
 				return path1;
 			}
 
@@ -310,13 +309,13 @@ namespace ItSoftware::Win::Core
 			wstring ps;
 			ps += ItsPath::PathSeparator;
 
-			wstring path1_str = ItsString::Replace(path1, aps.c_str(), ps.c_str());
-			wstring path2_str = ItsString::Replace(path2, aps.c_str(), ps.c_str());
+			path1 = ItsPath::NormalizePath(path1);
+			path2 = ItsPath::NormalizePath(path2);
 
 			wstringstream path;
-			path << path1_str;
-			if (path1_str[path1_str.size() - 1] != ItsPath::PathSeparator &&
-				path2_str[0] != ItsPath::PathSeparator) {
+			path << path1;
+			if (path1[path1.size() - 1] != ItsPath::PathSeparator &&
+				path2[0] != ItsPath::PathSeparator) {
 				path << ItsPath::PathSeparator;
 			}
 			path << path2;
@@ -324,119 +323,94 @@ namespace ItSoftware::Win::Core
 			wstring ret = path.str();
 			return ret;
 		}
-		static bool Exists(const wchar_t* path)
+		static bool Exists(wstring path)
 		{
-			return static_cast<bool>(PathFileExistsW(path));
+			return static_cast<bool>(PathFileExistsW(path.c_str()));
 		}
-		static bool IsFile(const wchar_t* path)
+		static bool IsFile(wstring path)
 		{
-			DWORD fileAttributes = GetFileAttributes(path);
+			DWORD fileAttributes = GetFileAttributes(path.c_str());
 			return (fileAttributes != INVALID_FILE_ATTRIBUTES && !(fileAttributes & FILE_ATTRIBUTE_DIRECTORY));
 		}
-		static bool IsDirectory(const wchar_t* path)
+		static bool IsDirectory(wstring path)
 		{
-			DWORD fileAttributes = GetFileAttributes(path);
+			DWORD fileAttributes = GetFileAttributes(path.c_str());
 			return (fileAttributes != INVALID_FILE_ATTRIBUTES && (fileAttributes & FILE_ATTRIBUTE_DIRECTORY));
 		}
-		static wstring GetVolume(const wchar_t* path)
+		static wstring GetVolume(wstring path)
 		{
-			if (path == nullptr) {
-				return wstring(L"");
-			}
-
-			wstring path_str = path;
-			if (path_str.size() >= 2) {
-				if (path_str[1] == ItsPath::VolumeSeparator) {
+			if (path.size() >= 2) {
+				if (path[1] == ItsPath::VolumeSeparator) {
 					wstring ret;
-					ret += path_str[0];
+					ret += path[0];
 					return ret;
 				}
 			}
 			return wstring(L"");
 		}
-		static wstring GetDirectory(const wchar_t* path)
+		static wstring GetDirectory(wstring path)
 		{
-			if (path == nullptr) {
+			if (path.size() == 0) {
 				return wstring(L"");
 			}
 
-			wstring path_str = path;
-			if (path_str.size() == 0) {
+			if (path.find(ItsPath::PathSeparator) == wstring::npos) {
 				return wstring(L"");
 			}
 
-			if (path_str.find(ItsPath::PathSeparator) == wstring::npos) {
-				return wstring(L"");
-			}
+			path = ItsPath::NormalizePath(path);
 
-			path_str = ItsPath::NormalizePath(path);
-
-			auto i = path_str.find_last_of(ItsPath::PathSeparator);
+			auto i = path.find_last_of(ItsPath::PathSeparator);
 			if (i == std::wstring::npos) {
 				return wstring(L"");
 			}
-			return path_str.substr(0, i + 1);
+			return path.substr(0, i + 1);
 		}
-		static wstring GetFilename(const wchar_t* path)
+		static wstring GetFilename(wstring path)
 		{
-			if (path == nullptr) {
+			if (path.size() == 0) {
 				return wstring(L"");
 			}
 
-			wstring path_str = path;
-			if (path_str.size() == 0) {
+			if (path.find(ItsPath::PathSeparator) == wstring::npos) {
 				return wstring(L"");
 			}
 
-			if (path_str.find(ItsPath::PathSeparator) == wstring::npos) {
-				return wstring(L"");
-			}
+			path = ItsPath::NormalizePath(path);
 
-			path_str = ItsPath::NormalizePath(path);
-
-			auto i = path_str.rfind(ItsPath::PathSeparator);
+			auto i = path.rfind(ItsPath::PathSeparator);
 			if (i == std::wstring::npos) {
 				return wstring(L"");
 			}
-			return path_str.substr(i + 1, path_str.size() - i - 1);
+			return path.substr(i + 1, path.size() - i - 1);
 		}
-		static wstring GetExtension(const wchar_t* path)
+		static wstring GetExtension(wstring path)
 		{
-			if (path == nullptr) {
+			if (path.size() == 0) {
 				return wstring(L"");
 			}
 
-			wstring path_str = path;
-			if (path_str.size() == 0) {
+			if (path.find(ItsPath::PathSeparator) == wstring::npos) {
 				return wstring(L"");
 			}
 
-			if (path_str.find(ItsPath::PathSeparator) == wstring::npos) {
-				return wstring(L"");
-			}
+			path = ItsPath::NormalizePath(path);
 
-			path_str = ItsPath::NormalizePath(path);
-
-			auto i = path_str.rfind(ItsPath::ExtensionSeparator);
+			auto i = path.rfind(ItsPath::ExtensionSeparator);
 			if (i == std::wstring::npos) {
 				return wstring(L"");
 			}
-			return path_str.substr(i, path_str.size() - i);
+			return path.substr(i, path.size() - i);
 		}
-		static bool IsPathValid(const wchar_t* path)
+		static bool IsPathValid(wstring path)
 		{
-			if (path == nullptr) {
+			if (path.size() == 0) {
 				return false;
 			}
 
-			wstring path_str = path;
-			if (path_str.size() == 0) {
-				return false;
-			}
-
-			wstring volume = ItsPath::GetVolume(path_str.c_str());
-			wstring directory = ItsPath::GetDirectory(path_str.c_str());
-			wstring filename = ItsPath::GetFilename(path_str.c_str());
+			wstring volume = ItsPath::GetVolume(path);
+			wstring directory = ItsPath::GetDirectory(path);
+			wstring filename = ItsPath::GetFilename(path);
 
 			auto invalidPathChars = ItsPath::GetInvalidPathCharacters();
 			auto invalidFileChars = ItsPath::GetInvalidFilenameCharacters();
@@ -445,27 +419,27 @@ namespace ItSoftware::Win::Core
 				return false;
 			}
 
-			return std::all_of(directory.begin(), directory.end(), [&](wchar_t d) {
-				return std::none_of(invalidPathChars.begin(), invalidPathChars.end(), [&](wchar_t i) {
-					return d == i;
-					});
-				});
+			for (auto d : directory) {
+				for (auto i : invalidPathChars) {
+					if (d == i) {
+						return false;
+					}
+				}
+			}
 
-			return std::all_of(filename.begin(), filename.end(), [&](wchar_t d) {
-				return std::none_of(invalidFileChars.begin(), invalidFileChars.end(), [&](wchar_t i) {
-					return d == i;
-					});
-				});
-			
+			for (auto f : filename) {
+				for (auto i : invalidFileChars) {
+					if (f == i) {
+						return false;
+					}
+				}
+			}
+
 			return true;
 		}
-		static bool HasExtension(const wchar_t* path, const wchar_t* extension)
+		static bool HasExtension(wstring path, wstring extension)
 		{
-			if (path == nullptr || extension == nullptr) {
-				return false;
-			}
-			
-			if (wcslen(path) == 0) {
+			if (path.size() == 0) {
 				return false;
 			}
 
@@ -476,69 +450,64 @@ namespace ItSoftware::Win::Core
 
 			return (ext == extension);
 		}
-		static wstring ChangeExtension(const wchar_t* path, const wchar_t* newExtension)
+		static wstring ChangeExtension(wstring path, wstring newExtension)
 		{
-			if (path == nullptr || newExtension == nullptr) {
+			if (path.size() == 0) {
 				return wstring(L"");
 			}
 
-			if (wcslen(path) == 0) {
-				return wstring(L"");
-			}
-
-			if (wcslen(newExtension) == 0) {
+			if (newExtension.size() == 0) {
 				return path;
 			}
 
-			wstring path_str = ItsPath::NormalizePath(path);
+			path = ItsPath::NormalizePath(path);
 
-			if (path_str[path_str.size() - 1] == ItsPath::PathSeparator) {
-				return path_str;
+			if (path[path.size() - 1] == ItsPath::PathSeparator) {
+				return path;
 			}
 
-			wstring newExtension_str = newExtension;
 			wstring ext = ItsPath::GetExtension(path);
 			if (ext.size() == 0) {
 				if (newExtension[0] == ItsPath::ExtensionSeparator) {
-					return path + newExtension_str;
+					return path + newExtension;
 				}
 				else {
-					return path + ItsPath::ExtensionSeparator + newExtension_str;
+					return path + ItsPath::ExtensionSeparator + newExtension;
 				}
 			}
 
-			auto pe = path_str.rfind(ext);
+			auto pe = path.rfind(ext);
 			if (pe == wstring::npos) {
-				return path_str;
+				return path;
 			}
 
-			wstring retVal = path_str.replace(pe, path_str.size() - pe, newExtension_str);
+			wstring retVal = path.replace(pe, path.size() - pe, newExtension);
 			return retVal;
 		}
 
-		static wstring GetParentDirectory(const wchar_t* path)
+		static wstring GetParentDirectory(wstring path)
 		{
-			if (path == nullptr || wcslen(path) == 0) {
+			if (path.size() == 0) {
 				return wstring(L"");
 			}
-					
-			wstring path_str = ItsPath::NormalizePath(path);
-			path_str = ItsPath::GetDirectory(path_str.c_str());
 
-			size_t pos1 = path_str.rfind(ItsPath::PathSeparator);
+			path = ItsPath::NormalizePath(path);
+			path = ItsPath::GetDirectory(path);
+
+			size_t pos1 = path.rfind(ItsPath::PathSeparator);
 			if (pos1 == wstring::npos) {
 				return wstring(L"");
 			}
 
 			size_t pos2 = pos1;
-			if (pos1 == (path_str.size() - 1)) {
-				pos2 = path_str.rfind(ItsPath::PathSeparator, pos1 - 1);
+			if (pos1 == (path.size() - 1)) {
+				pos2 = path.rfind(ItsPath::PathSeparator, pos1 - 1);
 				if (pos2 == wstring::npos) {
 					pos2 = pos1;
 				}
 			}
 
-			return path_str.substr(0, pos2+1);
+			return path.substr(0, pos2 + 1);
 		}
 	};
 
@@ -561,13 +530,13 @@ namespace ItSoftware::Win::Core
 				NULL,
 				GetLastError(),
 				MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-				reinterpret_cast<wchar_t*>(&lpMsgBuf),
+				(wchar_t*)&lpMsgBuf,
 				0,
 				NULL);
 
 			// Copy buffer contet to bstr...
 			CComBSTR bstr;
-			bstr += reinterpret_cast<wchar_t*>(lpMsgBuf);
+			bstr += (wchar_t*)lpMsgBuf;
 
 			// Free the buffer...
 			LocalFree(lpMsgBuf);
@@ -588,13 +557,13 @@ namespace ItSoftware::Win::Core
 				NULL,
 				dwError,
 				MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-				reinterpret_cast<wchar_t*>(&lpMsgBuf),
+				(wchar_t*)&lpMsgBuf,
 				0,
 				NULL);
 
 			// Copy buffer contet to bstr...
 			CComBSTR bstr;
-			bstr += reinterpret_cast<wchar_t*>(lpMsgBuf);
+			bstr += (wchar_t*)lpMsgBuf;
 
 			// Free the buffer...
 			LocalFree(lpMsgBuf);
@@ -609,7 +578,7 @@ namespace ItSoftware::Win::Core
 		static wstring GetCoLastErrorInfoDescription()
 		{
 			IErrorInfo* pErrInfo = nullptr;
-			HRESULT hr = GetErrorInfo(NULL, static_cast<IErrorInfo**>(&pErrInfo));
+			HRESULT hr = GetErrorInfo(NULL, (IErrorInfo**)&pErrInfo);
 			CComBSTR bstr;
 			if (hr == S_OK && pErrInfo)
 			{
@@ -1101,26 +1070,26 @@ namespace ItSoftware::Win::Core
 		{
 			return ::SetCurrentDirectoryW(path.c_str());
 		}
-		static vector<wstring> GetDirectories(const wchar_t* path) {
-			if (path == nullptr || wcslen(path) == 0) {
+		static vector<wstring> GetDirectories(wstring path) {
+			if (path.size() == 0) {
 				return vector<wstring>();
 			}
 
-			wstring path_str = ItsPath::NormalizePath(path);
-			if (path_str[path_str.size() - 1] != ItsPath::PathSeparator)
+			path = ItsPath::NormalizePath(path);
+			if (path[path.size() - 1] != ItsPath::PathSeparator)
 			{
-				if (path_str[path_str.size() - 1] != L'*') {
-					path_str += ItsPath::PathSeparator;
-					path_str += L"*";
+				if (path[path.size() - 1] != L'*') {
+					path += ItsPath::PathSeparator;
+					path += L"*";
 				}
 			}
 			else {
-				path_str += L'*';
+				path += L'*';
 			}
 
 			WIN32_FIND_DATAW wfd{ 0 };
 			vector<wstring> dirs;
-			unique_findhandle_handle h(::FindFirstFile(path_str.c_str(), &wfd));
+			unique_findhandle_handle h(::FindFirstFile(path.c_str(), &wfd));
 			if (h.IsValid()) {
 				if (wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
 					if (wcscmp(wfd.cFileName, L".") != 0 &&
@@ -1142,26 +1111,26 @@ namespace ItSoftware::Win::Core
 
 			return dirs;
 		}
-		static vector<wstring> GetFiles(const wchar_t* path) {
-			if (path == nullptr || wcslen(path) == 0) {
+		static vector<wstring> GetFiles(wstring path) {
+			if (path.size() == 0) {
 				return vector<wstring>();
-			}			
+			}
 
-			wstring path_str = ItsPath::NormalizePath(path);
-			if (path_str[path_str.size() - 1] != ItsPath::PathSeparator)
+			path = ItsPath::NormalizePath(path);
+			if (path[path.size() - 1] != ItsPath::PathSeparator)
 			{
-				if (path_str[path_str.size() - 1] != L'*') {
-					path_str += ItsPath::PathSeparator;
-					path_str += L"*";
+				if (path[path.size() - 1] != L'*') {
+					path += ItsPath::PathSeparator;
+					path += L"*";
 				}
 			}
 			else {
-				path_str += L'*';
+				path += L'*';
 			}
 
 			WIN32_FIND_DATAW wfd{ 0 };
 			vector<wstring> dirs;
-			unique_findhandle_handle h(::FindFirstFile(path_str.c_str(), &wfd));
+			unique_findhandle_handle h(::FindFirstFile(path.c_str(), &wfd));
 			if (h.IsValid()) {
 				if (!(wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
 					dirs.push_back(wfd.cFileName);
@@ -1210,7 +1179,7 @@ namespace ItSoftware::Win::Core
 			this->m_handle = CreateEvent(NULL, TRUE, FALSE, NULL);
 		}
 
-		explicit ItsEvent(bool signaled)
+		ItsEvent(bool signaled)
 		{
 			this->m_handle = CreateEvent(NULL, TRUE, (signaled) ? TRUE : FALSE, NULL);
 		}
@@ -1430,42 +1399,34 @@ namespace ItSoftware::Win::Core
 		//
 		// Method: OpenOrCreate
 		//
-		bool OpenOrCreate(const wchar_t* filename, const wchar_t* accessReadWrite, const wchar_t* shareReadWrite, ItsFileOpenCreation flagCreation)
+		bool OpenOrCreate(wstring filename, wstring accessReadWrite, wstring shareReadWrite, ItsFileOpenCreation flagCreation)
 		{
-			if (filename == nullptr || wcslen(filename) == 0 || accessReadWrite == nullptr || shareReadWrite == nullptr)
+			if (this->m_handle.IsValid())
 			{
 				return false;
 			}
 
-			if (this->m_handle.IsValid())
-			{
-				return false;
-			}			
-			
-			
-			wstring accessReadWrite_str = accessReadWrite;
 			DWORD dwAccess = 0;
-			if (accessReadWrite_str.size() != 0)
+			if (accessReadWrite.size() != 0)
 			{
-				if (accessReadWrite_str.find(L"r") != wstring::npos) {
+				if (accessReadWrite.find(L"r") != wstring::npos) {
 					dwAccess |= GENERIC_READ;
 				}
-				if (accessReadWrite_str.find(L"w") != wstring::npos) {
+				if (accessReadWrite.find(L"w") != wstring::npos) {
 					dwAccess |= GENERIC_WRITE;
 				}
 			}
 
-			wstring shareReadWrite_str = shareReadWrite;
 			DWORD dwShare = 0;
-			if (shareReadWrite_str.size() != 0)
+			if (shareReadWrite.size() != 0)
 			{
-				if (shareReadWrite_str.find(L"r") != wstring::npos) {
+				if (shareReadWrite.find(L"r") != wstring::npos) {
 					dwShare |= FILE_SHARE_READ;
 				}
-				if (shareReadWrite_str.find(L"w") != wstring::npos) {
+				if (shareReadWrite.find(L"w") != wstring::npos) {
 					dwShare |= FILE_SHARE_WRITE;
 				}
-				if (shareReadWrite_str.find(L"d") != wstring::npos) {
+				if (shareReadWrite.find(L"d") != wstring::npos) {
 					dwShare |= FILE_SHARE_DELETE;
 				}
 			}
@@ -1487,8 +1448,7 @@ namespace ItSoftware::Win::Core
 				dwFlags = TRUNCATE_EXISTING;
 			}
 
-			wstring filename_str = filename;
-			this->m_handle = CreateFile(filename_str.c_str(), dwAccess, dwShare, NULL, dwFlags, FILE_ATTRIBUTE_NORMAL, NULL);
+			this->m_handle = CreateFile(filename.c_str(), dwAccess, dwShare, NULL, dwFlags, FILE_ATTRIBUTE_NORMAL, NULL);
 
 			return this->m_handle.IsValid();
 		}
@@ -1496,7 +1456,7 @@ namespace ItSoftware::Win::Core
 		//
 		// Method: GetFileSize
 		//
-		static bool GetFileSize(const wchar_t* filename, size_t* size)
+		static bool GetFileSize(wstring filename, size_t* size)
 		{
 			ItsFile file;
 			if (!file.OpenOrCreate(filename, L"r", L"r", ItsFileOpenCreation::OpenExisting))
@@ -1513,40 +1473,40 @@ namespace ItSoftware::Win::Core
 		//
 		// Method: Delete
 		//
-		static bool Delete(const wchar_t* filename)
+		static bool Delete(wstring filename)
 		{
-			return (bool)DeleteFile(filename);
+			return (bool)DeleteFile(filename.c_str());
 		}
 
 		//
 		// Method: Copy
 		//
-		static bool Copy(const wchar_t* existingFilename, const wchar_t* newFilename, bool failIfExists)
+		static bool Copy(wstring existingFilename, wstring newFilename, bool failIfExists)
 		{
-			return (bool)CopyFile(existingFilename, newFilename, (failIfExists) ? TRUE : FALSE);
+			return (bool)CopyFile(existingFilename.c_str(), newFilename.c_str(), (failIfExists) ? TRUE : FALSE);
 		}
 
 		//
 		// Method: Move
 		//
-		static bool Move(const wchar_t* existingFilename, const wchar_t* newFilename, bool failIfExists)
+		static bool Move(wstring existingFilename, wstring newFilename, bool failIfExists)
 		{
-			return (bool)MoveFileEx(existingFilename, newFilename, MOVEFILE_COPY_ALLOWED | ((failIfExists) ? MOVEFILE_REPLACE_EXISTING : 0));
+			return (bool)MoveFileEx(existingFilename.c_str(), newFilename.c_str(), MOVEFILE_COPY_ALLOWED | ((failIfExists) ? MOVEFILE_REPLACE_EXISTING : 0));
 		}
 
 		//
 		// Method: Exists
 		//
-		static bool Exists(const wchar_t* filename)
+		static bool Exists(wstring filename)
 		{
-			DWORD fileAttributes = GetFileAttributes(filename);
+			DWORD fileAttributes = GetFileAttributes(filename.c_str());
 			return (fileAttributes != INVALID_FILE_ATTRIBUTES && !(fileAttributes & FILE_ATTRIBUTE_DIRECTORY));
 		}
 
 		//
 		// Method: SetFileSize
 		//
-		static bool SetSize(const wchar_t* filename, size_t pos)
+		static bool SetSize(wstring filename, size_t pos)
 		{
 			ItsFile file;
 			if (!file.OpenOrCreate(filename, L"rw", L"", ItsFileOpenCreation::OpenExisting)) {
@@ -1555,7 +1515,7 @@ namespace ItSoftware::Win::Core
 			return file.SetFileSize(pos);
 		}
 
-		static bool Shred(const wchar_t* filename, bool alsoDelete)
+		static bool Shred(wstring filename, bool alsoDelete)
 		{
 			if (!ItsFile::Exists(filename))
 			{
@@ -1604,7 +1564,7 @@ namespace ItSoftware::Win::Core
 			return true;
 		}
 
-		static bool ShredAndDelete(const wchar_t* filename)
+		static bool ShredAndDelete(wstring filename)
 		{
 			return ItsFile::Shred(filename, true);
 		}
@@ -1623,36 +1583,34 @@ namespace ItSoftware::Win::Core
 		//
 		// Method: OpenOrCreate
 		//
-		bool OpenOrCreate(const wchar_t* filename, const wchar_t* accessReadWrite, const wchar_t* shareReadWrite, ItsFileOpenCreation flagCreation)
+		bool OpenOrCreate(wstring filename, wstring accessReadWrite, wstring shareReadWrite, ItsFileOpenCreation flagCreation)
 		{
 			if (this->m_handle.IsValid())
 			{
 				return false;
 			}
-			
-			wstring accessReadWrite_str = accessReadWrite;			
+
 			DWORD dwAccess = 0;
-			if (accessReadWrite_str.size() != 0)
+			if (accessReadWrite.size() != 0)
 			{
-				if (accessReadWrite_str.find(L"r") != wstring::npos) {
+				if (accessReadWrite.find(L"r") != wstring::npos) {
 					dwAccess |= GENERIC_READ;
 				}
-				if (accessReadWrite_str.find(L"w") != wstring::npos) {
+				if (accessReadWrite.find(L"w") != wstring::npos) {
 					dwAccess |= GENERIC_WRITE;
 				}
 			}
 
-			wstring shareReadWrite_str = shareReadWrite;
 			DWORD dwShare = 0;
-			if (shareReadWrite_str.size() != 0)
+			if (shareReadWrite.size() != 0)
 			{
-				if (shareReadWrite_str.find(L"r") != wstring::npos) {
+				if (shareReadWrite.find(L"r") != wstring::npos) {
 					dwShare |= FILE_SHARE_READ;
 				}
-				if (shareReadWrite_str.find(L"w") != wstring::npos) {
+				if (shareReadWrite.find(L"w") != wstring::npos) {
 					dwShare |= FILE_SHARE_WRITE;
 				}
-				if (shareReadWrite_str.find(L"d") != wstring::npos) {
+				if (shareReadWrite.find(L"d") != wstring::npos) {
 					dwShare |= FILE_SHARE_DELETE;
 				}
 			}
@@ -1674,8 +1632,7 @@ namespace ItSoftware::Win::Core
 				dwFlags = TRUNCATE_EXISTING;
 			}
 
-			wstring filename_str = filename;
-			this->m_handle = CreateFile(filename_str.c_str(), dwAccess, dwShare, NULL, dwFlags, FILE_ATTRIBUTE_NORMAL, NULL);
+			this->m_handle = CreateFile(filename.c_str(), dwAccess, dwShare, NULL, dwFlags, FILE_ATTRIBUTE_NORMAL, NULL);
 
 			return this->m_handle.IsValid();
 		}
@@ -1697,7 +1654,7 @@ namespace ItSoftware::Win::Core
 		//
 		// Method: OpenOrCreateText
 		//
-		bool OpenOrCreateText(const wchar_t* filename, const wchar_t* accessReadWrite, const wchar_t* shareReadWrite, ItsFileOpenCreation flagCreation, ItsFileTextType type)
+		bool OpenOrCreateText(wstring filename, wstring accessReadWrite, wstring shareReadWrite, ItsFileOpenCreation flagCreation, ItsFileTextType type)
 		{
 			if (this->m_handle.IsValid())
 			{
@@ -1772,7 +1729,7 @@ namespace ItSoftware::Win::Core
 		// (i): Creates a new text file (with BOM) but otherwise empty and ready to
 		// append/write text to.
 		//
-		static bool CreateTextFile(const wchar_t* filename, ItsFileTextType type)
+		static bool CreateTextFile(wstring filename, ItsFileTextType type)
 		{
 			if (ItsFile::Exists(filename)) {
 				return false;
@@ -1789,7 +1746,7 @@ namespace ItSoftware::Win::Core
 		//
 		// Method: ReadTextAllLines
 		//
-		bool ReadTextAllLines(vector<wstring>& lines, const wchar_t* lineDelimiter = L"\r\n")
+		bool ReadTextAllLines(vector<wstring>& lines, wstring lineDelimiter = L"\r\n")
 		{
 			if (!this->m_handle.IsValid())
 			{
@@ -1818,22 +1775,22 @@ namespace ItSoftware::Win::Core
 
 				DWORD dwRead{ 0 };
 
-				this->Read(reinterpret_cast<BYTE*>(text.get()), readBuffSize, &dwRead);
+				this->Read((BYTE*)text.get(), readBuffSize, &dwRead);
 
 				read_pos += dwRead;
 
 				while (dwRead > 0 && (read_pos + 0) < size)
 				{
-					this->Read(reinterpret_cast<BYTE*>(&(text.get()[read_pos])), readBuffSize, &dwRead);
+					this->Read((BYTE*)&(text.get()[read_pos]), readBuffSize, &dwRead);
 
 					read_pos += dwRead;
 				}
 
 				text.get()[size] = '\0';
 
-				string all(reinterpret_cast<char*>(text.get()));
+				string all((char*)text.get());
 				wstring out_all(all.begin(), all.end());
-				lines = ItsString::Split(out_all.c_str(), lineDelimiter);
+				lines = ItsString::Split(out_all, lineDelimiter);
 			}
 			else if (this->m_textType == ItsFileTextType::Unicode)
 			{
@@ -1846,13 +1803,13 @@ namespace ItSoftware::Win::Core
 
 				DWORD dwRead{ 0 };
 
-				this->Read(reinterpret_cast<BYTE*>(text.get()), readBuffSize, &dwRead);
+				this->Read((BYTE*)text.get(), readBuffSize, &dwRead);
 
 				read_pos += dwRead;
 
 				while (dwRead > 0 && (read_pos + 2) < size)
 				{
-					this->Read(reinterpret_cast<BYTE*>(&(text.get()[read_pos])), readBuffSize, &dwRead);
+					this->Read((BYTE*)&(text.get()[read_pos]), readBuffSize, &dwRead);
 
 					read_pos += dwRead;
 				}
@@ -1860,8 +1817,8 @@ namespace ItSoftware::Win::Core
 				text.get()[size - 2] = '\0';
 				text.get()[size - 1] = '\0';
 
-				wstring all(reinterpret_cast<wchar_t*>(text.get()));
-				lines = ItsString::Split(all.c_str(), lineDelimiter);
+				wstring all((wchar_t*)text.get());
+				lines = ItsString::Split(all, lineDelimiter);
 			}
 			else if (this->m_textType == ItsFileTextType::UTF8WithBOM)
 			{
@@ -1874,13 +1831,13 @@ namespace ItSoftware::Win::Core
 
 				DWORD dwRead{ 0 };
 
-				this->Read(reinterpret_cast<BYTE*>(text.get()), readBuffSize, &dwRead);
+				this->Read((BYTE*)text.get(), readBuffSize, &dwRead);
 
 				read_pos += dwRead;
 
 				while (dwRead > 0 && (read_pos + 3) < size)
 				{
-					this->Read(reinterpret_cast<BYTE*>(&(text.get()[read_pos])), readBuffSize, &dwRead);
+					this->Read((BYTE*)&(text.get()[read_pos]), readBuffSize, &dwRead);
 
 					read_pos += dwRead;
 				}
@@ -1889,8 +1846,8 @@ namespace ItSoftware::Win::Core
 				text.get()[size - 2] = '\0';
 				text.get()[size - 1] = '\0';
 
-				wstring all = ItSoftware::Encoding::UTF8::ToString(reinterpret_cast<char*>(text.get()));
-				lines = ItsString::Split(all.c_str(), lineDelimiter);
+				wstring all = ItSoftware::Encoding::UTF8::ToString((char*)text.get());
+				lines = ItsString::Split(all, lineDelimiter);
 			}
 			else if (this->m_textType == ItsFileTextType::UTF8NoBOM)
 			{
@@ -1903,13 +1860,13 @@ namespace ItSoftware::Win::Core
 
 				DWORD dwRead{ 0 };
 
-				this->Read(reinterpret_cast<BYTE*>(text.get()), readBuffSize, &dwRead);
+				this->Read((BYTE*)text.get(), readBuffSize, &dwRead);
 
 				read_pos += dwRead;
 
 				while (dwRead > 0 && (read_pos + 3) < size)
 				{
-					this->Read(reinterpret_cast<BYTE*>(&(text.get()[read_pos])), readBuffSize, &dwRead);
+					this->Read((BYTE*)&(text.get()[read_pos]), readBuffSize, &dwRead);
 
 					read_pos += dwRead;
 				}
@@ -1918,8 +1875,8 @@ namespace ItSoftware::Win::Core
 				text.get()[size - 2] = '\0';
 				text.get()[size - 1] = '\0';
 
-				wstring all = ItSoftware::Encoding::UTF8::ToString(reinterpret_cast<char*>(text.get()));
-				lines = ItsString::Split(all.c_str(), lineDelimiter);
+				wstring all = ItSoftware::Encoding::UTF8::ToString((char*)text.get());
+				lines = ItsString::Split(all, lineDelimiter);
 			}
 			else {
 				return false;
@@ -1933,7 +1890,7 @@ namespace ItSoftware::Win::Core
 		//
 		// (i): Reads all text from a text file.
 		//
-		static bool ReadTextAllLines(const wchar_t* filename, ItsFileTextType textType, vector<wstring>& out, const wchar_t* lineDelimiter = ItsTextFile::LineDelimiterWindows)
+		static bool ReadTextAllLines(wstring filename, ItsFileTextType textType, vector<wstring>& out, wstring lineDelimiter = ItsTextFile::LineDelimiterWindows)
 		{
 			if (!ItsFile::Exists(filename)) {
 				return false;
@@ -1984,20 +1941,20 @@ namespace ItSoftware::Win::Core
 
 				DWORD dwRead{ 0 };
 
-				this->Read(reinterpret_cast<BYTE*>(text.get()), readBuffSize, &dwRead);
+				this->Read((BYTE*)text.get(), readBuffSize, &dwRead);
 
 				read_pos += dwRead;
 
 				while (dwRead > 0 && (read_pos + 0) < size)
 				{
-					this->Read(reinterpret_cast<BYTE*>(&(text.get()[read_pos])), readBuffSize, &dwRead);
+					this->Read((BYTE*)&(text.get()[read_pos]), readBuffSize, &dwRead);
 
 					read_pos += dwRead;
 				}
 
 				text.get()[size] = '\0';
 
-				string all(reinterpret_cast<char*>(text.get()));
+				string all((char*)text.get());
 				wstring out_all(all.begin(), all.end());
 				out = out_all;
 			}
@@ -2012,13 +1969,13 @@ namespace ItSoftware::Win::Core
 
 				DWORD dwRead{ 0 };
 
-				this->Read(reinterpret_cast<BYTE*>(text.get()), readBuffSize, &dwRead);
+				this->Read((BYTE*)text.get(), readBuffSize, &dwRead);
 
 				read_pos += dwRead;
 
 				while (dwRead > 0 && (read_pos + 2) < size)
 				{
-					this->Read(reinterpret_cast<BYTE*>(&(text.get()[read_pos])), readBuffSize, &dwRead);
+					this->Read((BYTE*)&(text.get()[read_pos]), readBuffSize, &dwRead);
 
 					read_pos += dwRead;
 				}
@@ -2026,7 +1983,7 @@ namespace ItSoftware::Win::Core
 				text.get()[size - 2] = '\0';
 				text.get()[size - 1] = '\0';
 
-				wstring all(reinterpret_cast<wchar_t*>(text.get()));
+				wstring all((wchar_t*)text.get());
 				out = all;
 			}
 			else if (this->m_textType == ItsFileTextType::UTF8WithBOM)
@@ -2040,13 +1997,13 @@ namespace ItSoftware::Win::Core
 
 				DWORD dwRead{ 0 };
 
-				this->Read(reinterpret_cast<BYTE*>(text.get()), readBuffSize, &dwRead);
+				this->Read((BYTE*)text.get(), readBuffSize, &dwRead);
 
 				read_pos += dwRead;
 
 				while (dwRead > 0 && (read_pos + 3) < size)
 				{
-					this->Read(reinterpret_cast<BYTE*>(&(text.get()[read_pos])), readBuffSize, &dwRead);
+					this->Read((BYTE*)&(text.get()[read_pos]), readBuffSize, &dwRead);
 
 					read_pos += dwRead;
 				}
@@ -2055,7 +2012,7 @@ namespace ItSoftware::Win::Core
 				text.get()[size - 2] = '\0';
 				text.get()[size - 1] = '\0';
 
-				wstring all = ItSoftware::Encoding::UTF8::ToString(reinterpret_cast<char*>(text.get()));
+				wstring all = ItSoftware::Encoding::UTF8::ToString((char*)text.get());
 				out = all;
 			}
 			else if (this->m_textType == ItsFileTextType::UTF8NoBOM)
@@ -2069,13 +2026,13 @@ namespace ItSoftware::Win::Core
 
 				DWORD dwRead{ 0 };
 
-				this->Read(reinterpret_cast<BYTE*>(text.get()), readBuffSize, &dwRead);
+				this->Read((BYTE*)text.get(), readBuffSize, &dwRead);
 
 				read_pos += dwRead;
 
 				while (dwRead > 0 && (read_pos + 3) < size)
 				{
-					this->Read(reinterpret_cast<BYTE*>(&(text.get()[read_pos])), readBuffSize, &dwRead);
+					this->Read((BYTE*)&(text.get()[read_pos]), readBuffSize, &dwRead);
 
 					read_pos += dwRead;
 				}
@@ -2084,7 +2041,7 @@ namespace ItSoftware::Win::Core
 				text.get()[size - 2] = '\0';
 				text.get()[size - 1] = '\0';
 
-				wstring all = ItSoftware::Encoding::UTF8::ToString(reinterpret_cast<char*>(text.get()));
+				wstring all = ItSoftware::Encoding::UTF8::ToString((char*)text.get());
 				out = all;
 			}
 			else {
@@ -2099,7 +2056,7 @@ namespace ItSoftware::Win::Core
 		//
 		// (i): Reads all text from a text file.
 		//
-		static bool ReadTextAll(const wchar_t* filename, ItsFileTextType textType, wstring& out)
+		static bool ReadTextAll(wstring filename, ItsFileTextType textType, wstring& out)
 		{
 			if (!ItsFile::Exists(filename)) {
 				return false;
@@ -2118,11 +2075,20 @@ namespace ItSoftware::Win::Core
 			file.Close();
 			return true;
 		}
-		
+
 		//
 		// Method: WriteText
 		//
-		bool WriteText(const wchar_t* text)
+		bool WriteText(string text)
+		{
+			wstring txt(text.begin(), text.end());
+			return this->WriteText(txt);
+		}
+
+		//
+		// Method: WriteText
+		//
+		bool WriteText(wstring text)
 		{
 			if (this->m_handle.IsInvalid())
 			{
@@ -2131,15 +2097,13 @@ namespace ItSoftware::Win::Core
 
 			if (this->m_textType == ItsFileTextType::Ansi)
 			{
-				wstring txt_temp(text);
-				string txt(txt_temp.begin(), txt_temp.end());
+				string txt(text.begin(), text.end());
 				DWORD dwWritten{ 0 };
-				return this->Write(reinterpret_cast<BYTE*>(txt.data()), (DWORD)txt.size(), &dwWritten);
+				return this->Write((BYTE*)txt.data(), (DWORD)txt.size(), &dwWritten);
 			}
 			else if (this->m_textType == ItsFileTextType::Unicode) {
 				DWORD dwWritten{ 0 };
-				wstring txt(text);
-				return this->Write(reinterpret_cast<BYTE*>(txt.data()), (DWORD)(txt.size() * sizeof(wchar_t)), &dwWritten);
+				return this->Write((BYTE*)text.data(), (DWORD)(text.size() * sizeof(wchar_t)), &dwWritten);
 			}
 			else if (this->m_textType == ItsFileTextType::UTF8WithBOM) {
 				long cbLength{ 0 };
@@ -2162,7 +2126,7 @@ namespace ItSoftware::Win::Core
 		//
 		// (i): Reads all text from a text file.
 		//
-		static bool AppendText(const wchar_t* filename, ItsFileTextType textType, const wchar_t* textToWrite)
+		static bool AppendText(wstring filename, ItsFileTextType textType, wstring& textToWrite)
 		{
 			if (!ItsFile::Exists(filename)) {
 				return false;
@@ -2190,21 +2154,17 @@ namespace ItSoftware::Win::Core
 		//
 		// Method: WriteTextLine
 		//
-		bool WriteTextLine(const char* text, const char* lineDelimiter = "\r\n")
+		bool WriteTextLine(string text, string lineDelimiter = "\r\n")
 		{
-			string txt(text);			
-			wstring wtxt(txt.begin(), txt.end());
-
-			string dl(lineDelimiter);
-			wstring wdl(dl.begin(), dl.end());
-
-			return this->WriteTextLine(wtxt.c_str(), wdl.c_str());
+			wstring txt(text.begin(), text.end());
+			wstring dl(lineDelimiter.begin(), lineDelimiter.end());
+			return this->WriteTextLine(txt, dl);
 		}
 
 		//
 		// Method: WriteTextLine
 		//
-		bool WriteTextLine(const wchar_t* text, const wchar_t* lineDelimiter = L"\r\n")
+		bool WriteTextLine(wstring text, wstring lineDelimiter = L"\r\n")
 		{
 			if (this->m_handle.IsInvalid())
 			{
@@ -2223,7 +2183,7 @@ namespace ItSoftware::Win::Core
 
 			return true;
 		}
-	};	
+	};
 
 #pragma warning(disable: 26812)
 	enum EREGCLASS
@@ -2287,23 +2247,23 @@ namespace ItSoftware::Win::Core
 		//
 		// Function: EnumerateKeys
 		//
-		static bool EnumerateKeys(EREGCLASS eregclass, const wchar_t* path, vector<wstring>& result)
+		static bool EnumerateKeys(EREGCLASS eregclass, const wstring path, vector<wstring>* result)
 		{
 			HKEY hKey;
-			if (!CheckHKey(eregclass, hKey) || path == nullptr)
+			if (!CheckHKey(eregclass, hKey) || path.size() == 0 || result == nullptr)
 			{
 				return false;
 			}
 
 			HKEY hOpenKey;
 			LONG lResult(0);
-			lResult = RegOpenKeyEx(hKey, path, 0, KEY_ENUMERATE_SUB_KEYS, &hOpenKey);
+			lResult = RegOpenKeyEx(hKey, path.c_str(), 0, KEY_ENUMERATE_SUB_KEYS, &hOpenKey);
 			if (lResult != ERROR_SUCCESS)
 			{
 				return false;
 			}
 
-			result.clear();
+			result->clear();
 
 			long lIndex(0);
 			ULONG cbAvailable(0);
@@ -2317,7 +2277,7 @@ namespace ItSoftware::Win::Core
 
 				if (lResult == ERROR_SUCCESS)
 				{
-					result.push_back(pwcsName);
+					result->push_back(pwcsName);
 				}// if ( lResult == ERROR_SUCCESS ) {			
 
 			} while (lResult == ERROR_SUCCESS);
@@ -2338,24 +2298,23 @@ namespace ItSoftware::Win::Core
 		//
 		// Function: EnumerateValues
 		//
-		static bool EnumerateValues(EREGCLASS eregclass, const wchar_t* path, const wchar_t* key, vector<wstring>* result)
+		static bool EnumerateValues(EREGCLASS eregclass, wstring path, const wstring key, vector<wstring>* result)
 		{
 			HKEY hKey;
-			if (!CheckHKey(eregclass, hKey) || (path == nullptr && key == nullptr) || result == nullptr)
+			if (!CheckHKey(eregclass, hKey) || (path.size() == 0 && key.size() == 0) || result == nullptr)
 			{
 				return false;
 			}
 
-			wstring path_str(path);
-			if (path_str.size() > 0 && path_str[path_str.size() - 1] != L'\\')
+			if (path.size() > 0 && path[path.size() - 1] != L'\\')
 			{
-				path_str += L'\\';
+				path += L'\\';
 			}
-			path_str += key;
+			path += key;
 
 			HKEY hOpenKey;
 			LONG lResult(0);
-			lResult = RegOpenKeyEx(hKey, path_str.c_str(), 0, KEY_QUERY_VALUE, &hOpenKey);
+			lResult = RegOpenKeyEx(hKey, path.c_str(), 0, KEY_QUERY_VALUE, &hOpenKey);
 			if (lResult != ERROR_SUCCESS)
 			{
 				return false;
@@ -2392,33 +2351,31 @@ namespace ItSoftware::Win::Core
 		//
 		// Function: ReadValue
 		//
-		static bool ReadValue(EREGCLASS eregclass, const wchar_t* path, const wchar_t* key, const wchar_t* value, wstring* data)
+		static bool ReadValue(EREGCLASS eregclass, wstring path, wstring key, wstring value, wstring* data)
 		{
 			HKEY hKey;
-			if (!CheckHKey(eregclass, hKey) || (path == nullptr && key == nullptr) || data == nullptr)
+			if (!CheckHKey(eregclass, hKey) || (path.size() == 0 && key.size() == 0) || data == nullptr)
 			{
 				return false;
 			}
 
-			wstring path_str(path);
-			if (path_str.size() > 0 && path_str[path_str.size() - 1] != L'\\')
+			if (path.size() > 0 && path[path.size() - 1] != L'\\')
 			{
-				path_str += L'\\';
+				path += L'\\';
 			}
-			path_str += key;
+			path += key;
 
 			HKEY hOpenKey;
 			LONG lResult(0);
-			lResult = RegOpenKeyEx(hKey, path_str.c_str(), 0, KEY_READ, &hOpenKey);
+			lResult = RegOpenKeyEx(hKey, path.c_str(), 0, KEY_READ, &hOpenKey);
 			if (lResult != ERROR_SUCCESS)
 			{
 				return false;
 			}
 
-			wstring value_str(value);
 			DWORD dwType(0);
 			ULONG lSize(0);
-			lResult = RegQueryValueEx(hOpenKey, value_str.c_str(), 0, &dwType, NULL, &lSize);
+			lResult = RegQueryValueEx(hOpenKey, value.c_str(), 0, &dwType, NULL, &lSize);
 			if (lResult != ERROR_SUCCESS)
 			{
 				RegCloseKey(hOpenKey);
@@ -2432,7 +2389,7 @@ namespace ItSoftware::Win::Core
 			}
 
 			wchar_t* pszBuffer = new wchar_t[lSize / sizeof(wchar_t)];
-			lResult = RegQueryValueEx(hOpenKey, value_str.c_str(), 0, &dwType, reinterpret_cast<BYTE*>(pszBuffer), &lSize);
+			lResult = RegQueryValueEx(hOpenKey, value.c_str(), 0, &dwType, (BYTE*)pszBuffer, &lSize);
 			if (lResult != ERROR_SUCCESS)
 			{
 				RegCloseKey(hOpenKey);
@@ -2450,23 +2407,22 @@ namespace ItSoftware::Win::Core
 		//
 		// Function: DeleteKey
 		//
-		static bool DeleteKey(EREGCLASS eregclass, const wchar_t* path, const wchar_t* key)
+		static bool DeleteKey(EREGCLASS eregclass, wstring path, wstring key)
 		{
 			HKEY hKey;
-			if (!CheckHKey(eregclass, hKey) || (path == nullptr && key == nullptr))
+			if (!CheckHKey(eregclass, hKey) || (path.size() == 0 && key.size() == 0))
 			{
 				return false;
 			}
 
-			wstring path_str(path);
-			if (path_str.size() > 0 && path_str[path_str.size() - 1] != L'\\')
+			if (path.size() > 0 && path[path.size() - 1] != L'\\')
 			{
-				path_str += L'\\';
+				path += L'\\';
 			}
-			path_str += key;
+			path += key;
 
 			DWORD dwResult(0);
-			dwResult = ::SHDeleteKey(hKey, path_str.c_str());
+			dwResult = ::SHDeleteKey(hKey, path.c_str());
 			if (dwResult != ERROR_SUCCESS) {
 				if (GetLastError() != 0) {
 					return false;
@@ -2482,21 +2438,20 @@ namespace ItSoftware::Win::Core
 		//
 		// Function: CreateKey
 		//
-		static bool CreateKey(EREGCLASS eregclass, const wchar_t* path, const wchar_t* key, const wchar_t* default_data)
+		static bool CreateKey(EREGCLASS eregclass, wstring path, wstring key, wstring default_data)
 		{
 			HKEY hKey;
-			if (!CheckHKey(eregclass, hKey) || (path == nullptr && key == nullptr))
+			if (!CheckHKey(eregclass, hKey) || (path.size() == 0 && key.size() == 0))
 			{
 				return false;
 			}
 
-			wstring path_str(path);
-			if (path_str.length() > 0) {
-				wchar_t wch = path_str.at(0);
+			if (path.length() > 0) {
+				wchar_t wch = path.at(0);
 				while (wch == L'\\') {
-					path_str.erase(0);
-					if (path_str.length() > 0) {
-						wch = path_str.at(0);
+					path.erase(0);
+					if (path.length() > 0) {
+						wch = path.at(0);
 					}
 					else {
 						break;
@@ -2504,25 +2459,24 @@ namespace ItSoftware::Win::Core
 				}
 			}
 
-			if (path_str.length() > 0) {
-				if (path_str.at(path_str.length() - 1) != L'\\') {
-					path_str += L'\\';
+			if (path.length() > 0) {
+				if (path.at(path.length() - 1) != L'\\') {
+					path += L'\\';
 				}
 			}
 
-			path_str += key;
+			path += key;
 
 			// Create new key
 			HKEY hNewKey;
-			LONG lResult = RegCreateKeyEx(hKey, path_str.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hNewKey, NULL);
+			LONG lResult = RegCreateKeyEx(hKey, path.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hNewKey, NULL);
 			if (lResult != ERROR_SUCCESS) {
 				return false;
 			}
 
-			wstring default_data_str(default_data);
 			// Set default value.	
-			if (default_data_str.size() > 0) {
-				lResult = RegSetValueEx(hNewKey, NULL, 0, REG_SZ, reinterpret_cast<const BYTE*>(default_data_str.data()), (static_cast<DWORD>(default_data_str.size()) * sizeof(wchar_t)) + 2);
+			if (default_data.size() > 0) {
+				lResult = RegSetValueEx(hNewKey, NULL, 0, REG_SZ, (CONST BYTE*)default_data.data(), (static_cast<DWORD>(default_data.size()) * sizeof(wchar_t)) + 2);
 				if (lResult != ERROR_SUCCESS) {
 					RegCloseKey(hNewKey);	// Close New Key				
 					return false;
@@ -2537,30 +2491,28 @@ namespace ItSoftware::Win::Core
 		//
 		// Function: AddValue
 		//
-		static bool AddValue(EREGCLASS eregclass, const wchar_t* path, const wchar_t* key, const wchar_t* value, const wchar_t* data)
+		static bool AddValue(EREGCLASS eregclass, wstring path, wstring key, wstring value, wstring data)
 		{
 			HKEY hKey;
-			if (!CheckHKey(eregclass, hKey) || (path == nullptr && key == nullptr) || value == nullptr)
+			if (!CheckHKey(eregclass, hKey) || (path.size() == 0 && key.size() == 0) || value.size() == 0)
 			{
 				return false;
 			}
 
-			wstring path_str(path);
-			if (path_str.size() > 0 && path_str[path_str.size() - 1] != L'\\')
+			if (path.size() > 0 && path[path.size() - 1] != L'\\')
 			{
-				path_str += L'\\';
+				path += L'\\';
 			}
-			path_str += key;
+			path += key;
 
 			HKEY hOpenKey;
 			LONG lResult(0);
-			lResult = RegOpenKeyEx(hKey, path_str.c_str(), 0, KEY_ALL_ACCESS, &hOpenKey);
+			lResult = RegOpenKeyEx(hKey, path.c_str(), 0, KEY_ALL_ACCESS, &hOpenKey);
 			if (lResult != ERROR_SUCCESS) {
 				return false;
 			}
 
-			wstring data_str(data);
-			lResult = RegSetValueEx(hOpenKey, path_str.c_str(), 0, REG_SZ, reinterpret_cast<const BYTE*>(data_str.data()), (static_cast<DWORD>(data_str.size()) * sizeof(wchar_t)) + 2);
+			lResult = RegSetValueEx(hOpenKey, value.c_str(), 0, REG_SZ, reinterpret_cast<const BYTE*>(data.data()), (static_cast<DWORD>(data.size()) * sizeof(wchar_t)) + 2);
 			if (lResult != ERROR_SUCCESS) {
 				RegCloseKey(hOpenKey);
 				return false;
@@ -2574,28 +2526,27 @@ namespace ItSoftware::Win::Core
 		//
 		// Function: DeleteValue
 		//
-		static bool DeleteValue(EREGCLASS eregclass, const wchar_t* path, const wchar_t* key, const wchar_t* value)
+		static bool DeleteValue(EREGCLASS eregclass, wstring path, wstring key, wstring value)
 		{
 			HKEY hKey;
-			if (!CheckHKey(eregclass, hKey) || (path == nullptr && key == nullptr) || value == nullptr)
+			if (!CheckHKey(eregclass, hKey) || (path.size() == 0 && key.size() == 0) || value.size() == 0)
 			{
 				return false;
 			}
 
-			wstring path_str(path);
-			if (path_str.size() > 0 && path_str[path_str.size() - 1] != L'\\')
+			if (path.size() > 0 && path[path.size() - 1] != L'\\')
 			{
-				path_str += L'\\';
+				path += L'\\';
 			}
-			path_str += key;
+			path += key;
 
 			HKEY hOpenKey;
 			LONG lResult(0);
-			lResult = RegOpenKeyEx(hKey, path_str.c_str(), 0, KEY_ALL_ACCESS, &hOpenKey);
+			lResult = RegOpenKeyEx(hKey, path.c_str(), 0, KEY_ALL_ACCESS, &hOpenKey);
 			if (lResult != ERROR_SUCCESS) {
 				return false;
 			}
-			lResult = RegDeleteValue(hOpenKey, value);
+			lResult = RegDeleteValue(hOpenKey, value.c_str());
 			if (lResult != ERROR_SUCCESS) {
 				RegCloseKey(hOpenKey);
 				return false;
@@ -2670,7 +2621,7 @@ namespace ItSoftware::Win::Core
 				&this->m_o,
 				NULL,
 				ReadDirectoryNotifyExtendedInformation);
-					
+
 			if (!bResult) {
 				this->Stop();
 			}
@@ -2706,7 +2657,7 @@ namespace ItSoftware::Win::Core
 						}
 
 						::ResetEvent(this->m_o.hEvent);
-				
+
 						::ReadDirectoryChangesExW(this->m_dirHandle.operator HANDLE(),
 							this->m_pbuffer.get(),
 							sizeof(FILE_NOTIFY_EXTENDED_INFORMATION) + MAX_PATH,
@@ -2726,21 +2677,20 @@ namespace ItSoftware::Win::Core
 		}
 
 	public:
-		explicit ItsFileMonitor(const wchar_t* pathname, bool watchSubTree, function<void(ItsFileMonitorEvent&)> func)
+		ItsFileMonitor(const wstring pathname, bool watchSubTree, function<void(ItsFileMonitorEvent&)> func)
 			: ItsFileMonitor(pathname, watchSubTree, ItsFileMonitorMask::ChangeLastWrite, func)
 		{
 
 		}
-		explicit ItsFileMonitor(const wchar_t* pathname, bool watchSubTree, uint32_t mask, function<void(ItsFileMonitorEvent&)> func)
+		ItsFileMonitor(const wstring pathname, bool watchSubTree, uint32_t mask, function<void(ItsFileMonitorEvent&)> func)
 			: m_pathname(pathname),
 			m_mask(mask),
 			m_bWatchSubTree(watchSubTree),
 			m_bPaused(false),
 			m_bStopped(false),
-			m_func(func),
-			m_dwBytesReturned(0)
+			m_func(func)
 		{
-			if (ItsFile::Exists(this->m_pathname.c_str())) {
+			if (ItsFile::Exists(this->m_pathname)) {
 				this->m_dirHandle = CreateFile(this->m_pathname.c_str(),
 					FILE_LIST_DIRECTORY,
 					FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
@@ -2792,9 +2742,9 @@ namespace ItSoftware::Win::Core
 		//
 		// Creates a key in ini file.
 		//
-		static bool CreateKey(const wchar_t* filename, const wchar_t* sectionname, const wchar_t* keyname, const wchar_t* value, bool overwriteifexist)
+		static bool CreateKey(wstring filename, wstring sectionname, wstring keyname, wstring value, bool overwriteifexist)
 		{
-			if (filename == nullptr || sectionname == nullptr || keyname == nullptr) {
+			if (filename.size() == 0 || sectionname.size() == 0 || keyname.size() == 0) {
 				return false;
 			}
 
@@ -2811,23 +2761,23 @@ namespace ItSoftware::Win::Core
 			}
 
 			if (bDoCreate == true) {
-				if (!::WritePrivateProfileString(sectionname, keyname, value, filename)) {					
+				if (!::WritePrivateProfileString(sectionname.c_str(), keyname.c_str(), value.c_str(), filename.c_str())) {
 					return false;
 				}
 			}
 
 			return true;
 		}
-		
-		static bool DeleteKey(const wchar_t* filename, const wchar_t* sectionname, const wchar_t* keyname)
+
+		static bool DeleteKey(wstring filename, wstring sectionname, wstring keyname)
 		{
-			if (filename == nullptr || sectionname == nullptr || keyname == nullptr) {
+			if (filename.size() == 0 || sectionname.size() == 0 || keyname.size() == 0) {
 				return false;
 			}
 
 			wstring readValue;
 			if (ItsIniFile::ReadValue(filename, sectionname, keyname, &readValue) == true) {
-				if (!WritePrivateProfileString(sectionname, keyname, NULL, filename)) {
+				if (!WritePrivateProfileString(sectionname.c_str(), keyname.c_str(), NULL, filename.c_str())) {
 					return false;
 				}
 			}
@@ -2835,15 +2785,15 @@ namespace ItSoftware::Win::Core
 			return true;
 		}
 
-		static bool ReadValue(const wchar_t* filename, const wchar_t* sectionname, const wchar_t* keyname, wstring* value)
+		static bool ReadValue(wstring filename, wstring sectionname, wstring keyname, wstring* value)
 		{
-			if (filename == nullptr || sectionname == nullptr || keyname == nullptr) {
+			if (filename.size() == 0 || sectionname.size() == 0 || keyname.size() == 0) {
 				return false;
 			}
 
 			wchar_t wcsDefault[] = L"24AA9E3A-5086-409c-A6CF-E1C48B8FFA62";
 			wchar_t* pwcs = new wchar_t[2048];
-			if (::GetPrivateProfileString(sectionname, keyname, wcsDefault, pwcs, 2047, filename) == 0) {
+			if (::GetPrivateProfileString(sectionname.c_str(), keyname.c_str(), wcsDefault, pwcs, 2047, filename.c_str()) == 0) {
 				// FOUND BUT HAD NO VALUE WITCH IS OK. WE HAD AN EMPTY STRING
 				*value = L"";
 			}
@@ -2862,9 +2812,9 @@ namespace ItSoftware::Win::Core
 		}
 
 
-		static bool SetValue(const wchar_t* filename, const wchar_t* sectionname, const wchar_t* keyname, const wchar_t* value)
+		static bool SetValue(wstring filename, wstring sectionname, wstring keyname, wstring value)
 		{
-			if (filename == nullptr || sectionname == nullptr || keyname == nullptr) {
+			if (filename.size() == 0 || sectionname.size() == 0 || keyname.size() == 0) {
 				return false;
 			}
 
@@ -2873,13 +2823,13 @@ namespace ItSoftware::Win::Core
 				return false;
 			}
 
-			if (value != nullptr) {
-				if (!WritePrivateProfileString(sectionname, keyname, L"", filename)) {
+			if (value.size() == 0) {
+				if (!WritePrivateProfileString(sectionname.c_str(), keyname.c_str(), L"", filename.c_str())) {
 					return false;
 				}
 			}
 			else {
-				if (!WritePrivateProfileString(sectionname, keyname, value, filename)) {
+				if (!WritePrivateProfileString(sectionname.c_str(), keyname.c_str(), value.c_str(), filename.c_str())) {
 					return false;
 				}
 			}
@@ -2887,25 +2837,25 @@ namespace ItSoftware::Win::Core
 			return true;
 		}
 
-		static bool CreateSection(const wchar_t* filename, const wchar_t* sectionname )
+		static bool CreateSection(wstring filename, wstring sectionname)
 		{
-			if (filename == nullptr || sectionname == nullptr) {
+			if (filename.size() == 0 || sectionname.size() == 0) {
 				return false;
 			}
 
 			wstring key(L"KKSINIFILE");
 			wstring value(L"YOU CAN SAFTLEY DELETE ME!");
-			if (!ItsIniFile::CreateKey(filename, sectionname, key.c_str(), value.c_str(), false)) {
+			if (!ItsIniFile::CreateKey(filename, sectionname, key, value, false)) {
 				return false;
 			}
 			else {
-				DeleteKey(filename, sectionname, key.c_str());
+				DeleteKey(filename, sectionname, key);
 			}
 
 			return true;
 		}
 
-		static bool DeleteSection( wstring filename, wstring sectionname )
+		static bool DeleteSection(wstring filename, wstring sectionname)
 		{
 			if (filename.size() == 0 || sectionname.size() == 0) {
 				return false;
@@ -2918,36 +2868,36 @@ namespace ItSoftware::Win::Core
 			return true;
 		}
 
-		static bool StoreCollection(const wchar_t* filename, const wchar_t* sectionname, map<wstring,wstring>& map, bool overwriteifexist)
+		static bool StoreCollection(wstring filename, wstring sectionname, map<wstring, wstring>& map, bool overwriteifexist)
 		{
-			if (filename == nullptr || sectionname == nullptr || map.size() == 0) {
+			if (filename.size() == 0 || sectionname.size() == 0 || map.size() == 0) {
 				return false;
 			}
-			
+
 			for (auto itr = map.begin(); itr != map.end(); itr++) {
 				const wstring key = itr->first;
 				const wstring value = itr->second;
-				CreateKey(filename, sectionname, key.c_str(), value.c_str(), overwriteifexist);
+				CreateKey(filename, sectionname, key, value, overwriteifexist);
 			}
 
 			return true;
 		}
 
-		static bool EnumerateKeys( const wchar_t* filename, const wchar_t* sectionname, map<wstring,wstring>& map)
+		static bool EnumerateKeys(wstring filename, wstring sectionname, map<wstring, wstring>& map)
 		{
-			if (filename == nullptr || wcslen(filename) == 0 || sectionname == nullptr || wcslen(sectionname) == 0) {
+			if (filename.size() == 0 || sectionname.size() == 0) {
 				return false;
 			}
-			
+
 			wchar_t* pwcs = new wchar_t[2048];
 			wchar_t wcsDefault[] = L"03803CC2-1BAC-4775-BBA6-733AA181F9CC";
-			if (GetPrivateProfileString(sectionname, NULL, wcsDefault, pwcs, 2047, filename) == 0) {
+			if (GetPrivateProfileString(sectionname.c_str(), NULL, wcsDefault, pwcs, 2047, filename.c_str()) == 0) {
 				// FOUND BUT HAD NO VALUE	
 			}
 			else {
 				if (wcscmp(pwcs, wcsDefault) == 0) {
 					// NOT KEYS FOUND.
-					delete[] pwcs;					
+					delete[] pwcs;
 					return true;
 				}
 				else {
@@ -2957,10 +2907,10 @@ namespace ItSoftware::Win::Core
 					for (p = pwcs; p < pwcs + 2047; p++) {
 						if (*p == L'\0') {
 							iIndex++;
-							
+
 							wstring key(beg);
 							wstring value;
-							ReadValue(filename, sectionname, beg, &value);							
+							ReadValue(filename, sectionname, beg, &value);
 
 							if (map.find(key) == map.end()) {
 								map.insert(std::pair<wstring, wstring>(key, value));
@@ -2975,16 +2925,16 @@ namespace ItSoftware::Win::Core
 				}// else {
 			}// else {
 			delete[] pwcs;
-			
+
 			return true;
 		}
 
-		static bool EnumerateSections( wstring filename, vector<wstring>& list)
+		static bool EnumerateSections(wstring filename, vector<wstring>& list)
 		{
 			if (filename.size() == 0) {
 				return false;
 			}
-			
+
 			wchar_t* pwcs = new wchar_t[2048];
 			wchar_t wcsDefault[] = L"1B5E632E-BDD5-4343-86D8-4C668E1C1808";
 			if (GetPrivateProfileString(NULL, L"", wcsDefault, pwcs, 2047, filename.c_str()) == 0) {
@@ -2993,7 +2943,7 @@ namespace ItSoftware::Win::Core
 			else {
 				if (wcscmp(pwcs, wcsDefault) == 0) {
 					// NO SECTIONS FOUND.
-					delete[] pwcs;					
+					delete[] pwcs;
 					return true;
 				}
 				else {
@@ -3015,9 +2965,9 @@ namespace ItSoftware::Win::Core
 					}// for ( p = pwcs; p < pwcs+1024; p++ ) {
 				}// else {
 			}// else {
-			
+
 			delete[] pwcs;
-			
+
 			return true;
 		}
 	};// ItsIniFile

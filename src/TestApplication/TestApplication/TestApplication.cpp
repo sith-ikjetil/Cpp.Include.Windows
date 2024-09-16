@@ -475,7 +475,7 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
 
         wstring appendText(L"\n[APPEND THIS]");
         wcout << LR"()";
-        if (!ItsTextFile::AppendText(L"poem.txt", ItsFileTextType::UTF8WithBOM, appendText.c_str())) {
+        if (!ItsTextFile::AppendText(L"poem.txt", ItsFileTextType::UTF8WithBOM, appendText)) {
             wcout << L"> FAILED: " << ItsError::GetLastErrorDescription() << endl;
             wcout << endl;
             return;
