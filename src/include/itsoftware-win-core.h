@@ -569,9 +569,17 @@ namespace ItSoftware::Win::Core
 			return wstring(bstr.operator LPWSTR());;
 		}// inline CComBSTR GetLastErrorDesc( )
 
-			//
-			// Get COM IErrorInfo Error Description
-			//
+		static wstring GetHResultErrorInfo(HRESULT hr)
+		{
+			wchar_t wszMsg[1024];
+			::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, hr, 0, wszMsg, 1024, NULL);
+			wstring str(wszMsg);
+			return str;
+		}
+
+		//
+		// Get COM IErrorInfo Error Description
+		//
 		static wstring GetCoLastErrorInfoDescription()
 		{
 			IErrorInfo* pErrInfo = nullptr;
