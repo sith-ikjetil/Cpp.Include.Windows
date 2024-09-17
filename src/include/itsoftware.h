@@ -140,7 +140,7 @@ namespace ItSoftware
 					return nullptr;
 				}
 
-				memcpy((void*)pBytes, s.data(), length);
+				memcpy(reinterpret_cast<void*>(pBytes), s.data(), length);
 
 				*cbLength = (long)length;
 
@@ -297,12 +297,12 @@ namespace ItSoftware
 	//
 	struct ItsString
 	{
-		static wstring WidthExpand(wstring source, size_t width, wchar_t fill, ItsExpandDirection direction)
+		static wstring WidthExpand(const wstring& source, size_t width, wchar_t fill, ItsExpandDirection direction)
 		{
 			if (source.size() == 0) {
 				return wstring(L"");
 			}
-			if (width <= 0) {
+			if (width == 0) {
 				return wstring(L"");
 			}
 
@@ -350,7 +350,7 @@ namespace ItSoftware
 			return retVal;
 		}
 
-		static vector<wstring> Split(wstring input, wstring delimiter)
+		static vector<wstring> Split(const wstring& input, const wstring& delimiter)
 		{
 			vector<wstring> result;
 
@@ -385,27 +385,27 @@ namespace ItSoftware
 			return s;
 		}
 
-		static wstring TrimLeft(wstring s, const wchar_t* t = L" \t\n\r\f\v")
+		static wstring TrimLeft(wstring s, const wstring& t = L" \t\n\r\f\v")
 		{
 			s.erase(0, s.find_first_not_of(t));
 			return s;
 		}
 
-		static wstring TrimRight(wstring s, const wchar_t* t = L" \t\n\r\f\v")
+		static wstring TrimRight(wstring s, const wstring& t = L" \t\n\r\f\v")
 		{
 			s.erase(s.find_last_not_of(t) + 1);
 			return s;
 		}
 
-		static wstring Trim(wstring s, const wchar_t* t = L" \t\n\r\f\v")
+		static wstring Trim(const wstring& s, const wstring& t = L" \t\n\r\f\v")
 		{
 			wstring right = TrimRight(s, t);
 			return TrimLeft(right, t);
 		}
 
-		static wstring Left(wstring s, unsigned int count)
+		static wstring Left(const wstring& s, size_t count)
 		{
-			if (s.size() == 0 || count <= 0)
+			if (s.size() == 0 || count == 0)
 			{
 				return wstring(L"");
 			}
@@ -425,9 +425,9 @@ namespace ItSoftware
 			return str;
 		}
 
-		static wstring Mid(wstring s, size_t index, size_t count)
+		static wstring Mid(const wstring& s, size_t index, size_t count)
 		{
-			if (s.size() == 0 || count <= 0 || index < 0 || index >= s.size())
+			if (s.size() == 0 || count == 0 || index >= s.size())
 			{
 				return wstring(L"");
 			}
@@ -453,9 +453,9 @@ namespace ItSoftware
 			return str;
 		}
 
-		static wstring Right(wstring s, unsigned int count)
+		static wstring Right(const wstring& s, size_t count)
 		{
-			if (s.size() == 0 || count <= 0)
+			if (s.size() == 0 || count == 0)
 			{
 				return wstring(L"");
 			}
@@ -476,7 +476,7 @@ namespace ItSoftware
 		}
 
 
-		static wstring Replace(wstring s, wstring replace, wstring replace_with)
+		static wstring Replace(const wstring& s, const wstring& replace, const wstring& replace_with)
 		{
 			if (s.size() == 0 || replace.size() == 0 || replace.size() > s.size())
 			{
@@ -493,7 +493,7 @@ namespace ItSoftware
 			auto result = ItsString::Split(s, replace);
 			wstringstream ss;
 			bool bHit = false;
-			for (auto& t : result) {
+			for (const auto& t : result) {
 				if (bHit) {
 					ss << replace_with;
 				}
@@ -765,7 +765,7 @@ namespace ItSoftware
 			return tos;
 		}
 
-		static tm ToTM(wstring dateTime)
+		static tm ToTM(const wstring& dateTime)
 		{
 			tm t = { 0 };
 
@@ -808,7 +808,7 @@ namespace ItSoftware
 		{
 			wstringstream ss;
 			bool bAddSep = false;
-			for (auto& pk : pks) {
+			for (const auto& pk : pks) {
 				if (bAddSep) {
 					ss << L";";
 				}
@@ -904,26 +904,21 @@ namespace ItSoftware
 		tm m_tm;
 
 	public:
-		ItsDateTime(tm timeDate)
+		explicit ItsDateTime(tm timeDate)
 		{
 			this->m_tm = timeDate;
 		}
 
-		ItsDateTime(ItsDateTime& dateTime)
+		explicit ItsDateTime(const ItsDateTime& dateTime)
 		{
 			this->m_tm = dateTime.m_tm;
 		}
-
-		ItsDateTime(ItsDateTime&& dateTime) noexcept
-		{
-			this->m_tm = dateTime.m_tm;
-		}
-
+		
 		static ItsDateTime Now()
 		{
 			time_t t;
 			time(&t);
-			tm tm2;
+			tm tm2{ 0 };
 			localtime_s(&tm2, &t);
 
 			return ItsDateTime(tm2);
@@ -1399,7 +1394,7 @@ namespace ItSoftware
 			return wType;
 		}
 
-		int ReportEvent(EEVENTLOGTYPE eeventlogtype, const wstring description)
+		int ReportEvent(EEVENTLOGTYPE eeventlogtype, const wstring& description)
 		{
 			if (this->m_sourceName.size() == 0 || description.size() == 0) {
 				return -1;
@@ -1411,7 +1406,7 @@ namespace ItSoftware
 			}
 
 			CComBSTR bstr(description.c_str());
-			BOOL bStatus = ::ReportEvent(hEventLog, ConvertEnumToType(eeventlogtype), 0, 0, NULL, 1, 0, (LPCWSTR*)&bstr, NULL);
+			BOOL bStatus = ::ReportEvent(hEventLog, ConvertEnumToType(eeventlogtype), 0, 0, NULL, 1, 0, const_cast<LPCWSTR*>(reinterpret_cast<LPWSTR*>(&bstr)), NULL);
 			if (!bStatus) {
 				::DeregisterEventSource(hEventLog);
 				return -1;
@@ -1422,7 +1417,7 @@ namespace ItSoftware
 			return 0;
 		}
 	public:
-		ItsLog(wstring sourceName, bool logToEventLog)
+		ItsLog(const wstring& sourceName, bool logToEventLog)
 			: m_sourceName(sourceName),
 			m_bLogToEventLog(logToEventLog)
 		{
@@ -1430,7 +1425,7 @@ namespace ItSoftware
 		~ItsLog()
 		{
 		}
-		void LogInformation(wstring description)
+		void LogInformation(const wstring& description)
 		{
 			ItsLogItem item;
 			item.When = ItsDateTime::Now().TM();
@@ -1444,7 +1439,7 @@ namespace ItSoftware
 			}
 		}
 
-		void LogWarning(wstring description)
+		void LogWarning(const wstring& description)
 		{
 			ItsLogItem item;
 			item.When = ItsDateTime::Now().TM();
@@ -1458,7 +1453,7 @@ namespace ItSoftware
 			}
 		}
 
-		void LogError(wstring description)
+		void LogError(const wstring& description)
 		{
 			ItsLogItem item;
 			item.When = ItsDateTime::Now().TM();
@@ -1472,7 +1467,7 @@ namespace ItSoftware
 			}
 		}
 
-		void LogOther(wstring description)
+		void LogOther(const wstring& description)
 		{
 			ItsLogItem item;
 			item.When = ItsDateTime::Now().TM();
@@ -1486,7 +1481,7 @@ namespace ItSoftware
 			}
 		}
 
-		void LogDebug(wstring description)
+		void LogDebug(const wstring& description)
 		{
 			ItsLogItem item;
 			item.When = ItsDateTime::Now().TM();
@@ -1573,7 +1568,7 @@ namespace ItSoftware
 	public:
 		static wstring CreateID(size_t count, ItsCreateIDOptions options, bool includeNumbers)
 		{
-			if (count <= 0)
+			if (count == 0)
 			{
 				count = 16;
 			}
