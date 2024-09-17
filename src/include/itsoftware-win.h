@@ -122,7 +122,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowInformationMessage
 		//
-		static void ShowInformationMessage(wstring message)
+		static void ShowInformationMessage(const wstring& message)
 		{
 			ShowInformationMessage(NULL, L"Information!", message);
 		}
@@ -130,7 +130,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowInformationMessage
 		//
-		static void ShowInformationMessage(wstring title, wstring message)
+		static void ShowInformationMessage(const wstring& title, const wstring& message)
 		{
 			ShowInformationMessage(NULL, title, message);
 		}
@@ -138,7 +138,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowInformationMessage
 		//
-		static void ShowInformationMessage(HWND hWnd, wstring message)
+		static void ShowInformationMessage(HWND hWnd, const wstring& message)
 		{
 			ShowInformationMessage(hWnd, L"Information!", message);
 		}
@@ -146,7 +146,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowInformationMessage
 		//
-		static void ShowInformationMessage(HWND hWnd, wstring title, wstring message)
+		static void ShowInformationMessage(HWND hWnd, const wstring& title, const wstring& message)
 		{
 			if (hWnd != NULL)
 			{
@@ -163,7 +163,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowInformationMessageYesNo
 		//
-		static int ShowInformationMessageYesNo(wstring message)
+		static int ShowInformationMessageYesNo(const wstring& message)
 		{
 			return ShowInformationMessageYesNo(NULL, L"Information!", message);
 		}
@@ -171,7 +171,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowInformationMessageYesNo
 		//
-		static int ShowInformationMessageYesNo(wstring title, wstring message)
+		static int ShowInformationMessageYesNo(const wstring& title, const wstring& message)
 		{
 			return ShowInformationMessageYesNo(NULL, title, message);
 		}
@@ -179,7 +179,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowInformationMessageYesNo
 		//
-		static int ShowInformationMessageYesNo(HWND hWnd, wstring title, wstring message)
+		static int ShowInformationMessageYesNo(HWND hWnd, const wstring& title, const wstring& message)
 		{
 			int result = 0;
 			if (hWnd != NULL)
@@ -199,7 +199,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowInformationMessageYesNoCancel
 		//
-		static int ShowInformationMessageYesNoCancel(wstring message)
+		static int ShowInformationMessageYesNoCancel(const wstring& message)
 		{
 			return ShowInformationMessageYesNoCancel(NULL, L"Information!", message);
 		}
@@ -207,7 +207,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowInformationMessageYesNoCancel
 		//
-		static int ShowInformationMessageYesNoCancel(wstring title, wstring message)
+		static int ShowInformationMessageYesNoCancel(const wstring& title, const wstring& message)
 		{
 			return ShowInformationMessageYesNoCancel(NULL, title, message);
 		}
@@ -215,7 +215,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowInformationMessageYesNoCancel
 		//
-		static int ShowInformationMessageYesNoCancel(HWND hWnd, wstring title, wstring message)
+		static int ShowInformationMessageYesNoCancel(HWND hWnd, const wstring& title, const wstring& message)
 		{
 			int result = 0;
 			if (hWnd != NULL)
@@ -235,7 +235,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowInformationMessageAbortRetryIgnore
 		//
-		static int ShowInformationMessageAbortRetryIgnore(wstring message)
+		static int ShowInformationMessageAbortRetryIgnore(const wstring& message)
 		{
 			return ShowInformationMessageAbortRetryIgnore(NULL, L"Information!", message);
 		}
@@ -243,7 +243,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowInformationMessageAbortRetryIgnore
 		//
-		static int ShowInformationMessageAbortRetryIgnore(wstring title, wstring message)
+		static int ShowInformationMessageAbortRetryIgnore(const wstring& title, const wstring& message)
 		{
 			return ShowInformationMessageAbortRetryIgnore(NULL, title, message);
 		}
@@ -251,7 +251,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowWarningMessageAbortRetryIgnore
 		//
-		static int ShowInformationMessageAbortRetryIgnore(HWND hWnd, wstring message)
+		static int ShowInformationMessageAbortRetryIgnore(HWND hWnd, const wstring& message)
 		{
 			return ShowInformationMessageAbortRetryIgnore(hWnd, L"Information!", message);
 		}
@@ -259,7 +259,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowInformationMessageAbortRetryIgnore
 		//
-		static int ShowInformationMessageAbortRetryIgnore(HWND hWnd, wstring title, wstring message)
+		static int ShowInformationMessageAbortRetryIgnore(HWND hWnd, const wstring& title, const wstring& message)
 		{
 			int result = 0;
 			if (hWnd != NULL)
@@ -283,7 +283,7 @@ namespace ItSoftware::Win
 		//
 		// ShowWarningMessage
 		//
-		static void ShowWarningMessage(wstring message)
+		static void ShowWarningMessage(const wstring& message)
 		{
 			ShowWarningMessage(NULL, L"Warning!", message);
 		}
@@ -291,7 +291,7 @@ namespace ItSoftware::Win
 		//
 		// ShowWarningMessage
 		//
-		static void ShowWarningMessage(wstring title, wstring message)
+		static void ShowWarningMessage(const wstring& title, const wstring& message)
 		{
 			ShowWarningMessage(NULL, title, message);
 		}
@@ -299,7 +299,7 @@ namespace ItSoftware::Win
 		//
 		// ShowWarningMessage
 		//
-		static void ShowWarningMessage(HWND hWnd, wstring message)
+		static void ShowWarningMessage(HWND hWnd, const wstring& message)
 		{
 			ShowWarningMessage(hWnd, L"Warning!", message);
 		}
@@ -307,7 +307,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowWarningMessage
 		//
-		static void ShowWarningMessage(HWND hWnd, wstring title, wstring message)
+		static void ShowWarningMessage(HWND hWnd, const wstring& title, const wstring& message)
 		{
 			if (hWnd != NULL)
 			{
@@ -324,7 +324,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowWarningMessageYesNo
 		//
-		static int ShowWarningMessageYesNo(wstring message)
+		static int ShowWarningMessageYesNo(const wstring& message)
 		{
 			return ShowWarningMessageYesNo(NULL, L"Warning!", message);
 		}
@@ -332,7 +332,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowWarningMessageYesNo
 		//
-		static int ShowWarningMessageYesNo(wstring title, wstring message)
+		static int ShowWarningMessageYesNo(const wstring& title, const wstring& message)
 		{
 			return ShowWarningMessageYesNo(NULL, title, message);
 		}
@@ -340,7 +340,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowWarningMessageYesNo
 		//
-		static int ShowWarningMessageYesNo(HWND hWnd, wstring message)
+		static int ShowWarningMessageYesNo(HWND hWnd, const wstring& message)
 		{
 			return ShowWarningMessageYesNo(hWnd, L"Warning!", message);
 		}
@@ -348,7 +348,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowWarningMessageYesNo
 		//
-		static int ShowWarningMessageYesNo(HWND hWnd, wstring title, wstring message)
+		static int ShowWarningMessageYesNo(HWND hWnd, const wstring& title, const wstring& message)
 		{
 			int result = 0;
 			if (hWnd != NULL)
@@ -368,7 +368,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowWarningMessageYesNoCancel
 		//
-		static int ShowWarningMessageYesNoCancel(wstring message)
+		static int ShowWarningMessageYesNoCancel(const wstring& message)
 		{
 			return ShowWarningMessageYesNoCancel(NULL, L"Warning!", message);
 		}
@@ -376,7 +376,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowWarningMessageYesNoCancel
 		//
-		static int ShowWarningMessageYesNoCancel(wstring title, wstring message)
+		static int ShowWarningMessageYesNoCancel(const wstring& title, const wstring& message)
 		{
 			return ShowWarningMessageYesNoCancel(NULL, title, message);
 		}
@@ -384,7 +384,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowWarningMessageYesNoCancel
 		//
-		static int ShowWarningMessageYesNoCancel(HWND hWnd, wstring message)
+		static int ShowWarningMessageYesNoCancel(HWND hWnd, const wstring& message)
 		{
 			return ShowWarningMessageYesNoCancel(hWnd, L"Warning!", message);
 		}
@@ -392,7 +392,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowWarningMessageYesNoCancel
 		//
-		static int ShowWarningMessageYesNoCancel(HWND hWnd, wstring title, wstring message)
+		static int ShowWarningMessageYesNoCancel(HWND hWnd, const wstring& title, const wstring& message)
 		{
 			int result = 0;
 			if (hWnd != NULL)
@@ -412,7 +412,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowWarningMessageAbortRetryIgnore
 		//
-		static int ShowWarningMessageAbortRetryIgnore(wstring message)
+		static int ShowWarningMessageAbortRetryIgnore(const wstring& message)
 		{
 			return ShowWarningMessageAbortRetryIgnore(NULL, L"Warning!", message);
 		}
@@ -420,7 +420,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowWarningMessageAbortRetryIgnore
 		//
-		static int ShowWarningMessageAbortRetryIgnore(wstring title, wstring message)
+		static int ShowWarningMessageAbortRetryIgnore(const wstring& title, const wstring& message)
 		{
 			return ShowWarningMessageAbortRetryIgnore(NULL, title, message);
 		}
@@ -428,7 +428,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowWarningMessageAbortRetryIgnore
 		//
-		static int ShowWarningMessageAbortRetryIgnore(HWND hWnd, wstring message)
+		static int ShowWarningMessageAbortRetryIgnore(HWND hWnd, const wstring& message)
 		{
 			return ShowWarningMessageAbortRetryIgnore(hWnd, L"Warning!", message);
 		}
@@ -436,7 +436,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowWarningMessageAbortRetryIgnore
 		//
-		static int ShowWarningMessageAbortRetryIgnore(HWND hWnd, wstring title, wstring message)
+		static int ShowWarningMessageAbortRetryIgnore(HWND hWnd, const wstring& title, const wstring& message)
 		{
 			int result = 0;
 			if (hWnd != NULL)
@@ -460,7 +460,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowHandMessage
 		//
-		static void ShowHandMessage(wstring message)
+		static void ShowHandMessage(const wstring& message)
 		{
 			ShowHandMessage(NULL, L"Hand!", message);
 		}
@@ -468,7 +468,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowHandMessage
 		//
-		static void ShowHandMessage(wstring title, wstring message)
+		static void ShowHandMessage(const wstring& title, const wstring& message)
 		{
 			ShowHandMessage(NULL, title, message);
 		}
@@ -476,7 +476,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowHandMessage
 		//
-		static void ShowHandMessage(HWND hWnd, wstring message)
+		static void ShowHandMessage(HWND hWnd, const wstring& message)
 		{
 			ShowHandMessage(hWnd, L"Hand!", message);
 		}
@@ -484,7 +484,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowHandMessage
 		//
-		static void ShowHandMessage(HWND hWnd, wstring title, wstring message)
+		static void ShowHandMessage(HWND hWnd, const wstring& title, const wstring& message)
 		{
 			if (hWnd != NULL)
 			{
@@ -501,7 +501,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowHandMessageYesNo
 		//
-		static int ShowHandMessageYesNo(wstring message)
+		static int ShowHandMessageYesNo(const wstring& message)
 		{
 			return ShowHandMessageYesNo(NULL, L"Hand!", message);
 		}
@@ -509,7 +509,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowHandMessageYesNo
 		//
-		static int ShowHandMessageYesNo(wstring title, wstring message)
+		static int ShowHandMessageYesNo(const wstring& title, const wstring& message)
 		{
 			return ShowHandMessageYesNo(NULL, title, message);
 		}
@@ -517,7 +517,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowHandMessageYesNo
 		//
-		static int ShowHandMessageYesNo(HWND hWnd, wstring title, wstring message)
+		static int ShowHandMessageYesNo(HWND hWnd, const wstring& title, const wstring& message)
 		{
 			int result = 0;
 			if (hWnd != NULL)
@@ -537,7 +537,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowHandMessageYesNoCancel
 		//
-		static int ShowHandMessageYesNoCancel(wstring message)
+		static int ShowHandMessageYesNoCancel(const wstring& message)
 		{
 			return ShowHandMessageYesNoCancel(NULL, L"Hand!", message);
 		}
@@ -545,7 +545,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowHandMessageYesNoCancel
 		//
-		static int ShowHandMessageYesNoCancel(wstring title, wstring message)
+		static int ShowHandMessageYesNoCancel(const wstring& title, const wstring& message)
 		{
 			return ShowHandMessageYesNoCancel(NULL, title, message);
 		}
@@ -553,7 +553,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowHandMessageYesNoCancel
 		//
-		static int ShowHandMessageYesNoCancel(HWND hWnd, wstring title, wstring message)
+		static int ShowHandMessageYesNoCancel(HWND hWnd, const wstring& title, const wstring& message)
 		{
 			int result = 0;
 			if (hWnd != NULL)
@@ -573,7 +573,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowHandMessageAbortRetryIgnore
 		//
-		static int ShowHandMessageAbortRetryIgnore(wstring message)
+		static int ShowHandMessageAbortRetryIgnore(const wstring& message)
 		{
 			return ShowHandMessageAbortRetryIgnore(NULL, L"Hand!", message);
 		}
@@ -581,7 +581,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowHandMessageAbortRetryIgnore
 		//
-		static int ShowHandMessageAbortRetryIgnore(wstring title, wstring message)
+		static int ShowHandMessageAbortRetryIgnore(const wstring& title, const wstring& message)
 		{
 			return ShowHandMessageAbortRetryIgnore(NULL, title, message);
 		}
@@ -589,7 +589,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowHandMessageAbortRetryIgnore
 		//
-		static int ShowHandMessageAbortRetryIgnore(HWND hWnd, wstring message)
+		static int ShowHandMessageAbortRetryIgnore(HWND hWnd, const wstring& message)
 		{
 			return ShowHandMessageAbortRetryIgnore(hWnd, L"Hand!", message);
 		}
@@ -597,7 +597,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowHandMessageAbortRetryIgnore
 		//
-		static int ShowHandMessageAbortRetryIgnore(HWND hWnd, wstring title, wstring message)
+		static int ShowHandMessageAbortRetryIgnore(HWND hWnd, const wstring& title, const wstring& message)
 		{
 			int result = 0;
 			if (hWnd != NULL)
@@ -621,7 +621,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowErrorMessage
 		//
-		static void ShowErrorMessage(wstring message)
+		static void ShowErrorMessage(const wstring& message)
 		{
 			ShowErrorMessage(NULL, L"Error!", message);
 		}
@@ -629,7 +629,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowErrorMessage
 		//
-		static void ShowErrorMessage(wstring title, wstring message)
+		static void ShowErrorMessage(const wstring& title, const wstring& message)
 		{
 			ShowErrorMessage(NULL, title, message);
 		}
@@ -637,7 +637,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowErrorMessage
 		//
-		static void ShowErrorMessage(HWND hWnd, wstring message)
+		static void ShowErrorMessage(HWND hWnd, const wstring& message)
 		{
 			ShowErrorMessage(hWnd, L"Error!", message);
 		}
@@ -645,7 +645,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowErrorMessage
 		//
-		static void ShowErrorMessage(HWND hWnd, wstring title, wstring message)
+		static void ShowErrorMessage(HWND hWnd, const wstring& title, const wstring& message)
 		{
 			if (hWnd != NULL)
 			{
@@ -662,7 +662,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowErrorMessageYesNo
 		//
-		static int ShowErrorMessageYesNo(wstring message)
+		static int ShowErrorMessageYesNo(const wstring& message)
 		{
 			return ShowErrorMessageYesNo(NULL, L"Error!", message);
 		}
@@ -670,7 +670,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowErrorMessageYesNo
 		//
-		static int ShowErrorMessageYesNo(wstring title, wstring message)
+		static int ShowErrorMessageYesNo(const wstring& title, const wstring& message)
 		{
 			return ShowErrorMessageYesNo(NULL, title, message);
 		}
@@ -678,7 +678,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowErrorMessageYesNo
 		//
-		static int ShowErrorMessageYesNo(HWND hWnd, wstring message)
+		static int ShowErrorMessageYesNo(HWND hWnd, const wstring& message)
 		{
 			return ShowErrorMessageYesNo(hWnd, L"Error!", message);
 		}
@@ -686,7 +686,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowErrorMessageYesNo
 		//
-		static int ShowErrorMessageYesNo(HWND hWnd, wstring title, wstring message)
+		static int ShowErrorMessageYesNo(HWND hWnd, const wstring& title, const wstring& message)
 		{
 			int result = 0;
 			if (hWnd != NULL)
@@ -706,7 +706,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowErrorMessageYesNoCancel
 		//
-		static int ShowErrorMessageYesNoCancel(wstring message)
+		static int ShowErrorMessageYesNoCancel(const wstring& message)
 		{
 			return ShowErrorMessageYesNoCancel(NULL, L"Error!", message);
 		}
@@ -714,7 +714,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowErrorMessageYesNoCancel
 		//
-		static int ShowErrorMessageYesNoCancel(wstring title, wstring message)
+		static int ShowErrorMessageYesNoCancel(const wstring& title, const wstring& message)
 		{
 			return ShowErrorMessageYesNoCancel(NULL, title, message);
 		}
@@ -722,7 +722,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowErrorMessageYesNoCancel
 		//
-		static int ShowErrorMessageYesNoCancel(HWND hWnd, wstring message)
+		static int ShowErrorMessageYesNoCancel(HWND hWnd, const wstring& message)
 		{
 			return ShowErrorMessageYesNoCancel(hWnd, L"Error!", message);
 		}
@@ -730,7 +730,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowErrorMessageYesNoCancel
 		//
-		static int ShowErrorMessageYesNoCancel(HWND hWnd, wstring title, wstring message)
+		static int ShowErrorMessageYesNoCancel(HWND hWnd, const wstring& title, const wstring& message)
 		{
 			int result = 0;
 			if (hWnd != NULL)
@@ -750,7 +750,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowErrorMessageAbortRetryIgnore
 		//
-		static int ShowErrorMessageAbortRetryIgnore(wstring message)
+		static int ShowErrorMessageAbortRetryIgnore(const wstring& message)
 		{
 			return ShowErrorMessageAbortRetryIgnore(NULL, L"Error!", message);
 		}
@@ -758,7 +758,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowErrorMessageAbortRetryIgnore
 		//
-		static int ShowErrorMessageAbortRetryIgnore(wstring title, wstring message)
+		static int ShowErrorMessageAbortRetryIgnore(const wstring& title, const wstring& message)
 		{
 			return ShowErrorMessageAbortRetryIgnore(NULL, title, message);
 		}
@@ -766,7 +766,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowErrorMessageAbortRetryIgnore
 		//
-		static int ShowErrorMessageAbortRetryIgnore(HWND hWnd, wstring message)
+		static int ShowErrorMessageAbortRetryIgnore(HWND hWnd, const wstring& message)
 		{
 			return ShowErrorMessageAbortRetryIgnore(hWnd, L"Error!", message);
 		}
@@ -774,7 +774,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowErrorMessageAbortRetryIgnore
 		//
-		static int ShowErrorMessageAbortRetryIgnore(HWND hWnd, wstring title, wstring message)
+		static int ShowErrorMessageAbortRetryIgnore(HWND hWnd, const wstring& title, const wstring& message)
 		{
 			int result = 0;
 			if (hWnd != NULL)
@@ -798,7 +798,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowQuestionMessageYesNo
 		//
-		static int ShowQuestionMessageYesNo(wstring message)
+		static int ShowQuestionMessageYesNo(const wstring& message)
 		{
 			return ShowQuestionMessageYesNo(NULL, L"Question!", message);
 		}
@@ -806,7 +806,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowQuestionMessageYesNo
 		//
-		static int ShowQuestionMessageYesNo(wstring title, wstring message)
+		static int ShowQuestionMessageYesNo(const wstring& title, const wstring& message)
 		{
 			return ShowQuestionMessageYesNo(NULL, title, message);
 		}
@@ -814,7 +814,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowQuestionMessageYesNo
 		//
-		static int ShowQuestionMessageYesNo(HWND hWnd, wstring message)
+		static int ShowQuestionMessageYesNo(HWND hWnd, const wstring& message)
 		{
 			return ShowQuestionMessageYesNo(hWnd, L"Question!", message);
 		}
@@ -822,7 +822,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowQuestionMessageYesNo
 		//
-		static int ShowQuestionMessageYesNo(HWND hWnd, wstring title, wstring message)
+		static int ShowQuestionMessageYesNo(HWND hWnd, const wstring& title, const wstring& message)
 		{
 			int result = 0;
 			if (hWnd != NULL)
@@ -842,7 +842,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowQuestionMessageYesNoCancel
 		//
-		static int ShowQuestionMessageYesNoCancel(wstring message)
+		static int ShowQuestionMessageYesNoCancel(const wstring& message)
 		{
 			return ShowQuestionMessageYesNoCancel(NULL, L"Question!", message);
 		}
@@ -850,7 +850,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowQuestionMessageYesNoCancel
 		//
-		static int ShowQuestionMessageYesNoCancel(wstring title, wstring message)
+		static int ShowQuestionMessageYesNoCancel(const wstring& title, const wstring& message)
 		{
 			return ShowQuestionMessageYesNoCancel(NULL, title, message);
 		}
@@ -858,7 +858,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowQuestionMessageYesNoCancel
 		//
-		static int ShowQuestionMessageYesNoCancel(HWND hWnd, wstring message)
+		static int ShowQuestionMessageYesNoCancel(HWND hWnd, const wstring& message)
 		{
 			return ShowQuestionMessageYesNoCancel(hWnd, L"Question!", message);
 		}
@@ -866,7 +866,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowQuestionMessageYesNoCancel
 		//
-		static int ShowQuestionMessageYesNoCancel(HWND hWnd, wstring title, wstring message)
+		static int ShowQuestionMessageYesNoCancel(HWND hWnd, const wstring& title, const wstring& message)
 		{
 			int result = 0;
 			if (hWnd != NULL)
@@ -886,7 +886,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowQuestionMessageAbortRetryIgnore
 		//
-		static int ShowQuestionMessageAbortRetryIgnore(wstring message)
+		static int ShowQuestionMessageAbortRetryIgnore(const wstring& message)
 		{
 			return ShowQuestionMessageAbortRetryIgnore(NULL, L"Question!", message);
 		}
@@ -894,7 +894,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowQuestionMessageAbortRetryIgnore
 		//
-		static int ShowQuestionMessageAbortRetryIgnore(wstring title, wstring message)
+		static int ShowQuestionMessageAbortRetryIgnore(const wstring& title, const wstring& message)
 		{
 			return ShowQuestionMessageAbortRetryIgnore(NULL, title, message);
 		}
@@ -902,7 +902,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowQuestionMessageAbortRetryIgnore
 		//
-		static int ShowQuestionMessageAbortRetryIgnore(HWND hWnd, wstring message)
+		static int ShowQuestionMessageAbortRetryIgnore(HWND hWnd, const wstring& message)
 		{
 			return ShowQuestionMessageAbortRetryIgnore(hWnd, L"Question!", message);
 		}
@@ -910,7 +910,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowQuestionMessageAbortRetryIgnore
 		//
-		static int ShowQuestionMessageAbortRetryIgnore(HWND hWnd, wstring title, wstring message)
+		static int ShowQuestionMessageAbortRetryIgnore(HWND hWnd, const wstring& title, const wstring& message)
 		{
 			int result = 0;
 			if (hWnd != NULL)
@@ -934,7 +934,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowStopMessageYesNo
 		//
-		static int ShowStopMessageYesNo(wstring message)
+		static int ShowStopMessageYesNo(const wstring& message)
 		{
 			return ShowStopMessageYesNo(NULL, L"Stop!", message);
 		}
@@ -942,7 +942,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowStopMessageYesNo
 		//
-		static int ShowStopMessageYesNo(wstring title, wstring message)
+		static int ShowStopMessageYesNo(const wstring& title, const wstring& message)
 		{
 			return ShowStopMessageYesNo(NULL, title, message);
 		}
@@ -950,7 +950,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowStopMessageYesNo
 		//
-		static int ShowStopMessageYesNo(HWND hWnd, wstring message)
+		static int ShowStopMessageYesNo(HWND hWnd, const wstring& message)
 		{
 			return ShowStopMessageYesNo(hWnd, L"Stop!", message);
 		}
@@ -958,7 +958,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowStopMessageYesNo
 		//
-		static int ShowStopMessageYesNo(HWND hWnd, wstring title, wstring message)
+		static int ShowStopMessageYesNo(HWND hWnd, const wstring& title, const wstring& message)
 		{
 			int result = 0;
 			if (hWnd != NULL)
@@ -978,7 +978,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowStopMessageYesNoCancel
 		//
-		static int ShowStopMessageYesNoCancel(wstring message)
+		static int ShowStopMessageYesNoCancel(const wstring& message)
 		{
 			return ShowStopMessageYesNoCancel(NULL, L"Stop!", message);
 		}
@@ -986,7 +986,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowStopMessageYesNoCancel
 		//
-		static int ShowStopMessageYesNoCancel(wstring title, wstring message)
+		static int ShowStopMessageYesNoCancel(const wstring& title, const wstring& message)
 		{
 			return ShowStopMessageYesNoCancel(NULL, title, message);
 		}
@@ -994,7 +994,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowStopMessageYesNoCancel
 		//
-		static int ShowStopMessageYesNoCancel(HWND hWnd, wstring message)
+		static int ShowStopMessageYesNoCancel(HWND hWnd, const wstring& message)
 		{
 			return ShowStopMessageYesNoCancel(hWnd, L"Stop!", message);
 		}
@@ -1002,7 +1002,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowStopMessageYesNoCancel
 		//
-		static int ShowStopMessageYesNoCancel(HWND hWnd, wstring title, wstring message)
+		static int ShowStopMessageYesNoCancel(HWND hWnd, const wstring& title, const wstring& message)
 		{
 			int result = 0;
 			if (hWnd != NULL)
@@ -1022,7 +1022,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowStopMessageAbortRetryIgnore
 		//
-		static int ShowStopMessageAbortRetryIgnore(wstring message)
+		static int ShowStopMessageAbortRetryIgnore(const wstring& message)
 		{
 			return ShowStopMessageAbortRetryIgnore(NULL, L"Stop!", message);
 		}
@@ -1030,7 +1030,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowStopMessageAbortRetryIgnore
 		//
-		static int ShowStopMessageAbortRetryIgnore(wstring title, wstring message)
+		static int ShowStopMessageAbortRetryIgnore(const wstring& title, const wstring& message)
 		{
 			return ShowStopMessageAbortRetryIgnore(NULL, title, message);
 		}
@@ -1038,7 +1038,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowStopMessageAbortRetryIgnore
 		//
-		static int ShowStopMessageAbortRetryIgnore(HWND hWnd, wstring message)
+		static int ShowStopMessageAbortRetryIgnore(HWND hWnd, const wstring& message)
 		{
 			return ShowStopMessageAbortRetryIgnore(hWnd, L"Stop!", message);
 		}
@@ -1046,7 +1046,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ShowStopMessageYesNoCancel
 		//
-		static int ShowStopMessageAbortRetryIgnore(HWND hWnd, wstring title, wstring message)
+		static int ShowStopMessageAbortRetryIgnore(HWND hWnd, const wstring& title, const wstring& message)
 		{
 			int result = 0;
 			if (hWnd != NULL)
@@ -1070,7 +1070,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ReportSuccessEventLogEntry
 		//
-		static bool ReportSuccessEventLogEntry(const wstring sourcename, const wstring text)
+		static bool ReportSuccessEventLogEntry(const wstring& sourcename, const wstring& text)
 		{
 			if (sourcename.size() == 0)
 			{
@@ -1083,7 +1083,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ReportSuccessEventLogEntry
 		//
-		static bool ReportSuccessEventLogEntry(wstring sourcename, short category, long eventid, short numberofstrings, const wchar_t* description)
+		static bool ReportSuccessEventLogEntry(const wstring& sourcename, short category, long eventid, short numberofstrings, const wchar_t* description)
 		{
 			if (sourcename.size() == 0 || (numberofstrings > 0 && wcslen(description) == 0))
 			{
@@ -1096,7 +1096,7 @@ namespace ItSoftware::Win
 				return false;
 			}
 
-			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_SUCCESS, category, eventid, NULL, numberofstrings, 0, (LPCWSTR*)&description, NULL);
+			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_SUCCESS, category, eventid, NULL, numberofstrings, 0, reinterpret_cast<LPCWSTR*>(&description), NULL);
 			if (!bStatus)
 			{
 				::DeregisterEventSource(hEventLog);
@@ -1115,7 +1115,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ReportErrorEventLogEntry
 		//
-		static bool ReportErrorEventLogEntry(const wstring sourcename, const wstring text)
+		static bool ReportErrorEventLogEntry(const wstring& sourcename, const wstring& text)
 		{
 			if (sourcename.size() == 0)
 			{
@@ -1128,7 +1128,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ReportErrorEventLogEntry
 		//
-		static bool ReportErrorEventLogEntry(const wstring sourcename, short category, long eventid, short numberofstrings, const wchar_t* description)
+		static bool ReportErrorEventLogEntry(const wstring& sourcename, short category, long eventid, short numberofstrings, const wchar_t* description)
 		{
 			if (sourcename.size() == 0 || (numberofstrings > 0 && wcslen(description) == 0))
 			{
@@ -1141,7 +1141,7 @@ namespace ItSoftware::Win
 				return false;
 			}
 
-			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_ERROR_TYPE, category, eventid, NULL, numberofstrings, 0, (LPCWSTR*)&description, NULL);
+			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_ERROR_TYPE, category, eventid, NULL, numberofstrings, 0, reinterpret_cast<LPCWSTR*>(&description), NULL);
 			if (!bStatus)
 			{
 				::DeregisterEventSource(hEventLog);
@@ -1160,7 +1160,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ReportWarningEventLogEntry
 		//
-		static bool ReportWarningEventLogEntry(const wstring sourcename, const wstring text)
+		static bool ReportWarningEventLogEntry(const wstring& sourcename, const wstring& text)
 		{
 			if (sourcename.size() == 0)
 			{
@@ -1173,7 +1173,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ReportWarningEventLogEntry
 		//
-		static bool ReportWarningEventLogEntry(const wstring sourcename, short category, long eventid, short numberofstrings, const wchar_t* description)
+		static bool ReportWarningEventLogEntry(const wstring& sourcename, short category, long eventid, short numberofstrings, const wchar_t* description)
 		{
 			if (sourcename.size() == 0 || (numberofstrings > 0 && wcslen(description) == 0))
 			{
@@ -1186,7 +1186,7 @@ namespace ItSoftware::Win
 				return false;
 			}
 
-			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_WARNING_TYPE, category, eventid, NULL, numberofstrings, 0, (LPCWSTR*)&description, NULL);
+			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_WARNING_TYPE, category, eventid, NULL, numberofstrings, 0, reinterpret_cast<LPCWSTR*>(&description), NULL);
 			if (!bStatus)
 			{
 				::DeregisterEventSource(hEventLog);
@@ -1205,7 +1205,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ReportInformationEventLogEntry
 		//
-		static bool ReportInformationEventLogEntry(const wstring sourcename, const wstring text)
+		static bool ReportInformationEventLogEntry(const wstring& sourcename, const wstring& text)
 		{
 			if (sourcename.size() == 0)
 			{
@@ -1218,7 +1218,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ReportInformationEventLogEntry
 		//
-		static bool ReportInformationEventLogEntry(const wstring sourcename, short category, long eventid, short numberofstrings, const wchar_t* description)
+		static bool ReportInformationEventLogEntry(const wstring& sourcename, short category, long eventid, short numberofstrings, const wchar_t* description)
 		{
 			if (sourcename.size() == 0 || (numberofstrings > 0 && wcslen(description) == 0))
 			{
@@ -1231,7 +1231,7 @@ namespace ItSoftware::Win
 				return false;
 			}
 
-			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_INFORMATION_TYPE, category, eventid, NULL, numberofstrings, 0, (LPCWSTR*)&description, NULL);
+			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_INFORMATION_TYPE, category, eventid, NULL, numberofstrings, 0, reinterpret_cast<LPCWSTR*>(&description), NULL);
 			if (!bStatus)
 			{
 				::DeregisterEventSource(hEventLog);
@@ -1250,7 +1250,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ReportAuditSuccessEventLogEntry
 		//
-		static bool ReportAuditSuccessEventLogEntry(const wstring sourcename, const wstring text)
+		static bool ReportAuditSuccessEventLogEntry(const wstring& sourcename, const wstring& text)
 		{
 			if (sourcename.size() == 0)
 			{
@@ -1263,7 +1263,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ReportAuditSuccessEventLogEntry
 		//
-		static bool ReportAuditSuccessEventLogEntry(const wstring sourcename, short category, long eventid, short numberofstrings, const wchar_t* description)
+		static bool ReportAuditSuccessEventLogEntry(const wstring& sourcename, short category, long eventid, short numberofstrings, const wchar_t* description)
 		{
 			if (sourcename.size() == 0 || (numberofstrings > 0 && wcslen(description) == 0))
 			{
@@ -1276,7 +1276,7 @@ namespace ItSoftware::Win
 				return false;
 			}
 
-			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_AUDIT_SUCCESS, category, eventid, NULL, numberofstrings, 0, (LPCWSTR*)&description, NULL);
+			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_AUDIT_SUCCESS, category, eventid, NULL, numberofstrings, 0, reinterpret_cast<LPCWSTR*>(&description), NULL);
 			if (!bStatus)
 			{
 				::DeregisterEventSource(hEventLog);
@@ -1295,7 +1295,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ReportAuditFailureEventLogEntry
 		//
-		static bool ReportAuditFailureEventLogEntry(const wstring sourcename, const wstring text)
+		static bool ReportAuditFailureEventLogEntry(const wstring& sourcename, const wstring& text)
 		{
 			if (sourcename.size() == 0)
 			{
@@ -1308,7 +1308,7 @@ namespace ItSoftware::Win
 		//
 		// Function: ReportAuditFailureEventLogEntry
 		//
-		static bool ReportAuditFailureEventLogEntry(const wstring sourcename, short category, long eventid, short numberofstrings, const wchar_t* description)
+		static bool ReportAuditFailureEventLogEntry(const wstring& sourcename, short category, long eventid, short numberofstrings, const wchar_t* description)
 		{
 			if (sourcename.size() == 0 || (numberofstrings > 0 && wcslen(description) == 0))
 			{
@@ -1321,7 +1321,7 @@ namespace ItSoftware::Win
 				return false;
 			}
 
-			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_AUDIT_FAILURE, category, eventid, NULL, numberofstrings, 0, (LPCWSTR*)&description, NULL);
+			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_AUDIT_FAILURE, category, eventid, NULL, numberofstrings, 0, reinterpret_cast<LPCWSTR*>(&description), NULL);
 			if (!bStatus)
 			{
 				::DeregisterEventSource(hEventLog);

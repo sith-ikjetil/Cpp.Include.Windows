@@ -1176,7 +1176,7 @@ namespace ItSoftware::Win::Core
 			this->m_handle = CreateEvent(NULL, TRUE, FALSE, NULL);
 		}
 
-		ItsEvent(bool signaled)
+		explicit ItsEvent(bool signaled)
 		{
 			this->m_handle = CreateEvent(NULL, TRUE, (signaled) ? TRUE : FALSE, NULL);
 		}
