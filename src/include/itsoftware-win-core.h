@@ -303,11 +303,11 @@ namespace ItSoftware::Win::Core
 				return path1;
 			}
 
-			wstring aps;
-			aps += ItsPath::AlternatePathSeparator;
+			//wstring aps;
+			//aps += ItsPath::AlternatePathSeparator;
 
-			wstring ps;
-			ps += ItsPath::PathSeparator;
+			//wstring ps;
+			//ps += ItsPath::PathSeparator;
 
 			path1 = ItsPath::NormalizePath(path1);
 			path2 = ItsPath::NormalizePath(path2);
@@ -323,21 +323,21 @@ namespace ItSoftware::Win::Core
 			wstring ret = path.str();
 			return ret;
 		}
-		static bool Exists(wstring path)
+		static bool Exists(const wstring& path)
 		{
 			return static_cast<bool>(PathFileExistsW(path.c_str()));
 		}
-		static bool IsFile(wstring path)
+		static bool IsFile(const wstring& path)
 		{
 			DWORD fileAttributes = GetFileAttributes(path.c_str());
 			return (fileAttributes != INVALID_FILE_ATTRIBUTES && !(fileAttributes & FILE_ATTRIBUTE_DIRECTORY));
 		}
-		static bool IsDirectory(wstring path)
+		static bool IsDirectory(const wstring& path)
 		{
 			DWORD fileAttributes = GetFileAttributes(path.c_str());
 			return (fileAttributes != INVALID_FILE_ATTRIBUTES && (fileAttributes & FILE_ATTRIBUTE_DIRECTORY));
 		}
-		static wstring GetVolume(wstring path)
+		static wstring GetVolume(const wstring& path)
 		{
 			if (path.size() >= 2) {
 				if (path[1] == ItsPath::VolumeSeparator) {
@@ -402,7 +402,7 @@ namespace ItSoftware::Win::Core
 			}
 			return path.substr(i, path.size() - i);
 		}
-		static bool IsPathValid(wstring path)
+		static bool IsPathValid(const wstring& path)
 		{
 			if (path.size() == 0) {
 				return false;
@@ -419,25 +419,21 @@ namespace ItSoftware::Win::Core
 				return false;
 			}
 
-			for (auto d : directory) {
-				for (auto i : invalidPathChars) {
-					if (d == i) {
-						return false;
-					}
-				}
-			}
+			return std::all_of(directory.begin(), directory.end(), [&](wchar_t d) {
+				return std::none_of(invalidPathChars.begin(), invalidPathChars.end(), [&](wchar_t i) {
+					return d == i;
+					});
+				});
 
-			for (auto f : filename) {
-				for (auto i : invalidFileChars) {
-					if (f == i) {
-						return false;
-					}
-				}
-			}
+			return std::all_of(filename.begin(), filename.end(), [&](wchar_t d) {
+				return std::none_of(invalidFileChars.begin(), invalidFileChars.end(), [&](wchar_t i) {
+					return d == i;
+					});
+				});
 
 			return true;
 		}
-		static bool HasExtension(wstring path, wstring extension)
+		static bool HasExtension(const wstring& path, const wstring& extension)
 		{
 			if (path.size() == 0) {
 				return false;
@@ -450,7 +446,7 @@ namespace ItSoftware::Win::Core
 
 			return (ext == extension);
 		}
-		static wstring ChangeExtension(wstring path, wstring newExtension)
+		static wstring ChangeExtension(wstring path, const wstring& newExtension)
 		{
 			if (path.size() == 0) {
 				return wstring(L"");
@@ -481,7 +477,8 @@ namespace ItSoftware::Win::Core
 				return path;
 			}
 
-			wstring retVal = path.replace(pe, path.size() - pe, newExtension);
+			wstring npath = path;
+			wstring retVal = npath.replace(pe, path.size() - pe, newExtension);
 			return retVal;
 		}
 
@@ -530,13 +527,13 @@ namespace ItSoftware::Win::Core
 				NULL,
 				GetLastError(),
 				MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-				(wchar_t*)&lpMsgBuf,
+				reinterpret_cast<wchar_t*>(&lpMsgBuf),
 				0,
 				NULL);
 
 			// Copy buffer contet to bstr...
 			CComBSTR bstr;
-			bstr += (wchar_t*)lpMsgBuf;
+			bstr += reinterpret_cast<wchar_t*>(lpMsgBuf);
 
 			// Free the buffer...
 			LocalFree(lpMsgBuf);
@@ -557,13 +554,13 @@ namespace ItSoftware::Win::Core
 				NULL,
 				dwError,
 				MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-				(wchar_t*)&lpMsgBuf,
+				reinterpret_cast<wchar_t*>(&lpMsgBuf),
 				0,
 				NULL);
 
 			// Copy buffer contet to bstr...
 			CComBSTR bstr;
-			bstr += (wchar_t*)lpMsgBuf;
+			bstr += reinterpret_cast<wchar_t*>(lpMsgBuf);
 
 			// Free the buffer...
 			LocalFree(lpMsgBuf);
@@ -578,7 +575,7 @@ namespace ItSoftware::Win::Core
 		static wstring GetCoLastErrorInfoDescription()
 		{
 			IErrorInfo* pErrInfo = nullptr;
-			HRESULT hr = GetErrorInfo(NULL, (IErrorInfo**)&pErrInfo);
+			HRESULT hr = GetErrorInfo(NULL, static_cast<IErrorInfo**>(&pErrInfo));
 			CComBSTR bstr;
 			if (hr == S_OK && pErrInfo)
 			{
@@ -1399,7 +1396,7 @@ namespace ItSoftware::Win::Core
 		//
 		// Method: OpenOrCreate
 		//
-		bool OpenOrCreate(wstring filename, wstring accessReadWrite, wstring shareReadWrite, ItsFileOpenCreation flagCreation)
+		bool OpenOrCreate(const wstring& filename, const wstring& accessReadWrite, const wstring& shareReadWrite, ItsFileOpenCreation flagCreation)
 		{
 			if (this->m_handle.IsValid())
 			{
@@ -1456,7 +1453,7 @@ namespace ItSoftware::Win::Core
 		//
 		// Method: GetFileSize
 		//
-		static bool GetFileSize(wstring filename, size_t* size)
+		static bool GetFileSize(const wstring& filename, size_t* size)
 		{
 			ItsFile file;
 			if (!file.OpenOrCreate(filename, L"r", L"r", ItsFileOpenCreation::OpenExisting))
@@ -1473,7 +1470,7 @@ namespace ItSoftware::Win::Core
 		//
 		// Method: Delete
 		//
-		static bool Delete(wstring filename)
+		static bool Delete(const wstring& filename)
 		{
 			return (bool)DeleteFile(filename.c_str());
 		}
@@ -1481,7 +1478,7 @@ namespace ItSoftware::Win::Core
 		//
 		// Method: Copy
 		//
-		static bool Copy(wstring existingFilename, wstring newFilename, bool failIfExists)
+		static bool Copy(const wstring& existingFilename, const wstring& newFilename, bool failIfExists)
 		{
 			return (bool)CopyFile(existingFilename.c_str(), newFilename.c_str(), (failIfExists) ? TRUE : FALSE);
 		}
@@ -1489,7 +1486,7 @@ namespace ItSoftware::Win::Core
 		//
 		// Method: Move
 		//
-		static bool Move(wstring existingFilename, wstring newFilename, bool failIfExists)
+		static bool Move(const wstring& existingFilename, const wstring& newFilename, bool failIfExists)
 		{
 			return (bool)MoveFileEx(existingFilename.c_str(), newFilename.c_str(), MOVEFILE_COPY_ALLOWED | ((failIfExists) ? MOVEFILE_REPLACE_EXISTING : 0));
 		}
@@ -1497,7 +1494,7 @@ namespace ItSoftware::Win::Core
 		//
 		// Method: Exists
 		//
-		static bool Exists(wstring filename)
+		static bool Exists(const wstring& filename)
 		{
 			DWORD fileAttributes = GetFileAttributes(filename.c_str());
 			return (fileAttributes != INVALID_FILE_ATTRIBUTES && !(fileAttributes & FILE_ATTRIBUTE_DIRECTORY));
@@ -1506,7 +1503,7 @@ namespace ItSoftware::Win::Core
 		//
 		// Method: SetFileSize
 		//
-		static bool SetSize(wstring filename, size_t pos)
+		static bool SetSize(const wstring& filename, size_t pos)
 		{
 			ItsFile file;
 			if (!file.OpenOrCreate(filename, L"rw", L"", ItsFileOpenCreation::OpenExisting)) {
@@ -1515,7 +1512,7 @@ namespace ItSoftware::Win::Core
 			return file.SetFileSize(pos);
 		}
 
-		static bool Shred(wstring filename, bool alsoDelete)
+		static bool Shred(const wstring& filename, bool alsoDelete)
 		{
 			if (!ItsFile::Exists(filename))
 			{
@@ -1564,7 +1561,7 @@ namespace ItSoftware::Win::Core
 			return true;
 		}
 
-		static bool ShredAndDelete(wstring filename)
+		static bool ShredAndDelete(const wstring& filename)
 		{
 			return ItsFile::Shred(filename, true);
 		}
@@ -1583,7 +1580,7 @@ namespace ItSoftware::Win::Core
 		//
 		// Method: OpenOrCreate
 		//
-		bool OpenOrCreate(wstring filename, wstring accessReadWrite, wstring shareReadWrite, ItsFileOpenCreation flagCreation)
+		bool OpenOrCreate(const wstring& filename, const wstring& accessReadWrite, const wstring& shareReadWrite, ItsFileOpenCreation flagCreation)
 		{
 			if (this->m_handle.IsValid())
 			{
@@ -1654,7 +1651,7 @@ namespace ItSoftware::Win::Core
 		//
 		// Method: OpenOrCreateText
 		//
-		bool OpenOrCreateText(wstring filename, wstring accessReadWrite, wstring shareReadWrite, ItsFileOpenCreation flagCreation, ItsFileTextType type)
+		bool OpenOrCreateText(const wstring& filename, const wstring& accessReadWrite, const wstring& shareReadWrite, ItsFileOpenCreation flagCreation, ItsFileTextType type)
 		{
 			if (this->m_handle.IsValid())
 			{
@@ -1729,7 +1726,7 @@ namespace ItSoftware::Win::Core
 		// (i): Creates a new text file (with BOM) but otherwise empty and ready to
 		// append/write text to.
 		//
-		static bool CreateTextFile(wstring filename, ItsFileTextType type)
+		static bool CreateTextFile(const wstring& filename, ItsFileTextType type)
 		{
 			if (ItsFile::Exists(filename)) {
 				return false;
@@ -1746,7 +1743,7 @@ namespace ItSoftware::Win::Core
 		//
 		// Method: ReadTextAllLines
 		//
-		bool ReadTextAllLines(vector<wstring>& lines, wstring lineDelimiter = L"\r\n")
+		bool ReadTextAllLines(vector<wstring>& lines, const wstring& lineDelimiter = L"\r\n")
 		{
 			if (!this->m_handle.IsValid())
 			{
@@ -1775,20 +1772,20 @@ namespace ItSoftware::Win::Core
 
 				DWORD dwRead{ 0 };
 
-				this->Read((BYTE*)text.get(), readBuffSize, &dwRead);
+				this->Read(reinterpret_cast<BYTE*>(text.get()), readBuffSize, &dwRead);
 
 				read_pos += dwRead;
 
 				while (dwRead > 0 && (read_pos + 0) < size)
 				{
-					this->Read((BYTE*)&(text.get()[read_pos]), readBuffSize, &dwRead);
+					this->Read(reinterpret_cast<BYTE*>(&(text.get()[read_pos])), readBuffSize, &dwRead);
 
 					read_pos += dwRead;
 				}
 
 				text.get()[size] = '\0';
 
-				string all((char*)text.get());
+				string all(reinterpret_cast<char*>(text.get()));
 				wstring out_all(all.begin(), all.end());
 				lines = ItsString::Split(out_all, lineDelimiter);
 			}
@@ -1803,13 +1800,13 @@ namespace ItSoftware::Win::Core
 
 				DWORD dwRead{ 0 };
 
-				this->Read((BYTE*)text.get(), readBuffSize, &dwRead);
+				this->Read(reinterpret_cast<BYTE*>(text.get()), readBuffSize, &dwRead);
 
 				read_pos += dwRead;
 
 				while (dwRead > 0 && (read_pos + 2) < size)
 				{
-					this->Read((BYTE*)&(text.get()[read_pos]), readBuffSize, &dwRead);
+					this->Read(reinterpret_cast<BYTE*>(&(text.get()[read_pos])), readBuffSize, &dwRead);
 
 					read_pos += dwRead;
 				}
@@ -1817,7 +1814,7 @@ namespace ItSoftware::Win::Core
 				text.get()[size - 2] = '\0';
 				text.get()[size - 1] = '\0';
 
-				wstring all((wchar_t*)text.get());
+				wstring all(reinterpret_cast<wchar_t*>(text.get()));
 				lines = ItsString::Split(all, lineDelimiter);
 			}
 			else if (this->m_textType == ItsFileTextType::UTF8WithBOM)
@@ -1831,13 +1828,13 @@ namespace ItSoftware::Win::Core
 
 				DWORD dwRead{ 0 };
 
-				this->Read((BYTE*)text.get(), readBuffSize, &dwRead);
+				this->Read(reinterpret_cast<BYTE*>(text.get()), readBuffSize, &dwRead);
 
 				read_pos += dwRead;
 
 				while (dwRead > 0 && (read_pos + 3) < size)
 				{
-					this->Read((BYTE*)&(text.get()[read_pos]), readBuffSize, &dwRead);
+					this->Read(reinterpret_cast<BYTE*>(&(text.get()[read_pos])), readBuffSize, &dwRead);
 
 					read_pos += dwRead;
 				}
@@ -1846,7 +1843,7 @@ namespace ItSoftware::Win::Core
 				text.get()[size - 2] = '\0';
 				text.get()[size - 1] = '\0';
 
-				wstring all = ItSoftware::Encoding::UTF8::ToString((char*)text.get());
+				wstring all = ItSoftware::Encoding::UTF8::ToString(reinterpret_cast<char*>(text.get()));
 				lines = ItsString::Split(all, lineDelimiter);
 			}
 			else if (this->m_textType == ItsFileTextType::UTF8NoBOM)
@@ -1860,13 +1857,13 @@ namespace ItSoftware::Win::Core
 
 				DWORD dwRead{ 0 };
 
-				this->Read((BYTE*)text.get(), readBuffSize, &dwRead);
+				this->Read(reinterpret_cast<BYTE*>(text.get()), readBuffSize, &dwRead);
 
 				read_pos += dwRead;
 
 				while (dwRead > 0 && (read_pos + 3) < size)
 				{
-					this->Read((BYTE*)&(text.get()[read_pos]), readBuffSize, &dwRead);
+					this->Read(reinterpret_cast<BYTE*>(&(text.get()[read_pos])), readBuffSize, &dwRead);
 
 					read_pos += dwRead;
 				}
@@ -1875,7 +1872,7 @@ namespace ItSoftware::Win::Core
 				text.get()[size - 2] = '\0';
 				text.get()[size - 1] = '\0';
 
-				wstring all = ItSoftware::Encoding::UTF8::ToString((char*)text.get());
+				wstring all = ItSoftware::Encoding::UTF8::ToString(reinterpret_cast<char*>(text.get()));
 				lines = ItsString::Split(all, lineDelimiter);
 			}
 			else {
@@ -1890,7 +1887,7 @@ namespace ItSoftware::Win::Core
 		//
 		// (i): Reads all text from a text file.
 		//
-		static bool ReadTextAllLines(wstring filename, ItsFileTextType textType, vector<wstring>& out, wstring lineDelimiter = ItsTextFile::LineDelimiterWindows)
+		static bool ReadTextAllLines(const wstring& filename, ItsFileTextType textType, vector<wstring>& out, const wstring& lineDelimiter = ItsTextFile::LineDelimiterWindows)
 		{
 			if (!ItsFile::Exists(filename)) {
 				return false;
@@ -1941,20 +1938,20 @@ namespace ItSoftware::Win::Core
 
 				DWORD dwRead{ 0 };
 
-				this->Read((BYTE*)text.get(), readBuffSize, &dwRead);
+				this->Read(reinterpret_cast<BYTE*>(text.get()), readBuffSize, &dwRead);
 
 				read_pos += dwRead;
 
 				while (dwRead > 0 && (read_pos + 0) < size)
 				{
-					this->Read((BYTE*)&(text.get()[read_pos]), readBuffSize, &dwRead);
+					this->Read(reinterpret_cast<BYTE*>(&(text.get()[read_pos])), readBuffSize, &dwRead);
 
 					read_pos += dwRead;
 				}
 
 				text.get()[size] = '\0';
 
-				string all((char*)text.get());
+				string all(reinterpret_cast<char*>(text.get()));
 				wstring out_all(all.begin(), all.end());
 				out = out_all;
 			}
@@ -1969,13 +1966,13 @@ namespace ItSoftware::Win::Core
 
 				DWORD dwRead{ 0 };
 
-				this->Read((BYTE*)text.get(), readBuffSize, &dwRead);
+				this->Read(reinterpret_cast<BYTE*>(text.get()), readBuffSize, &dwRead);
 
 				read_pos += dwRead;
 
 				while (dwRead > 0 && (read_pos + 2) < size)
 				{
-					this->Read((BYTE*)&(text.get()[read_pos]), readBuffSize, &dwRead);
+					this->Read(reinterpret_cast<BYTE*>(&(text.get()[read_pos])), readBuffSize, &dwRead);
 
 					read_pos += dwRead;
 				}
@@ -1983,7 +1980,7 @@ namespace ItSoftware::Win::Core
 				text.get()[size - 2] = '\0';
 				text.get()[size - 1] = '\0';
 
-				wstring all((wchar_t*)text.get());
+				wstring all(reinterpret_cast<wchar_t*>(text.get()));
 				out = all;
 			}
 			else if (this->m_textType == ItsFileTextType::UTF8WithBOM)
@@ -1997,13 +1994,13 @@ namespace ItSoftware::Win::Core
 
 				DWORD dwRead{ 0 };
 
-				this->Read((BYTE*)text.get(), readBuffSize, &dwRead);
+				this->Read(reinterpret_cast<BYTE*>(text.get()), readBuffSize, &dwRead);
 
 				read_pos += dwRead;
 
 				while (dwRead > 0 && (read_pos + 3) < size)
 				{
-					this->Read((BYTE*)&(text.get()[read_pos]), readBuffSize, &dwRead);
+					this->Read(reinterpret_cast<BYTE*>(&(text.get()[read_pos])), readBuffSize, &dwRead);
 
 					read_pos += dwRead;
 				}
@@ -2012,7 +2009,7 @@ namespace ItSoftware::Win::Core
 				text.get()[size - 2] = '\0';
 				text.get()[size - 1] = '\0';
 
-				wstring all = ItSoftware::Encoding::UTF8::ToString((char*)text.get());
+				wstring all = ItSoftware::Encoding::UTF8::ToString(reinterpret_cast<char*>(text.get()));
 				out = all;
 			}
 			else if (this->m_textType == ItsFileTextType::UTF8NoBOM)
@@ -2026,13 +2023,13 @@ namespace ItSoftware::Win::Core
 
 				DWORD dwRead{ 0 };
 
-				this->Read((BYTE*)text.get(), readBuffSize, &dwRead);
+				this->Read(reinterpret_cast<BYTE*>(text.get()), readBuffSize, &dwRead);
 
 				read_pos += dwRead;
 
 				while (dwRead > 0 && (read_pos + 3) < size)
 				{
-					this->Read((BYTE*)&(text.get()[read_pos]), readBuffSize, &dwRead);
+					this->Read(reinterpret_cast<BYTE*>(&(text.get()[read_pos])), readBuffSize, &dwRead);
 
 					read_pos += dwRead;
 				}
@@ -2041,7 +2038,7 @@ namespace ItSoftware::Win::Core
 				text.get()[size - 2] = '\0';
 				text.get()[size - 1] = '\0';
 
-				wstring all = ItSoftware::Encoding::UTF8::ToString((char*)text.get());
+				wstring all = ItSoftware::Encoding::UTF8::ToString(reinterpret_cast<char*>(text.get()));
 				out = all;
 			}
 			else {
@@ -2056,7 +2053,7 @@ namespace ItSoftware::Win::Core
 		//
 		// (i): Reads all text from a text file.
 		//
-		static bool ReadTextAll(wstring filename, ItsFileTextType textType, wstring& out)
+		static bool ReadTextAll(const wstring& filename, ItsFileTextType textType, wstring& out)
 		{
 			if (!ItsFile::Exists(filename)) {
 				return false;
@@ -2079,7 +2076,7 @@ namespace ItSoftware::Win::Core
 		//
 		// Method: WriteText
 		//
-		bool WriteText(string text)
+		bool WriteText(const string& text)
 		{
 			wstring txt(text.begin(), text.end());
 			return this->WriteText(txt);
@@ -2088,7 +2085,7 @@ namespace ItSoftware::Win::Core
 		//
 		// Method: WriteText
 		//
-		bool WriteText(wstring text)
+		bool WriteText(const wstring& text)
 		{
 			if (this->m_handle.IsInvalid())
 			{
@@ -2099,11 +2096,11 @@ namespace ItSoftware::Win::Core
 			{
 				string txt(text.begin(), text.end());
 				DWORD dwWritten{ 0 };
-				return this->Write((BYTE*)txt.data(), (DWORD)txt.size(), &dwWritten);
+				return this->Write(reinterpret_cast<BYTE*>(txt.data()), (DWORD)txt.size(), &dwWritten);
 			}
 			else if (this->m_textType == ItsFileTextType::Unicode) {
 				DWORD dwWritten{ 0 };
-				return this->Write((BYTE*)text.data(), (DWORD)(text.size() * sizeof(wchar_t)), &dwWritten);
+				return this->Write(reinterpret_cast<BYTE*>(const_cast<wchar_t*>(text.data())), (DWORD)(text.size() * sizeof(wchar_t)), &dwWritten);
 			}
 			else if (this->m_textType == ItsFileTextType::UTF8WithBOM) {
 				long cbLength{ 0 };
@@ -2126,7 +2123,7 @@ namespace ItSoftware::Win::Core
 		//
 		// (i): Reads all text from a text file.
 		//
-		static bool AppendText(wstring filename, ItsFileTextType textType, wstring& textToWrite)
+		static bool AppendText(const wstring& filename, ItsFileTextType textType, const wstring& textToWrite)
 		{
 			if (!ItsFile::Exists(filename)) {
 				return false;
@@ -2154,7 +2151,7 @@ namespace ItSoftware::Win::Core
 		//
 		// Method: WriteTextLine
 		//
-		bool WriteTextLine(string text, string lineDelimiter = "\r\n")
+		bool WriteTextLine(const string& text, const string& lineDelimiter = "\r\n")
 		{
 			wstring txt(text.begin(), text.end());
 			wstring dl(lineDelimiter.begin(), lineDelimiter.end());
@@ -2164,7 +2161,7 @@ namespace ItSoftware::Win::Core
 		//
 		// Method: WriteTextLine
 		//
-		bool WriteTextLine(wstring text, wstring lineDelimiter = L"\r\n")
+		bool WriteTextLine(const wstring& text, const wstring& lineDelimiter = L"\r\n")
 		{
 			if (this->m_handle.IsInvalid())
 			{
@@ -2247,7 +2244,7 @@ namespace ItSoftware::Win::Core
 		//
 		// Function: EnumerateKeys
 		//
-		static bool EnumerateKeys(EREGCLASS eregclass, const wstring path, vector<wstring>* result)
+		static bool EnumerateKeys(EREGCLASS eregclass, wstring path, vector<wstring>* result)
 		{
 			HKEY hKey;
 			if (!CheckHKey(eregclass, hKey) || path.size() == 0 || result == nullptr)
@@ -2298,7 +2295,7 @@ namespace ItSoftware::Win::Core
 		//
 		// Function: EnumerateValues
 		//
-		static bool EnumerateValues(EREGCLASS eregclass, wstring path, const wstring key, vector<wstring>* result)
+		static bool EnumerateValues(EREGCLASS eregclass, wstring path, const wstring& key, vector<wstring>* result)
 		{
 			HKEY hKey;
 			if (!CheckHKey(eregclass, hKey) || (path.size() == 0 && key.size() == 0) || result == nullptr)
@@ -2351,7 +2348,7 @@ namespace ItSoftware::Win::Core
 		//
 		// Function: ReadValue
 		//
-		static bool ReadValue(EREGCLASS eregclass, wstring path, wstring key, wstring value, wstring* data)
+		static bool ReadValue(EREGCLASS eregclass, wstring path, const wstring& key, wstring value, wstring* data)
 		{
 			HKEY hKey;
 			if (!CheckHKey(eregclass, hKey) || (path.size() == 0 && key.size() == 0) || data == nullptr)
@@ -2389,7 +2386,7 @@ namespace ItSoftware::Win::Core
 			}
 
 			wchar_t* pszBuffer = new wchar_t[lSize / sizeof(wchar_t)];
-			lResult = RegQueryValueEx(hOpenKey, value.c_str(), 0, &dwType, (BYTE*)pszBuffer, &lSize);
+			lResult = RegQueryValueEx(hOpenKey, value.c_str(), 0, &dwType, reinterpret_cast<BYTE*>(pszBuffer), &lSize);
 			if (lResult != ERROR_SUCCESS)
 			{
 				RegCloseKey(hOpenKey);
@@ -2407,7 +2404,7 @@ namespace ItSoftware::Win::Core
 		//
 		// Function: DeleteKey
 		//
-		static bool DeleteKey(EREGCLASS eregclass, wstring path, wstring key)
+		static bool DeleteKey(EREGCLASS eregclass, wstring path, const wstring& key)
 		{
 			HKEY hKey;
 			if (!CheckHKey(eregclass, hKey) || (path.size() == 0 && key.size() == 0))
@@ -2438,7 +2435,7 @@ namespace ItSoftware::Win::Core
 		//
 		// Function: CreateKey
 		//
-		static bool CreateKey(EREGCLASS eregclass, wstring path, wstring key, wstring default_data)
+		static bool CreateKey(EREGCLASS eregclass, wstring path, const wstring& key, wstring default_data)
 		{
 			HKEY hKey;
 			if (!CheckHKey(eregclass, hKey) || (path.size() == 0 && key.size() == 0))
@@ -2476,7 +2473,7 @@ namespace ItSoftware::Win::Core
 
 			// Set default value.	
 			if (default_data.size() > 0) {
-				lResult = RegSetValueEx(hNewKey, NULL, 0, REG_SZ, (CONST BYTE*)default_data.data(), (static_cast<DWORD>(default_data.size()) * sizeof(wchar_t)) + 2);
+				lResult = RegSetValueEx(hNewKey, NULL, 0, REG_SZ, reinterpret_cast<CONST BYTE*>(const_cast<const wchar_t*>(default_data.data())), (static_cast<DWORD>(default_data.size()) * sizeof(wchar_t)) + 2);
 				if (lResult != ERROR_SUCCESS) {
 					RegCloseKey(hNewKey);	// Close New Key				
 					return false;
@@ -2491,7 +2488,7 @@ namespace ItSoftware::Win::Core
 		//
 		// Function: AddValue
 		//
-		static bool AddValue(EREGCLASS eregclass, wstring path, wstring key, wstring value, wstring data)
+		static bool AddValue(EREGCLASS eregclass, wstring path, const wstring& key, wstring value, wstring data)
 		{
 			HKEY hKey;
 			if (!CheckHKey(eregclass, hKey) || (path.size() == 0 && key.size() == 0) || value.size() == 0)
@@ -2526,7 +2523,7 @@ namespace ItSoftware::Win::Core
 		//
 		// Function: DeleteValue
 		//
-		static bool DeleteValue(EREGCLASS eregclass, wstring path, wstring key, wstring value)
+		static bool DeleteValue(EREGCLASS eregclass, wstring path, const wstring& key, wstring value)
 		{
 			HKEY hKey;
 			if (!CheckHKey(eregclass, hKey) || (path.size() == 0 && key.size() == 0) || value.size() == 0)
@@ -2677,18 +2674,19 @@ namespace ItSoftware::Win::Core
 		}
 
 	public:
-		ItsFileMonitor(const wstring pathname, bool watchSubTree, function<void(ItsFileMonitorEvent&)> func)
+		ItsFileMonitor(const wstring& pathname, bool watchSubTree, function<void(ItsFileMonitorEvent&)> func)
 			: ItsFileMonitor(pathname, watchSubTree, ItsFileMonitorMask::ChangeLastWrite, func)
 		{
 
 		}
-		ItsFileMonitor(const wstring pathname, bool watchSubTree, uint32_t mask, function<void(ItsFileMonitorEvent&)> func)
+		ItsFileMonitor(const wstring& pathname, bool watchSubTree, uint32_t mask, function<void(ItsFileMonitorEvent&)> func)
 			: m_pathname(pathname),
 			m_mask(mask),
 			m_bWatchSubTree(watchSubTree),
 			m_bPaused(false),
 			m_bStopped(false),
-			m_func(func)
+			m_func(func),
+			m_dwBytesReturned(0)
 		{
 			if (ItsFile::Exists(this->m_pathname)) {
 				this->m_dirHandle = CreateFile(this->m_pathname.c_str(),
@@ -2837,7 +2835,7 @@ namespace ItSoftware::Win::Core
 			return true;
 		}
 
-		static bool CreateSection(wstring filename, wstring sectionname)
+		static bool CreateSection(const wstring& filename, const wstring& sectionname)
 		{
 			if (filename.size() == 0 || sectionname.size() == 0) {
 				return false;
@@ -2855,7 +2853,7 @@ namespace ItSoftware::Win::Core
 			return true;
 		}
 
-		static bool DeleteSection(wstring filename, wstring sectionname)
+		static bool DeleteSection(const wstring& filename, const wstring& sectionname)
 		{
 			if (filename.size() == 0 || sectionname.size() == 0) {
 				return false;
@@ -2868,7 +2866,7 @@ namespace ItSoftware::Win::Core
 			return true;
 		}
 
-		static bool StoreCollection(wstring filename, wstring sectionname, map<wstring, wstring>& map, bool overwriteifexist)
+		static bool StoreCollection(const wstring& filename, const wstring& sectionname, map<wstring, wstring>& map, bool overwriteifexist)
 		{
 			if (filename.size() == 0 || sectionname.size() == 0 || map.size() == 0) {
 				return false;
@@ -2883,7 +2881,7 @@ namespace ItSoftware::Win::Core
 			return true;
 		}
 
-		static bool EnumerateKeys(wstring filename, wstring sectionname, map<wstring, wstring>& map)
+		static bool EnumerateKeys(const wstring& filename, const wstring& sectionname, map<wstring, wstring>& map)
 		{
 			if (filename.size() == 0 || sectionname.size() == 0) {
 				return false;
@@ -2929,7 +2927,7 @@ namespace ItSoftware::Win::Core
 			return true;
 		}
 
-		static bool EnumerateSections(wstring filename, vector<wstring>& list)
+		static bool EnumerateSections(const wstring& filename, vector<wstring>& list)
 		{
 			if (filename.size() == 0) {
 				return false;
