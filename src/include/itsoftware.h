@@ -19,6 +19,8 @@
 #include <iomanip>
 #include <exception>
 #include <algorithm>
+#include <chrono>
+#include <fstream>
 #include "atlcomcli.h"		
 #include <string>
 #include <vector>
@@ -1268,7 +1270,7 @@ namespace ItSoftware
 	//
 	// ItsLogType
 	//
-	// (i): Log type for ItsLogItem
+	// (i): Log type
 	//
 	enum class ItsLogType
 	{
@@ -1277,6 +1279,17 @@ namespace ItSoftware
 		Error,
 		Other,
 		Debug
+	};
+
+	//
+	// ItsLogStatus
+	//
+	// (i): Log status
+	//
+	enum class ItsLogStatus 
+	{
+		OK,
+		Failure
 	};
 
 	//
@@ -1294,54 +1307,55 @@ namespace ItSoftware
 				return "Information";
 				break;
 			case ItsLogType::Warning:
-				return "Warning";
+				return "Warning    ";
 				break;
 			case ItsLogType::Error:
-				return "Error";
+				return "Error      ";
 				break;
 			case ItsLogType::Other:
-				return "Other";
+				return "Other      ";
 				break;
 			case ItsLogType::Debug:
-				return "Debug";
+				return "Debug      ";
 				break;
 			default:
 				break;
 			}
-			return "<UNKNOWN>";
+			return "<UNKNOWN>  ";
 		}
-	};
-
-	//
-	// struct: ItsLogItem
-	//
-	// (i): Log item for ItsLog
-	//
-	struct ItsLogItem
-	{
-		ItsLogType Type{ ItsLogType::Information };
-		wstring	Description{ L"" };
-		tm When{ 0 };
-
-		wstring ToString()
+		static constexpr const char* LogStatusToString(ItsLogStatus s)
 		{
-			wstringstream ss;
-			wstring nl1(L"\r\n");
-			wstring nl2(L"\n");
-			wstring s1(L":");
-			wstring rep_nl(L" ");
-			wstring rep_s(L";");
+			switch (s)
+			{
+			case ItsLogStatus::OK:
+				return "[  OK  ]";
+				break;
+			case ItsLogStatus::Failure:
+				return "[FAILED]";
+				break;
+			default:
+				break;
+			}
+			return "[  ??  ]";
+		}
 
-			auto description = ItsString::Replace(this->Description, nl1, rep_nl);
-			description = ItsString::Replace(description, nl2, rep_nl);
-			description = ItsString::Replace(description, s1, rep_s);
-			ss << L"Type=" << ItsLogUtil::LogTypeToString(this->Type) << L" " << L"When=" << ItsDateTime(this->When).ToString(L"s") << L" " << L"Description=" << description;
+		static string WideToUTF8(const std::wstring& wstr) {
+			if (wstr.empty()) return {};
 
-			wstring retVal = ss.str();
-			return retVal;
+			int sizeNeeded = WideCharToMultiByte(CP_UTF8, 0,
+				wstr.data(), (int)wstr.size(),
+				nullptr, 0,
+				nullptr, nullptr);
+			std::string str(sizeNeeded, 0);
+			WideCharToMultiByte(CP_UTF8, 0,
+				wstr.data(), (int)wstr.size(),
+				str.data(), sizeNeeded,
+				nullptr, nullptr);
+			return str;
 		}
 	};
 
+	
 	//
 	// struct: ItsLog
 	//
@@ -1350,199 +1364,70 @@ namespace ItSoftware
 	struct ItsLog
 	{
 	private:
-		vector<ItsLogItem> m_items;
-		wstring m_sourceName;
-		bool m_bLogToEventLog;
-
-		enum struct EEVENTLOGTYPE : int
-		{
-			EET_SUCCESS = 0,
-			EET_ERROR_TYPE = 1,
-			EET_WARNING_TYPE = 2,
-			EET_INFORMATION_TYPE = 3,
-			EET_AUDIT_SUCCESS = 4,
-			EET_AUDIT_FAILURE = 5
-		};
-
-		WORD ConvertEnumToType(EEVENTLOGTYPE type)
-		{
-			WORD wType(0);
-			switch (type)
-			{
-			case EEVENTLOGTYPE::EET_SUCCESS:
-				wType = EVENTLOG_SUCCESS;
-				break;
-			case EEVENTLOGTYPE::EET_ERROR_TYPE:
-				wType = EVENTLOG_ERROR_TYPE;
-				break;
-			case EEVENTLOGTYPE::EET_WARNING_TYPE:
-				wType = EVENTLOG_WARNING_TYPE;
-				break;
-			case EEVENTLOGTYPE::EET_INFORMATION_TYPE:
-				wType = EVENTLOG_INFORMATION_TYPE;
-				break;
-			case EEVENTLOGTYPE::EET_AUDIT_SUCCESS:
-				wType = EVENTLOG_AUDIT_SUCCESS;
-				break;
-			case EEVENTLOGTYPE::EET_AUDIT_FAILURE:
-				wType = EVENTLOG_AUDIT_FAILURE;
-				break;
-			default:
-				break;
-			};
-
-			return wType;
-		}
-
-		int ReportEvent(EEVENTLOGTYPE eeventlogtype, const wstring& description)
-		{
-			if (this->m_sourceName.size() == 0 || description.size() == 0) {
-				return -1;
-			}
-
-			HANDLE hEventLog = ::RegisterEventSource(NULL, this->m_sourceName.c_str());
-			if (hEventLog == NULL) {
-				return -1;
-			}
-
-			CComBSTR bstr(description.c_str());
-			BOOL bStatus = ::ReportEvent(hEventLog, ConvertEnumToType(eeventlogtype), 0, 0, NULL, 1, 0, const_cast<LPCWSTR*>(reinterpret_cast<LPWSTR*>(&bstr)), NULL);
-			if (!bStatus) {
-				::DeregisterEventSource(hEventLog);
-				return -1;
-			}
-
-			::DeregisterEventSource(hEventLog);
-
-			return 0;
-		}
+		wstring m_filename;
+		
 	public:
-		ItsLog(const wstring& sourceName, bool logToEventLog)
-			: m_sourceName(sourceName),
-			m_bLogToEventLog(logToEventLog)
+		ItsLog(const wstring& fileName)
+			: m_filename(fileName)
 		{
 		}
 		~ItsLog()
 		{
 		}
-		void LogInformation(const wstring& description)
+
+		static inline std::unique_ptr<ItsLog> ApplicationLog = nullptr;
+
+		void Log(const ItsLogStatus& status, const ItsLogType type, const wstring& title, const wstring& description)
 		{
-			ItsLogItem item;
-			item.When = ItsDateTime::Now().TM();
-			item.Description = description;
-			item.Type = ItsLogType::Information;
+			static int logCount = 1;
 
-			this->m_items.push_back(item);
-
-			if (this->m_bLogToEventLog) {
-				this->ReportEvent(ItsLog::EEVENTLOGTYPE::EET_INFORMATION_TYPE, item.ToString());
-			}
-		}
-
-		void LogWarning(const wstring& description)
-		{
-			ItsLogItem item;
-			item.When = ItsDateTime::Now().TM();
-			item.Description = description;
-			item.Type = ItsLogType::Warning;
-
-			this->m_items.push_back(item);
-
-			if (this->m_bLogToEventLog) {
-				this->ReportEvent(ItsLog::EEVENTLOGTYPE::EET_WARNING_TYPE, item.ToString());
-			}
-		}
-
-		void LogError(const wstring& description)
-		{
-			ItsLogItem item;
-			item.When = ItsDateTime::Now().TM();
-			item.Description = description;
-			item.Type = ItsLogType::Error;
-
-			this->m_items.push_back(item);
-
-			if (this->m_bLogToEventLog) {
-				this->ReportEvent(ItsLog::EEVENTLOGTYPE::EET_ERROR_TYPE, item.ToString());
-			}
-		}
-
-		void LogOther(const wstring& description)
-		{
-			ItsLogItem item;
-			item.When = ItsDateTime::Now().TM();
-			item.Description = description;
-			item.Type = ItsLogType::Other;
-
-			this->m_items.push_back(item);
-
-			if (this->m_bLogToEventLog) {
-				this->ReportEvent(ItsLog::EEVENTLOGTYPE::EET_INFORMATION_TYPE, item.ToString());
-			}
-		}
-
-		void LogDebug(const wstring& description)
-		{
-			ItsLogItem item;
-			item.When = ItsDateTime::Now().TM();
-			item.Description = description;
-			item.Type = ItsLogType::Debug;
-
-			this->m_items.push_back(item);
-
-			if (this->m_bLogToEventLog) {
-				this->ReportEvent(ItsLog::EEVENTLOGTYPE::EET_INFORMATION_TYPE, item.ToString());
-			}
-		}
-
-		const vector<ItsLogItem>& GetItems()
-		{
-			return this->m_items;
-		}
-
-		size_t Count()
-		{
-			return this->m_items.size();
-		}
-
-		void Clear()
-		{
-			this->m_items.clear();
-		}
-
-		wstring ToString()
-		{
-			wstringstream ss;
-			for (auto i : this->m_items)
-			{
-				ss << i.ToString() << endl;
+			if (logCount == 1) {
+				std::ofstream out(this->m_filename, std::ios::trunc);
+				out.close();
 			}
 
-			wstring retVal = ss.str();
-			return retVal;
+			std::wstring _title = title;
+			_title.erase(std::remove(_title.begin(), _title.end(), L'\r'), _title.end());
+			_title.erase(std::remove(_title.begin(), _title.end(), L'\n'), _title.end());
+			std::string _title8 = ItsLogUtil::WideToUTF8(_title);
+
+			std::wstring _description = description;
+			_description.erase(std::remove(_description.begin(), _description.end(), L'\r'), _description.end());
+			_description.erase(std::remove(_description.begin(), _description.end(), L'\n'), _description.end());
+			std::string _description8 = ItsLogUtil::WideToUTF8(_description);
+
+			std::ofstream out(this->m_filename, std::ios::app);
+			out << logCount++ << "> ";
+			out << ItsLogUtil::LogStatusToString(status) << " ";
+			out << "Type=" << ItsLogUtil::LogTypeToString(type) << " ";
+			out << "When=" << std::chrono::system_clock::now() << " ";
+			out << "Title=" << _title8 << " ";
+			out << "Description=" << _description8 << std::endl;
 		}
 
-		wstring ToString(uint32_t tailN)
+		void LogInformation(const ItsLogStatus& status, const wstring& title, const wstring& description)
 		{
-			wstringstream ss;
-			if (this->m_items.size() > tailN) {
-				auto ptr = this->m_items.end();
-				ptr -= tailN;
+			Log(status, ItsLogType::Information, title, description);
+		}
 
-				do
-				{
-					ss << (*ptr).ToString() << endl;
-				} while (++ptr != this->m_items.end());
-			}
-			else {
-				for (auto i : this->m_items)
-				{
-					ss << i.ToString() << endl;
-				}
-			}
+		void LogWarning(const ItsLogStatus& status, const wstring& title, const wstring& description)
+		{
+			Log(status, ItsLogType::Warning, title, description);
+		}
 
-			wstring retVal = ss.str();
-			return retVal;
+		void LogError(const ItsLogStatus& status, const wstring& title, const wstring& description)
+		{
+			Log(status, ItsLogType::Error, title, description);
+		}
+
+		void LogOther(const ItsLogStatus& status, const wstring& title, const wstring& description)
+		{
+			Log(status, ItsLogType::Other, title, description);
+		}
+
+		void LogDebug(const ItsLogStatus& status, const wstring& title, const wstring& description)
+		{
+			Log(status, ItsLogType::Debug, title, description);
 		}
 	};
 

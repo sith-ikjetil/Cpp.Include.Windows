@@ -116,6 +116,7 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
     wstring g_filenameBinary(L"D:\\ItsFile.bin");
     wstring g_filenameBinaryCopyTo(L"D:\\ItsFileCopy.bin");
     wstring g_filenameShred(L"D:\\ItsShred.txt");
+    wstring g_filenameLog(L"D:\\logtest.txt");
     thread g_eventThread;
     wstring g_path1(L"C:\\");
     wstring g_path2(L"Temp\\test.html");
@@ -813,15 +814,22 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
     {
         PrintTestHeader(L"ItsLog");
 
-        ItsLog log{ L"ItsTestApp",true };
-        log.LogInformation(L"This is an information log item");
-        log.LogWarning(L"This is an warning log item");
-        log.LogError(L"This is an error log item");
-        log.LogOther(L"This is an other log item");
-        log.LogDebug(L"This is an debug log item");
+        ItsLog::ApplicationLog = make_unique<ItsLog>(g_filenameLog);
+        ItsLog::ApplicationLog->LogInformation(ItsLogStatus::OK, L"Log (i)", L"This is an information log item");
+        ItsLog::ApplicationLog->LogWarning(ItsLogStatus::OK, L"Log (w)", L"This is an warning log item");
+        ItsLog::ApplicationLog->LogError(ItsLogStatus::Failure, L"Log (e)", L"This is an error log item");
+        ItsLog::ApplicationLog->LogOther(ItsLogStatus::OK, L"Log (o)", L"This is an other log item");
+        ItsLog::ApplicationLog->LogDebug(ItsLogStatus::OK, L"Log (d)", L"This is an debug log item");
 
-        PrintTestSubHeader(L"ToString");
-        wcout << log.ToString() << endl;
+        std::ifstream file(g_filenameLog, std::ios::binary);
+        if (!file) return;
+        
+        std::string line;
+        while (std::getline(file, line)) {
+            std::wcout << wstring(line.begin(), line.end()) << L'\n'; // each line is UTF-8
+        }
+        
+        file.close();
 
         wcout << endl;
     }
