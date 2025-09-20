@@ -1367,7 +1367,7 @@ namespace ItSoftware
 		wstring m_filename;
 		
 	public:
-		ItsLog(const wstring& fileName)
+		explicit ItsLog(const wstring& fileName)
 			: m_filename(fileName)
 		{
 		}
