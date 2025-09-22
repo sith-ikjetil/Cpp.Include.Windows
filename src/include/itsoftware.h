@@ -211,7 +211,6 @@ namespace ItSoftware
 		TimeTracker& operator=(TimeTracker&&) = delete;
 	};
 
-
 	//
 	// struct: ItsTime
 	//
