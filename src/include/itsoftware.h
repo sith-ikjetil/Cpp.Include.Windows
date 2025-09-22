@@ -151,6 +151,67 @@ namespace ItSoftware
 		};
 	}
 
+	class TimeTracker {
+	private:
+		std::chrono::time_point<std::chrono::steady_clock> start, end;
+		std::string name;
+		std::wstring wname;
+		bool wide{ false };
+		std::function<void(std::string name, std::chrono::steady_clock::duration)> fnComplete = nullptr;
+	public:
+		explicit TimeTracker(std::string fName)
+			: name(fName),
+			  wide(false)
+		{
+			start = std::chrono::steady_clock::now();
+		}
+
+		explicit TimeTracker(std::wstring fName)
+			: wname(fName),
+				wide(true)
+		{
+			start = std::chrono::steady_clock::now();
+		}
+
+		TimeTracker(std::string fName, std::function<void(std::string name, std::chrono::steady_clock::duration)> ff)
+			: name(fName),
+			fnComplete(ff)
+		{
+			start = std::chrono::steady_clock::now();
+		}
+
+		~TimeTracker() noexcept
+		{
+			end = std::chrono::steady_clock::now();
+
+			if (fnComplete) {
+				fnComplete(this->name, (end - start));
+			}
+			else {
+				auto duration1 = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+				auto duration2 = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+				auto duration3 = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+
+				//std::println("{}: {} ms | {} us | {} ns", name, duration1, duration2, duration3);
+				if (wide) 
+				{
+					std::wcout << wname << ": " << duration1 << " ms | " << duration2 << " us | " << duration3 << " ns" << '\n';
+				}
+				else 
+				{
+					std::cout << name << ": " << duration1 << " ms | " << duration2 << " us | " << duration3 << " ns" << '\n';
+				}
+			}
+		}
+
+		// No copying or moving
+		TimeTracker(const TimeTracker&) = delete;
+		TimeTracker& operator=(const TimeTracker&) = delete;
+		TimeTracker(TimeTracker&&) = delete;
+		TimeTracker& operator=(TimeTracker&&) = delete;
+	};
+
+
 	//
 	// struct: ItsTime
 	//
