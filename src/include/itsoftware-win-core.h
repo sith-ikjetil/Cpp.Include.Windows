@@ -55,29 +55,42 @@ namespace ItSoftware::Win::Core
 	class ItsTimeTracker {
 	private:
 		std::chrono::time_point<std::chrono::steady_clock> start, end;
-		std::string name;
+		std::string  name;
 		std::wstring wname;
 		bool wide{ false };
-		std::function<void(std::string name, std::chrono::steady_clock::duration)> fnComplete = nullptr;
+		bool callback{ false };
+		std::function<void(const std::string& name, std::chrono::steady_clock::duration)> fnComplete = nullptr;
+		std::function<void(const std::wstring& name, std::chrono::steady_clock::duration)> wfnComplete = nullptr;
 	public:
 		explicit ItsTimeTracker(const std::string& fName)
 			: name(fName),
 			wide(false),
 			start(std::chrono::steady_clock::now())
-		{			
+		{
 		}
 
 		explicit ItsTimeTracker(const std::wstring& fName)
 			: wname(fName),
 			wide(true),
 			start(std::chrono::steady_clock::now())
-		{			
+		{
 		}
 
 		ItsTimeTracker(const std::string& fName, std::function<void(std::string name, std::chrono::steady_clock::duration)> ff)
 			: name(fName),
 			fnComplete(ff),
-			start(std::chrono::steady_clock::now())
+			wide(false),
+			start(std::chrono::steady_clock::now()),
+			callback(true)
+		{
+		}
+
+		ItsTimeTracker(const std::wstring& fName, std::function<void(std::wstring name, std::chrono::steady_clock::duration)> ff)
+			: wname(fName),
+			wfnComplete(ff),
+			wide(true),
+			start(std::chrono::steady_clock::now()),
+			callback(true)
 		{
 		}
 
@@ -85,8 +98,13 @@ namespace ItSoftware::Win::Core
 		{
 			end = std::chrono::steady_clock::now();
 
-			if (fnComplete) {
-				fnComplete(this->name, (end - start));
+			if (callback) {
+				if (wide) {
+					wfnComplete(this->wname, (end - start));
+				}
+				else {
+					fnComplete(this->name, (end - start));
+				}
 			}
 			else {
 				auto duration1 = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
