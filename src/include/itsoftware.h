@@ -87,6 +87,23 @@ namespace ItSoftware
 	}
 
 	//
+	// struct: DebugOnly
+	//
+	// (i): Wraps a value that is only present in Debug builds.
+	//
+	template<class T>
+	struct DebugOnly {
+#ifndef NDEBUG
+		T value;
+		template<class... A> explicit DebugOnly(A&&... a) : value(std::forward<A>(a)...) {}
+		template<class F> void with(F&& f) { f(value); }  // runs only in Debug
+#else
+		template<class... A> explicit DebugOnly(A&&...) {}
+		template<class F> void with(F&&) {}               // no-op in Release
+#endif
+	};
+
+	//
 	// Encoding
 	//
 	namespace Encoding

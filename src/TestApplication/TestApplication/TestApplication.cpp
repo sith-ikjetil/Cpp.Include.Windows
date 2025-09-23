@@ -144,9 +144,9 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
     //
     int wmain(int argc, const wchar_t* argv[])
     {
-		ItsTimeTracker tt(L"TestApplication::wmain");
+		DebugOnly<ItsTimeTracker> tt(L"TestApplication::wmain");
 
-        _setmode(_fileno(stdout), _O_U16TEXT);
+        auto _rv = _setmode(_fileno(stdout), _O_U16TEXT);
        
         atexit(ExitFn);
 
