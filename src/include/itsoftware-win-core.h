@@ -114,11 +114,11 @@ namespace ItSoftware::Win::Core
 				//std::println("{}: {} ms | {} us | {} ns", name, duration1, duration2, duration3);
 				if (wide)
 				{
-					std::wcout << wname << ": " << duration1 << " ms | " << duration2 << " us | " << duration3 << " ns" << '\n';
+					std::wcout << L"(" << wname << L": " << duration1 << L" ms | " << duration2 << L" us | " << duration3 << L" ns)" << L'\n';
 				}
 				else
 				{
-					std::cout << name << ": " << duration1 << " ms | " << duration2 << " us | " << duration3 << " ns" << '\n';
+					std::cout << "(" << name << ": " << duration1 << " ms | " << duration2 << " us | " << duration3 << " ns)" << '\n';
 				}
 			}
 		}
