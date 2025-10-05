@@ -48,6 +48,14 @@ namespace ItSoftware::Win::Core
 	using ItSoftware::ItsString;
 
 	//
+	// How to output time tracking results
+	//
+	enum class ItsTimeTrackerOutput {
+		Console,
+		MessageBox
+	};
+
+	//
 	// class: ItsTimeTracker
 	//
 	// (i): Simple time tracking utility that prints elapsed time to console when going out of scope.
@@ -57,6 +65,7 @@ namespace ItSoftware::Win::Core
 		std::chrono::time_point<std::chrono::steady_clock> start, end;
 		std::string  name;
 		std::wstring wname;
+		ItsTimeTrackerOutput alertOutput{ ItsTimeTrackerOutput::Console };
 		bool wide{ false };
 		bool callback{ false };
 		std::function<void(const std::string& name, std::chrono::steady_clock::duration)> fnComplete = nullptr;
@@ -69,8 +78,24 @@ namespace ItSoftware::Win::Core
 		{
 		}
 
+		ItsTimeTracker(const std::string& fName, ItsTimeTrackerOutput output)
+			: name(fName),
+			alertOutput(output),
+			wide(false),
+			start(std::chrono::steady_clock::now())
+		{
+		}
+
 		explicit ItsTimeTracker(const std::wstring& fName)
 			: wname(fName),
+			wide(true),
+			start(std::chrono::steady_clock::now())
+		{
+		}
+
+		ItsTimeTracker(const std::wstring& fName, ItsTimeTrackerOutput output)
+			: wname(fName),
+			alertOutput(output),
 			wide(true),
 			start(std::chrono::steady_clock::now())
 		{
@@ -107,18 +132,41 @@ namespace ItSoftware::Win::Core
 				}
 			}
 			else {
-				auto duration1 = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-				auto duration2 = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-				auto duration3 = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
-
-				//std::println("{}: {} ms | {} us | {} ns", name, duration1, duration2, duration3);
-				if (wide)
-				{
-					std::wcout << L"(" << wname << L": " << duration1 << L" ms | " << duration2 << L" us | " << duration3 << L" ns)" << L'\n';
+				if (alertOutput == ItsTimeTrackerOutput::MessageBox) {
+					if (wide) {
+						auto duration1 = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+						auto duration2 = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+						auto duration3 = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+						std::wstring msg = L"Time taken: " + std::to_wstring(duration1) + L" ms | " + std::to_wstring(duration2) + L" us | " + std::to_wstring(duration3) + L" ns";
+						MessageBoxW(NULL, msg.c_str(), wname.c_str(), MB_OK | MB_ICONINFORMATION);
+					}
+					else {
+						auto duration1 = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+						auto duration2 = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+						auto duration3 = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+						std::string msg = "Time taken: " + std::to_string(duration1) + " ms | " + std::to_string(duration2) + " us | " + std::to_string(duration3) + " ns";
+						MessageBoxA(NULL, msg.c_str(), name.c_str(), MB_OK | MB_ICONINFORMATION);
+					}
+					return;
 				}
-				else
-				{
-					std::cout << "(" << name << ": " << duration1 << " ms | " << duration2 << " us | " << duration3 << " ns)" << '\n';
+				else if (alertOutput == ItsTimeTrackerOutput::Console) {
+					// continue to print to console
+					auto duration1 = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+					auto duration2 = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+					auto duration3 = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+
+					//std::println("{}: {} ms | {} us | {} ns", name, duration1, duration2, duration3);
+					if (wide)
+					{
+						std::wcout << L">> " << wname << L": " << duration1 << L" ms | " << duration2 << L" us | " << duration3 << L" ns" << L'\n';
+					}
+					else
+					{
+						std::cout << ">> " << name << ": " << duration1 << " ms | " << duration2 << " us | " << duration3 << " ns" << '\n';
+					}
+				}
+				else {
+					// Unknown output type, default to console
 				}
 			}
 		}

@@ -65,6 +65,7 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
     using ItSoftware::ItsCreateIDOptions;    
     using ItSoftware::Exceptions::ItsException;
     using ItSoftware::Win::Core::ItsTimeTracker;
+    using ItSoftware::Win::Core::ItsTimeTrackerOutput;
 
     //
     // extern
@@ -144,7 +145,7 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
     //
     int wmain(int argc, const wchar_t* argv[])
     {
-		DebugOnly<ItsTimeTracker> tt(L"TestApplication::wmain");
+		DebugOnly<ItsTimeTracker> tt(L"TestApplication::wmain", ItsTimeTrackerOutput::MessageBox);
 
         auto _rv = _setmode(_fileno(stdout), _O_U16TEXT);
        
