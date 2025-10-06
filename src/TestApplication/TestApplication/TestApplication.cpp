@@ -95,6 +95,8 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
     void TestItsFileMonitorStart();
     void TestItsFileMonitorStop();
     void TestException();
+    void TestStringFromTextByRegex();
+    void TestWordsFromText();
     void ExitFn();
     void PrintTestHeader(const wchar_t* txt);
     void PrintTestSubHeader(const wchar_t* txt);
@@ -173,6 +175,8 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
         TestItsFileMonitorStop();
         TestItsEventStop();
         TestException();
+        TestStringFromTextByRegex();
+        TestWordsFromText();
 
         if (g_eventThread.joinable()) { g_eventThread.join(); }
         TestItsTimerStop();
@@ -979,6 +983,50 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
             break;
         }
         g_fileMonNames.push_back(ss.str());
+    }
+
+    void TestStringFromTextByRegex()
+    {
+        PrintTestHeader(L"TestStringFromTextByRegex");
+
+        string textA = R"(This is a line with some text.)";
+        string rgxA = R"(\b[tT]\w*\b)";
+        wcout << L"Text: " << wstring(textA.begin(), textA.end()) << endl;
+        wcout << L"These are words starting with 't' or 'T':" << endl;
+        for (auto s : ItsString::StringFromTextByRegex(textA, rgxA)) {
+            wcout << wstring(s.begin(),s.end()) << endl;
+        }
+        wcout << endl;
+
+        wstring text = LR"(This is a line with some text.)";
+		wstring rgx = LR"(\b[tT]\w*\b)";
+        wcout << L"Text: " << text << endl;
+        wcout << L"These are words starting with 't' or 'T':" << endl;        
+        for (auto s : ItsString::StringFromTextByRegex(text, rgx)) {
+            wcout << s << endl;
+        }
+        wcout << endl;
+    }
+
+    void TestWordsFromText()
+    {
+        PrintTestHeader(L"TestWordsFromText");
+
+        string textA = R"(This is a line with some text.)";        
+        wcout << L"Text: " << wstring(textA.begin(), textA.end()) << endl;
+        wcout << L"These are words starting with 't' or 'T':" << endl;
+        for (auto s : ItsString::WordsFromText(textA)) {
+            wcout << wstring(s.begin(), s.end()) << endl;
+        }
+        wcout << endl;
+
+        wstring text = LR"(This is a line with some text.)";        
+        wcout << L"Text: " << text << endl;
+        wcout << L"These are words starting with 't' or 'T':" << endl;
+        for (auto s : ItsString::WordsFromText(text)) {
+            wcout << s << endl;
+        }
+        wcout << endl;
     }
 }
 

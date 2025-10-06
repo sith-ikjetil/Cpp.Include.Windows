@@ -27,6 +27,8 @@
 #include <codecvt>
 #include <random>
 #include <functional>
+#include <generator>
+#include <regex>
 #include <stdlib.h>
 #include <time.h>
 #include "itsoftware-exceptions.h"
@@ -316,6 +318,46 @@ namespace ItSoftware
 	//
 	struct ItsString
 	{
+		static std::generator<string> StringFromTextByRegex(const string& text, const string& re) {
+			std::regex rgx(re);
+			std::sregex_token_iterator iter(text.begin(), text.end(), rgx);
+			std::sregex_token_iterator end;
+			for (; iter != end; ++iter) {
+				co_yield iter->str();
+			}
+			co_return;
+		}
+
+		static std::generator<wstring> StringFromTextByRegex(const wstring& text, const wstring& re) {
+			std::wregex rgx(re);
+			std::wsregex_token_iterator iter(text.begin(), text.end(), rgx);
+			std::wsregex_token_iterator end;
+			for (; iter != end; ++iter) {
+				co_yield iter->str();
+			}
+			co_return;
+		}
+
+		static std::generator<string> WordsFromText(const string& text) {
+			std::regex rgx(R"(\b\w+\b)");
+			std::sregex_token_iterator iter(text.begin(), text.end(), rgx);
+			std::sregex_token_iterator end;
+			for (; iter != end; ++iter) {
+				co_yield iter->str();
+			}
+			co_return;
+		}
+
+		static std::generator<wstring> WordsFromText(const wstring& text) {
+			std::wregex rgx(LR"(\b\w+\b)");
+			std::wsregex_token_iterator iter(text.begin(), text.end(), rgx);
+			std::wsregex_token_iterator end;
+			for (; iter != end; ++iter) {
+				co_yield iter->str();
+			}
+			co_return;
+		}
+
 		static wstring WidthExpand(const wstring& source, size_t width, wchar_t fill, ItsExpandDirection direction)
 		{
 			if (source.size() == 0) {
