@@ -358,6 +358,32 @@ namespace ItSoftware
 			co_return;
 		}
 
+		static std::generator<string> LinesFromText(const string& text) {
+			std::regex r("^.*$");
+			string normalized_text = std::regex_replace(text, std::regex("\r\n"), "\n"); // normalize
+			auto words_begin = std::sregex_iterator(normalized_text.begin(), normalized_text.end(), r);
+			auto words_end = std::sregex_iterator();
+
+			for (std::sregex_iterator i = words_begin; i != words_end; ++i) {
+				co_yield i->str();
+			}
+
+			co_return;
+		}
+
+		static std::generator<wstring> LinesFromText(const wstring& text) {
+			std::wregex r(L"^.*$");
+			wstring normalized_text = std::regex_replace(text, std::wregex(L"\r\n"), L"\n"); // normalize
+			auto words_begin = std::wsregex_iterator(normalized_text.begin(), normalized_text.end(), r);
+			auto words_end = std::wsregex_iterator();
+
+			for (std::wsregex_iterator i = words_begin; i != words_end; ++i) {
+				co_yield i->str();
+			}
+
+			co_return;
+		}
+
 		static wstring WidthExpand(const wstring& source, size_t width, wchar_t fill, ItsExpandDirection direction)
 		{
 			if (source.size() == 0) {

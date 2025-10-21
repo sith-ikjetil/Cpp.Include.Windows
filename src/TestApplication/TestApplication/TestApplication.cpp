@@ -97,6 +97,7 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
     void TestException();
     void TestStringFromTextByRegex();
     void TestWordsFromText();
+    void TestLinesFromText();
     void ExitFn();
     void PrintTestHeader(const wchar_t* txt);
     void PrintTestSubHeader(const wchar_t* txt);
@@ -177,6 +178,7 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
         TestException();
         TestStringFromTextByRegex();
         TestWordsFromText();
+        TestLinesFromText();
 
         if (g_eventThread.joinable()) { g_eventThread.join(); }
         TestItsTimerStop();
@@ -1027,6 +1029,23 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
             wcout << s << endl;
         }
         wcout << endl;
+    }
+
+    void TestLinesFromText()
+    {
+        PrintTestHeader(L"TestLinesFromText");
+        string lines = "This is line 1\r\nand this is line 2\nand this is line 3";
+		wcout << L"Text: " << wstring(lines.begin(), lines.end()) << endl;
+        for (auto s : ItsString::LinesFromText(lines)) {
+            wcout << L"> " << wstring(s.begin(), s.end()) << endl;
+		}
+        
+        wstring wlines = L"This is wide line 1\r\nand this is wide line 2\nand this is wide line 3";
+		wcout << L"Text: " << wlines << endl;
+        for (auto s : ItsString::LinesFromText(wlines)) {
+            wcout << L"> " << s << endl;
+        }
+		wcout << endl;
     }
 }
 
