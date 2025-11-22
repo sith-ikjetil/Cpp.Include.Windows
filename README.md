@@ -1,5 +1,6 @@
 # Cpp.Include.Windows
 Some include files for Windows C++ development I use.  
+Compiles with C++23.  
 License: **GPL-3.0-or-later**  
 
 ## itsoftware.h  
