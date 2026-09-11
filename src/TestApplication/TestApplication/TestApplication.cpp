@@ -116,12 +116,12 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
     //
     ItsTimer g_timer;
     ItsEvent g_event;
-    wstring g_fileMonDirectory(L"D:\\");
-    wstring g_filenameText(L"D:\\ItsTextFile.txt");
-    wstring g_filenameBinary(L"D:\\ItsFile.bin");
-    wstring g_filenameBinaryCopyTo(L"D:\\ItsFileCopy.bin");
-    wstring g_filenameShred(L"D:\\ItsShred.txt");
-    wstring g_filenameLog(L"D:\\logtest.txt");
+    wstring g_fileMonDirectory(L"E:\\");
+    wstring g_filenameText(L"E:\\ItsTextFile.txt");
+    wstring g_filenameBinary(L"E:\\ItsFile.bin");
+    wstring g_filenameBinaryCopyTo(L"E:\\ItsFileCopy.bin");
+    wstring g_filenameShred(L"E:\\ItsShred.txt");
+    wstring g_filenameLog(L"E:\\logtest.txt");
     thread g_eventThread;
     wstring g_path1(L"C:\\");
     wstring g_path2(L"Temp\\test.html");
@@ -839,7 +839,7 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
             std::wcout << wstring(line.begin(), line.end()) << L'\n'; // each line is UTF-8
         }
         
-        file.close();
+        file.close();        
 
         wcout << endl;
     }

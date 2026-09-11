@@ -1481,13 +1481,28 @@ namespace ItSoftware
 			_description.erase(std::remove(_description.begin(), _description.end(), L'\n'), _description.end());
 			std::string _description8 = ItsLogUtil::WideToUTF8(_description);
 
+			auto fnEscQuot = [](std::string s) {
+				//std::string escape_quotes(std::string s)
+				{
+					size_t pos = 0;
+
+					while ((pos = s.find('"', pos)) != std::string::npos)
+					{
+						s.replace(pos, 1, "\\\"");
+						pos += 2;
+					}
+
+					return s;
+				}
+			};
+
 			std::ofstream out(this->m_filename, std::ios::app);
-			out << logCount++ << "> ";
+			out << logCount++ << "> ";			
 			out << ItsLogUtil::LogStatusToString(status) << " ";
-			out << "Type=" << ItsLogUtil::LogTypeToString(type) << " ";
-			out << "When=" << std::chrono::system_clock::now() << " ";
-			out << "Title=" << _title8 << " ";
-			out << "Description=" << _description8 << std::endl;
+			out << "| Type=" << ItsLogUtil::LogTypeToString(type) << " ";
+			out << "| When=" << std::chrono::system_clock::now() << " ";
+			out << "| Title=\"" << fnEscQuot(_title8) << "\" ";
+			out << "| Description=\"" << fnEscQuot(_description8) << "\"\n";
 		}
 
 		void LogInformation(const ItsLogStatus& status, const wstring& title, const wstring& description)
