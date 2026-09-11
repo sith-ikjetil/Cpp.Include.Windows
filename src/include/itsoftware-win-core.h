@@ -551,6 +551,10 @@ namespace ItSoftware::Win::Core
 			wstring directory = ItsPath::GetDirectory(path);
 			wstring filename = ItsPath::GetFilename(path);
 
+			if (directory.size() == 0 && filename.size() == 0 && volume.size() == 0) {
+                return false;
+            }
+
 			auto invalidPathChars = ItsPath::GetInvalidPathCharacters();
 			auto invalidFileChars = ItsPath::GetInvalidFilenameCharacters();
 
