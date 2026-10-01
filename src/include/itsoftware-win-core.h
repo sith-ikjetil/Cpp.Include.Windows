@@ -732,6 +732,17 @@ namespace ItSoftware::Win::Core
 			}
 			return wstring(L"");
 		}// inline CComBSTR GetLastErrorDesc( )
+
+		/// <summary>
+		/// Gets the error description for a standard exception.
+		/// </summary>
+		/// <param name="e"></param>
+		/// <returns></returns>
+		static wstring GetStdExceptionErrorInfo(const std::exception& e)
+		{
+			string msg = e.what();
+			return wstring(msg.begin(), msg.end());
+		}// inline CComBSTR GetLastErrorDesc( )}
 	};
 
 	//
