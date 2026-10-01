@@ -1450,10 +1450,10 @@ namespace ItSoftware
 	{
 	private:
 		wstring m_filename;
-		
+		bool m_doQuoteEsc = true;
 	public:
-		explicit ItsLog(const wstring& fileName)
-			: m_filename(fileName)
+		explicit ItsLog(const wstring& fileName, const bool doQuoteEsc = true)
+			: m_filename(fileName), m_doQuoteEsc(doQuoteEsc)
 		{
 		}
 		~ItsLog()
@@ -1481,9 +1481,14 @@ namespace ItSoftware
 			_description.erase(std::remove(_description.begin(), _description.end(), L'\n'), _description.end());
 			std::string _description8 = ItsLogUtil::WideToUTF8(_description);
 
-			auto fnEscQuot = [](std::string s) {
+			auto fnEscQuot = [this](std::string s) {
 				//std::string escape_quotes(std::string s)
 				{
+					if (!this->m_doQuoteEsc)
+					{
+						return s;
+					}
+
 					size_t pos = 0;
 
 					while ((pos = s.find('"', pos)) != std::string::npos)
