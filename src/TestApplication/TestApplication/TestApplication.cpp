@@ -706,7 +706,11 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
         wcout << LR"(> )" << ((ItsPath::IsPathValid(g_invalidPath)) ? L"true" : L"false") << endl;
         wcout << LR"(ItsPath::GetParentDirectory("D:\Temp\t2"))" << endl;
         wcout << LR"(> )" << ItsPath::GetParentDirectory(L"D:\\Temp\\t2") << endl;
-
+        wcout << LR"(ItsPath::GetUserDocumentsPath())" << endl;
+        wcout << LR"(> )" << ItsPath::GetUserDocumentsPath() << endl;
+        wcout << LR"(ItsPath::GetProgramFilesPath())" << endl;
+        wcout << LR"(> )" << ItsPath::GetProgramFilesPath() << endl;
+        
         wcout << endl;
     }
 
@@ -774,7 +778,7 @@ namespace ItSoftware::CppIncludeWindows::TestApplication
             wcout << endl;
             return;
         }
-        wcout << L"> Success removing directory " << cdir << endl;
+        wcout << L"> Success removing directory " << cdir << endl;        
 
         wcout << endl;
     }
