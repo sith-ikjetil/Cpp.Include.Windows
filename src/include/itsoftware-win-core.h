@@ -9,7 +9,8 @@
 //
 // #include
 //
-#include <Windows.h>
+#include <windows.h>
+#include <shlobj.h>
 #include <WinUser.h>
 #include <CommCtrl.h>
 #include <memory>
@@ -645,6 +646,48 @@ namespace ItSoftware::Win::Core
 
 			return path.substr(0, pos2 + 1);
 		}
+		static wstring GetUserDocumentsPath()
+		{
+			PWSTR path = nullptr;
+			std::wstring result;
+
+			HRESULT hr = SHGetKnownFolderPath(
+				FOLDERID_Documents,
+				0,
+				nullptr,
+				&path
+			);
+
+			if (SUCCEEDED(hr))
+			{
+				result = path;
+			}
+
+			CoTaskMemFree(path);
+
+			return result;
+		}
+		static wstring GetProgramFilesPath()
+		{
+			PWSTR path = nullptr;
+			std::wstring result;
+
+			HRESULT hr = SHGetKnownFolderPath(
+				FOLDERID_ProgramFiles,
+				0,
+				nullptr,
+				&path
+			);
+
+			if (SUCCEEDED(hr))
+			{
+				result = path;
+			}
+
+			CoTaskMemFree(path);
+
+			return result;
+		}
 	};
 
 	//
@@ -670,15 +713,19 @@ namespace ItSoftware::Win::Core
 				0,
 				NULL);
 
-			// Copy buffer contet to bstr...
-			CComBSTR bstr;
-			bstr += reinterpret_cast<wchar_t*>(lpMsgBuf);
+			if (lpMsgBuf != nullptr) {
+				// Copy buffer contet to bstr...
+				CComBSTR bstr;
+				bstr += reinterpret_cast<wchar_t*>(lpMsgBuf);
 
-			// Free the buffer...
-			LocalFree(lpMsgBuf);
+				// Free the buffer...
+				LocalFree(lpMsgBuf);
 
-			// Return value...
-			return wstring(bstr.operator LPWSTR());;
+				// Return value...
+				return wstring(bstr.operator LPWSTR());;
+			}
+
+			return std::wstring();
 		}// inline CComBSTR GetLastErrorDesc( )
 
 			//
@@ -697,15 +744,19 @@ namespace ItSoftware::Win::Core
 				0,
 				NULL);
 
-			// Copy buffer contet to bstr...
-			CComBSTR bstr;
-			bstr += reinterpret_cast<wchar_t*>(lpMsgBuf);
+			if (lpMsgBuf != nullptr) {
+				// Copy buffer contet to bstr...
+				CComBSTR bstr;
+				bstr += reinterpret_cast<wchar_t*>(lpMsgBuf);
 
-			// Free the buffer...
-			LocalFree(lpMsgBuf);
+				// Free the buffer...
+				LocalFree(lpMsgBuf);
 
-			// Return value...
-			return wstring(bstr.operator LPWSTR());;
+				// Return value...
+				return wstring(bstr.operator LPWSTR());;
+			}
+
+			return std::wstring();
 		}// inline CComBSTR GetLastErrorDesc( )
 
 		static wstring GetHResultErrorInfo(HRESULT hr)
@@ -723,15 +774,62 @@ namespace ItSoftware::Win::Core
 		{
 			IErrorInfo* pErrInfo = nullptr;
 			HRESULT hr = GetErrorInfo(NULL, static_cast<IErrorInfo**>(&pErrInfo));
-			CComBSTR bstr;
-			if (hr == S_OK && pErrInfo)
-			{
-				pErrInfo->GetDescription(&bstr);
-				pErrInfo->Release();
-				return wstring(bstr.operator LPWSTR());
+			if (FAILED(hr)) {
+				return std::wstring();
 			}
-			return wstring(L"");
+
+			if (pErrInfo == nullptr) {
+				return std::wstring();
+			}
+
+			CComBSTR bstr;
+			pErrInfo->GetDescription(&bstr);
+			pErrInfo->Release();
+			return wstring(bstr.operator LPWSTR());			
 		}// inline CComBSTR GetLastErrorDesc( )
+
+		/// <summary>
+		/// Gets the error description for a standard exception.
+		/// </summary>
+		/// <param name="e"></param>
+		/// <returns></returns>
+		static wstring GetStdExceptionErrorInfo(const std::exception& e)
+		{
+			
+			auto Utf8ToWide = [](std::string_view text) -> wstring
+				{
+					if (text.empty())
+						return {};
+
+					int size = MultiByteToWideChar(
+						CP_UTF8,
+						0,
+						text.data(),
+						static_cast<int>(text.size()),
+						nullptr,
+						0
+					);
+
+					if (size == 0)
+						return {};
+
+					std::wstring result(size, L'\0');
+
+					MultiByteToWideChar(
+						CP_UTF8,
+						0,
+						text.data(),
+						static_cast<int>(text.size()),
+						result.data(),
+						size
+					);
+
+					return result;
+				};
+			
+			string msg = e.what();
+			return Utf8ToWide(msg);
+		}// inline CComBSTR GetLastErrorDesc( )}
 	};
 
 	//
@@ -1304,7 +1402,7 @@ namespace ItSoftware::Win::Core
 			}
 
 			return d;
-		}
+		}				
 	};
 
 	//
