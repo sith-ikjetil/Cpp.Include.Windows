@@ -21,6 +21,11 @@
 #include <thread>
 #include "itsoftware.h"
 #include "itsoftware-exceptions.h"
+#include <algorithm>
+#include <cstring>
+#include <cwchar>
+#include <limits>
+#include <utility>
 #include <time.h>
 
 //
@@ -60,19 +65,65 @@ namespace ItSoftware::Win
 		//
 		// Function: CBTMsgBox
 		//
+		struct MessageBoxContext
+		{
+			HWND owner;
+			bool centered = false;
+		};
+
+		inline static thread_local MessageBoxContext* activeMessageBox = nullptr;
+
 		static LRESULT CALLBACK CBTMsgBox(int code, WPARAM wParam, LPARAM lParam)
 		{
-			if (HCBT_ACTIVATE != code || -1 == code)
-			{
-				// only when HCBT_ACTIVATE 
-				return CallNextHookEx(g_hCBTHook, code, wParam, lParam);
+			const auto context = activeMessageBox;
+			if (code == HCBT_ACTIVATE && context && !context->centered && context->owner) {
+				const auto dialog = reinterpret_cast<HWND>(wParam);
+				wchar_t className[16]{};
+				if (GetWindow(dialog, GW_OWNER) == context->owner &&
+					GetClassNameW(dialog, className, 16) &&
+					std::wcscmp(className, L"#32770") == 0) {
+					context->centered = true;
+					CenterToItsParentWindow(dialog);
+				}
 			}
+			return CallNextHookEx(nullptr, code, wParam, lParam);
+		}
 
-			HWND hWnd = (HWND)wParam;
-			UnhookWindowsHookEx(g_hCBTHook);
-			CenterToItsParentWindow(hWnd);
+		static int ShowCenteredMessage(HWND owner, const wstring& title, const wstring& message, UINT flags)
+		{
+			MessageBoxContext context{ owner };
+			const auto previous = activeMessageBox;
+			if (!previous && !owner) return MessageBoxW(owner, message.c_str(), title.c_str(), flags);
+			const HHOOK hook = !previous
+				? SetWindowsHookExW(WH_CBT, CBTMsgBox, nullptr, GetCurrentThreadId())
+				: nullptr;
 
-			return CallNextHookEx(g_hCBTHook, code, wParam, lParam);
+			if (!previous && !hook) return MessageBoxW(owner, message.c_str(), title.c_str(), flags);
+
+			// A reentrant message box uses the enclosing thread hook and its own context.
+			activeMessageBox = &context;
+			const int result = MessageBoxW(owner, message.c_str(), title.c_str(), flags);
+			activeMessageBox = previous;
+			if (hook) UnhookWindowsHookEx(hook);
+			return result;
+		}
+
+		static bool ReportEventLogEntry(const wstring& source, WORD type, short category,
+			long eventId, short stringCount, const wchar_t* description)
+		{
+			// The public description parameter carries one string.
+			if (source.empty() || stringCount < 0 || stringCount > 1 ||
+				(stringCount == 1 && (!description || *description == L'\0'))) return false;
+
+			const HANDLE log = RegisterEventSourceW(nullptr, source.c_str());
+			if (!log) return false;
+
+			LPCWSTR strings[] = { description };
+			const BOOL reported = ReportEventW(log, type, static_cast<WORD>(category),
+				static_cast<DWORD>(eventId), nullptr, static_cast<WORD>(stringCount), 0,
+				stringCount == 1 ? strings : nullptr, nullptr);
+			DeregisterEventSource(log);
+			return reported != FALSE;
 		}
 
 	public:
@@ -82,15 +133,9 @@ namespace ItSoftware::Win
 		//
 		static wstring ToRGBString(COLORREF color)
 		{
-			wstringstream ss;
-
-			ss << (unsigned char)((color & 0x0000FF));
-			ss << L",";
-			ss << (unsigned char)((color & 0x00FF00) >> 8);
-			ss << L",";
-			ss << (unsigned char)((color & 0xFF0000) >> 16);
-
-			return ss.str();
+			return std::to_wstring(GetRValue(color)) + L"," +
+				std::to_wstring(GetGValue(color)) + L"," +
+				std::to_wstring(GetBValue(color));
 		}
 
 		//
@@ -98,21 +143,23 @@ namespace ItSoftware::Win
 		//
 		static void CenterToItsParentWindow(HWND hDlg)
 		{
-			RECT rcDlg;
-			RECT rcOwner;
+			const HWND owner = GetWindow(hDlg, GW_OWNER);
+			RECT dialog{};
+			RECT anchor{};
+			if (!owner || !GetWindowRect(hDlg, &dialog) || !GetWindowRect(owner, &anchor)) return;
 
-			//center
-			HWND hWndOwner = ::GetWindow(hDlg, GW_OWNER);
-			GetWindowRect(hDlg, &rcDlg);
-			GetWindowRect(hWndOwner, &rcOwner);
+			const LONG width = dialog.right - dialog.left;
+			const LONG height = dialog.bottom - dialog.top;
+			LONG left = anchor.left + (anchor.right - anchor.left - width) / 2;
+			LONG top = anchor.top + (anchor.bottom - anchor.top - height) / 2;
 
-			int iLeft = rcOwner.left + ((rcOwner.right - rcOwner.left)
-				- (rcDlg.right - rcDlg.left)) / 2;
-
-			int iTop = rcOwner.top + ((rcOwner.bottom - rcOwner.top)
-				- (rcDlg.bottom - rcDlg.top)) / 2;
-
-			SetWindowPos(hDlg, hWndOwner, iLeft, iTop, 0, 0, SWP_NOSIZE | SWP_FRAMECHANGED);
+			MONITORINFO monitor{ sizeof(MONITORINFO) };
+			if (GetMonitorInfoW(MonitorFromWindow(owner, MONITOR_DEFAULTTONEAREST), &monitor)) {
+				const RECT& area = monitor.rcWork;
+				left = std::clamp(left, area.left, (std::max)(area.left, area.right - width));
+				top = std::clamp(top, area.top, (std::max)(area.top, area.bottom - height));
+			}
+			SetWindowPos(hDlg, nullptr, left, top, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
 		}
 
 		//
@@ -148,16 +195,7 @@ namespace ItSoftware::Win
 		//
 		static void ShowInformationMessage(HWND hWnd, const wstring& title, const wstring& message)
 		{
-			if (hWnd != NULL)
-			{
-				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				MessageBox(hWnd, message.c_str(), title.c_str(), MB_OK | MB_ICONINFORMATION);
-				UnhookWindowsHookEx(g_hCBTHook);
-			}
-			else
-			{
-				MessageBox(hWnd, message.c_str(), title.c_str(), MB_OK | MB_ICONINFORMATION);
-			}
+			ShowCenteredMessage(hWnd, title, message, MB_OK | MB_ICONINFORMATION);
 		}
 
 		//
@@ -181,19 +219,7 @@ namespace ItSoftware::Win
 		//
 		static int ShowInformationMessageYesNo(HWND hWnd, const wstring& title, const wstring& message)
 		{
-			int result = 0;
-			if (hWnd != NULL)
-			{
-				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONINFORMATION | MB_YESNO);
-				UnhookWindowsHookEx(g_hCBTHook);
-			}
-			else
-			{
-				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONINFORMATION | MB_YESNO);
-			}
-
-			return result;
+			return ShowCenteredMessage(hWnd, title, message, MB_ICONINFORMATION | MB_YESNO);
 		}
 
 		//
@@ -217,19 +243,7 @@ namespace ItSoftware::Win
 		//
 		static int ShowInformationMessageYesNoCancel(HWND hWnd, const wstring& title, const wstring& message)
 		{
-			int result = 0;
-			if (hWnd != NULL)
-			{
-				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONINFORMATION | MB_YESNOCANCEL);
-				UnhookWindowsHookEx(g_hCBTHook);
-			}
-			else
-			{
-				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONINFORMATION | MB_YESNOCANCEL);
-			}
-
-			return result;
+			return ShowCenteredMessage(hWnd, title, message, MB_ICONINFORMATION | MB_YESNOCANCEL);
 		}
 
 		//
@@ -261,19 +275,7 @@ namespace ItSoftware::Win
 		//
 		static int ShowInformationMessageAbortRetryIgnore(HWND hWnd, const wstring& title, const wstring& message)
 		{
-			int result = 0;
-			if (hWnd != NULL)
-			{
-				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONINFORMATION | MB_ABORTRETRYIGNORE);
-				UnhookWindowsHookEx(g_hCBTHook);
-			}
-			else
-			{
-				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONINFORMATION | MB_ABORTRETRYIGNORE);
-			}
-
-			return result;
+			return ShowCenteredMessage(hWnd, title, message, MB_ICONINFORMATION | MB_ABORTRETRYIGNORE);
 		}
 
 		//
@@ -309,16 +311,7 @@ namespace ItSoftware::Win
 		//
 		static void ShowWarningMessage(HWND hWnd, const wstring& title, const wstring& message)
 		{
-			if (hWnd != NULL)
-			{
-				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				MessageBox(hWnd, message.c_str(), title.c_str(), MB_OK | MB_ICONWARNING);
-				UnhookWindowsHookEx(g_hCBTHook);
-			}
-			else
-			{
-				MessageBox(hWnd, message.c_str(), title.c_str(), MB_OK | MB_ICONWARNING);
-			}
+			ShowCenteredMessage(hWnd, title, message, MB_OK | MB_ICONWARNING);
 		}
 
 		//
@@ -350,19 +343,7 @@ namespace ItSoftware::Win
 		//
 		static int ShowWarningMessageYesNo(HWND hWnd, const wstring& title, const wstring& message)
 		{
-			int result = 0;
-			if (hWnd != NULL)
-			{
-				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONWARNING | MB_YESNO);
-				UnhookWindowsHookEx(g_hCBTHook);
-			}
-			else
-			{
-				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONWARNING | MB_YESNO);
-			}
-
-			return result;
+			return ShowCenteredMessage(hWnd, title, message, MB_ICONWARNING | MB_YESNO);
 		}
 
 		//
@@ -394,19 +375,7 @@ namespace ItSoftware::Win
 		//
 		static int ShowWarningMessageYesNoCancel(HWND hWnd, const wstring& title, const wstring& message)
 		{
-			int result = 0;
-			if (hWnd != NULL)
-			{
-				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONWARNING | MB_YESNO);
-				UnhookWindowsHookEx(g_hCBTHook);
-			}
-			else
-			{
-				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONWARNING | MB_YESNO);
-			}
-
-			return result;
+			return ShowCenteredMessage(hWnd, title, message, MB_ICONWARNING | MB_YESNOCANCEL);
 		}
 
 		//
@@ -438,19 +407,7 @@ namespace ItSoftware::Win
 		//
 		static int ShowWarningMessageAbortRetryIgnore(HWND hWnd, const wstring& title, const wstring& message)
 		{
-			int result = 0;
-			if (hWnd != NULL)
-			{
-				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONWARNING | MB_ABORTRETRYIGNORE);
-				UnhookWindowsHookEx(g_hCBTHook);
-			}
-			else
-			{
-				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONWARNING | MB_ABORTRETRYIGNORE);
-			}
-
-			return result;
+			return ShowCenteredMessage(hWnd, title, message, MB_ICONWARNING | MB_ABORTRETRYIGNORE);
 		}
 
 		//
@@ -486,16 +443,7 @@ namespace ItSoftware::Win
 		//
 		static void ShowHandMessage(HWND hWnd, const wstring& title, const wstring& message)
 		{
-			if (hWnd != NULL)
-			{
-				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				MessageBox(hWnd, message.c_str(), title.c_str(), MB_OK | MB_ICONHAND);
-				UnhookWindowsHookEx(g_hCBTHook);
-			}
-			else
-			{
-				MessageBox(hWnd, message.c_str(), title.c_str(), MB_OK | MB_ICONHAND);
-			}
+			ShowCenteredMessage(hWnd, title, message, MB_OK | MB_ICONHAND);
 		}
 
 		//
@@ -519,19 +467,7 @@ namespace ItSoftware::Win
 		//
 		static int ShowHandMessageYesNo(HWND hWnd, const wstring& title, const wstring& message)
 		{
-			int result = 0;
-			if (hWnd != NULL)
-			{
-				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONHAND | MB_YESNO);
-				UnhookWindowsHookEx(g_hCBTHook);
-			}
-			else
-			{
-				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONHAND | MB_YESNO);
-			}
-
-			return result;
+			return ShowCenteredMessage(hWnd, title, message, MB_ICONHAND | MB_YESNO);
 		}
 
 		//
@@ -555,19 +491,7 @@ namespace ItSoftware::Win
 		//
 		static int ShowHandMessageYesNoCancel(HWND hWnd, const wstring& title, const wstring& message)
 		{
-			int result = 0;
-			if (hWnd != NULL)
-			{
-				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONHAND | MB_YESNOCANCEL);
-				UnhookWindowsHookEx(g_hCBTHook);
-			}
-			else
-			{
-				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONHAND | MB_YESNOCANCEL);
-			}
-
-			return result;
+			return ShowCenteredMessage(hWnd, title, message, MB_ICONHAND | MB_YESNOCANCEL);
 		}
 
 		//
@@ -599,19 +523,7 @@ namespace ItSoftware::Win
 		//
 		static int ShowHandMessageAbortRetryIgnore(HWND hWnd, const wstring& title, const wstring& message)
 		{
-			int result = 0;
-			if (hWnd != NULL)
-			{
-				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONHAND | MB_ABORTRETRYIGNORE);
-				UnhookWindowsHookEx(g_hCBTHook);
-			}
-			else
-			{
-				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONHAND | MB_ABORTRETRYIGNORE);
-			}
-
-			return result;
+			return ShowCenteredMessage(hWnd, title, message, MB_ICONHAND | MB_ABORTRETRYIGNORE);
 		}
 
 		//
@@ -647,16 +559,7 @@ namespace ItSoftware::Win
 		//
 		static void ShowErrorMessage(HWND hWnd, const wstring& title, const wstring& message)
 		{
-			if (hWnd != NULL)
-			{
-				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				MessageBox(hWnd, message.c_str(), title.c_str(), MB_OK | MB_ICONERROR);
-				UnhookWindowsHookEx(g_hCBTHook);
-			}
-			else
-			{
-				MessageBox(hWnd, message.c_str(), title.c_str(), MB_OK | MB_ICONERROR);
-			}
+			ShowCenteredMessage(hWnd, title, message, MB_OK | MB_ICONERROR);
 		}
 
 		//
@@ -688,19 +591,7 @@ namespace ItSoftware::Win
 		//
 		static int ShowErrorMessageYesNo(HWND hWnd, const wstring& title, const wstring& message)
 		{
-			int result = 0;
-			if (hWnd != NULL)
-			{
-				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONERROR | MB_YESNO);
-				UnhookWindowsHookEx(g_hCBTHook);
-			}
-			else
-			{
-				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONERROR | MB_YESNO);
-			}
-
-			return result;
+			return ShowCenteredMessage(hWnd, title, message, MB_ICONERROR | MB_YESNO);
 		}
 
 		//
@@ -732,19 +623,7 @@ namespace ItSoftware::Win
 		//
 		static int ShowErrorMessageYesNoCancel(HWND hWnd, const wstring& title, const wstring& message)
 		{
-			int result = 0;
-			if (hWnd != NULL)
-			{
-				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONERROR | MB_YESNOCANCEL);
-				UnhookWindowsHookEx(g_hCBTHook);
-			}
-			else
-			{
-				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONERROR | MB_YESNOCANCEL);
-			}
-
-			return result;
+			return ShowCenteredMessage(hWnd, title, message, MB_ICONERROR | MB_YESNOCANCEL);
 		}
 
 		//
@@ -776,19 +655,7 @@ namespace ItSoftware::Win
 		//
 		static int ShowErrorMessageAbortRetryIgnore(HWND hWnd, const wstring& title, const wstring& message)
 		{
-			int result = 0;
-			if (hWnd != NULL)
-			{
-				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONERROR | MB_ABORTRETRYIGNORE);
-				UnhookWindowsHookEx(g_hCBTHook);
-			}
-			else
-			{
-				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONERROR | MB_ABORTRETRYIGNORE);
-			}
-
-			return result;
+			return ShowCenteredMessage(hWnd, title, message, MB_ICONERROR | MB_ABORTRETRYIGNORE);
 		}
 
 		//
@@ -824,19 +691,7 @@ namespace ItSoftware::Win
 		//
 		static int ShowQuestionMessageYesNo(HWND hWnd, const wstring& title, const wstring& message)
 		{
-			int result = 0;
-			if (hWnd != NULL)
-			{
-				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONQUESTION | MB_YESNO);
-				UnhookWindowsHookEx(g_hCBTHook);
-			}
-			else
-			{
-				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONQUESTION | MB_YESNO);
-			}
-
-			return result;
+			return ShowCenteredMessage(hWnd, title, message, MB_ICONQUESTION | MB_YESNO);
 		}
 
 		//
@@ -868,19 +723,7 @@ namespace ItSoftware::Win
 		//
 		static int ShowQuestionMessageYesNoCancel(HWND hWnd, const wstring& title, const wstring& message)
 		{
-			int result = 0;
-			if (hWnd != NULL)
-			{
-				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONQUESTION | MB_YESNOCANCEL);
-				UnhookWindowsHookEx(g_hCBTHook);
-			}
-			else
-			{
-				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONQUESTION | MB_YESNOCANCEL);
-			}
-
-			return result;
+			return ShowCenteredMessage(hWnd, title, message, MB_ICONQUESTION | MB_YESNOCANCEL);
 		}
 
 		//
@@ -912,19 +755,7 @@ namespace ItSoftware::Win
 		//
 		static int ShowQuestionMessageAbortRetryIgnore(HWND hWnd, const wstring& title, const wstring& message)
 		{
-			int result = 0;
-			if (hWnd != NULL)
-			{
-				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONQUESTION | MB_ABORTRETRYIGNORE);
-				UnhookWindowsHookEx(g_hCBTHook);
-			}
-			else
-			{
-				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONQUESTION | MB_ABORTRETRYIGNORE);
-			}
-
-			return result;
+			return ShowCenteredMessage(hWnd, title, message, MB_ICONQUESTION | MB_ABORTRETRYIGNORE);
 		}
 
 		//
@@ -960,19 +791,7 @@ namespace ItSoftware::Win
 		//
 		static int ShowStopMessageYesNo(HWND hWnd, const wstring& title, const wstring& message)
 		{
-			int result = 0;
-			if (hWnd != NULL)
-			{
-				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONSTOP | MB_YESNO);
-				UnhookWindowsHookEx(g_hCBTHook);
-			}
-			else
-			{
-				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONSTOP | MB_YESNO);
-			}
-
-			return result;
+			return ShowCenteredMessage(hWnd, title, message, MB_ICONSTOP | MB_YESNO);
 		}
 
 		//
@@ -1004,19 +823,7 @@ namespace ItSoftware::Win
 		//
 		static int ShowStopMessageYesNoCancel(HWND hWnd, const wstring& title, const wstring& message)
 		{
-			int result = 0;
-			if (hWnd != NULL)
-			{
-				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONSTOP | MB_YESNOCANCEL);
-				UnhookWindowsHookEx(g_hCBTHook);
-			}
-			else
-			{
-				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONSTOP | MB_YESNOCANCEL);
-			}
-
-			return result;
+			return ShowCenteredMessage(hWnd, title, message, MB_ICONSTOP | MB_YESNOCANCEL);
 		}
 
 		//
@@ -1048,19 +855,7 @@ namespace ItSoftware::Win
 		//
 		static int ShowStopMessageAbortRetryIgnore(HWND hWnd, const wstring& title, const wstring& message)
 		{
-			int result = 0;
-			if (hWnd != NULL)
-			{
-				g_hCBTHook = SetWindowsHookEx(WH_CBT, CBTMsgBox, NULL, ::GetCurrentThreadId());
-				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONSTOP | MB_ABORTRETRYIGNORE);
-				UnhookWindowsHookEx(g_hCBTHook);
-			}
-			else
-			{
-				result = MessageBox(hWnd, message.c_str(), title.c_str(), MB_ICONSTOP | MB_ABORTRETRYIGNORE);
-			}
-
-			return result;
+			return ShowCenteredMessage(hWnd, title, message, MB_ICONSTOP | MB_ABORTRETRYIGNORE);
 		}
 
 		//
@@ -1085,27 +880,7 @@ namespace ItSoftware::Win
 		//
 		static bool ReportSuccessEventLogEntry(const wstring& sourcename, short category, long eventid, short numberofstrings, const wchar_t* description)
 		{
-			if (sourcename.size() == 0 || (numberofstrings > 0 && wcslen(description) == 0))
-			{
-				return false;
-			}
-
-			HANDLE hEventLog = ::RegisterEventSource(NULL, sourcename.c_str());
-			if (hEventLog == NULL)
-			{
-				return false;
-			}
-
-			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_SUCCESS, category, eventid, NULL, numberofstrings, 0, reinterpret_cast<LPCWSTR*>(&description), NULL);
-			if (!bStatus)
-			{
-				::DeregisterEventSource(hEventLog);
-				return false;
-			}
-
-			::DeregisterEventSource(hEventLog);
-
-			return true;
+			return ReportEventLogEntry(sourcename, EVENTLOG_SUCCESS, category, eventid, numberofstrings, description);
 		}
 
 		//
@@ -1130,27 +905,7 @@ namespace ItSoftware::Win
 		//
 		static bool ReportErrorEventLogEntry(const wstring& sourcename, short category, long eventid, short numberofstrings, const wchar_t* description)
 		{
-			if (sourcename.size() == 0 || (numberofstrings > 0 && wcslen(description) == 0))
-			{
-				return false;
-			}
-
-			HANDLE hEventLog = ::RegisterEventSource(NULL, sourcename.c_str());
-			if (hEventLog == NULL)
-			{
-				return false;
-			}
-
-			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_ERROR_TYPE, category, eventid, NULL, numberofstrings, 0, reinterpret_cast<LPCWSTR*>(&description), NULL);
-			if (!bStatus)
-			{
-				::DeregisterEventSource(hEventLog);
-				return false;
-			}
-
-			::DeregisterEventSource(hEventLog);
-
-			return true;
+			return ReportEventLogEntry(sourcename, EVENTLOG_ERROR_TYPE, category, eventid, numberofstrings, description);
 		}
 
 		//
@@ -1175,27 +930,7 @@ namespace ItSoftware::Win
 		//
 		static bool ReportWarningEventLogEntry(const wstring& sourcename, short category, long eventid, short numberofstrings, const wchar_t* description)
 		{
-			if (sourcename.size() == 0 || (numberofstrings > 0 && wcslen(description) == 0))
-			{
-				return false;
-			}
-
-			HANDLE hEventLog = ::RegisterEventSource(NULL, sourcename.c_str());
-			if (hEventLog == NULL)
-			{
-				return false;
-			}
-
-			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_WARNING_TYPE, category, eventid, NULL, numberofstrings, 0, reinterpret_cast<LPCWSTR*>(&description), NULL);
-			if (!bStatus)
-			{
-				::DeregisterEventSource(hEventLog);
-				return false;
-			}
-
-			::DeregisterEventSource(hEventLog);
-
-			return true;
+			return ReportEventLogEntry(sourcename, EVENTLOG_WARNING_TYPE, category, eventid, numberofstrings, description);
 		}
 
 		//
@@ -1220,27 +955,7 @@ namespace ItSoftware::Win
 		//
 		static bool ReportInformationEventLogEntry(const wstring& sourcename, short category, long eventid, short numberofstrings, const wchar_t* description)
 		{
-			if (sourcename.size() == 0 || (numberofstrings > 0 && wcslen(description) == 0))
-			{
-				return false;
-			}
-
-			HANDLE hEventLog = ::RegisterEventSource(NULL, sourcename.c_str());
-			if (hEventLog == NULL)
-			{
-				return false;
-			}
-
-			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_INFORMATION_TYPE, category, eventid, NULL, numberofstrings, 0, reinterpret_cast<LPCWSTR*>(&description), NULL);
-			if (!bStatus)
-			{
-				::DeregisterEventSource(hEventLog);
-				return false;
-			}
-
-			::DeregisterEventSource(hEventLog);
-
-			return true;
+			return ReportEventLogEntry(sourcename, EVENTLOG_INFORMATION_TYPE, category, eventid, numberofstrings, description);
 		}
 
 		//
@@ -1265,27 +980,7 @@ namespace ItSoftware::Win
 		//
 		static bool ReportAuditSuccessEventLogEntry(const wstring& sourcename, short category, long eventid, short numberofstrings, const wchar_t* description)
 		{
-			if (sourcename.size() == 0 || (numberofstrings > 0 && wcslen(description) == 0))
-			{
-				return false;
-			}
-
-			HANDLE hEventLog = ::RegisterEventSource(NULL, sourcename.c_str());
-			if (hEventLog == NULL)
-			{
-				return false;
-			}
-
-			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_AUDIT_SUCCESS, category, eventid, NULL, numberofstrings, 0, reinterpret_cast<LPCWSTR*>(&description), NULL);
-			if (!bStatus)
-			{
-				::DeregisterEventSource(hEventLog);
-				return false;
-			}
-
-			::DeregisterEventSource(hEventLog);
-
-			return true;
+			return ReportEventLogEntry(sourcename, EVENTLOG_AUDIT_SUCCESS, category, eventid, numberofstrings, description);
 		}
 
 		//
@@ -1310,27 +1005,7 @@ namespace ItSoftware::Win
 		//
 		static bool ReportAuditFailureEventLogEntry(const wstring& sourcename, short category, long eventid, short numberofstrings, const wchar_t* description)
 		{
-			if (sourcename.size() == 0 || (numberofstrings > 0 && wcslen(description) == 0))
-			{
-				return false;
-			}
-
-			HANDLE hEventLog = ::RegisterEventSource(NULL, sourcename.c_str());
-			if (hEventLog == NULL)
-			{
-				return false;
-			}
-
-			BOOL bStatus = ::ReportEvent(hEventLog, EVENTLOG_AUDIT_FAILURE, category, eventid, NULL, numberofstrings, 0, reinterpret_cast<LPCWSTR*>(&description), NULL);
-			if (!bStatus)
-			{
-				::DeregisterEventSource(hEventLog);
-				return false;
-			}
-
-			::DeregisterEventSource(hEventLog);
-
-			return true;
+			return ReportEventLogEntry(sourcename, EVENTLOG_AUDIT_FAILURE, category, eventid, numberofstrings, description);
 		}
 
 
@@ -1339,34 +1014,23 @@ namespace ItSoftware::Win
 		//
 		static vector<BYTE> FromBase64String(wstring str)
 		{
-			DWORD cbData(0);
-			DWORD dwFlags(0);
-
-			if (str.size() == 0)
-			{
-				return vector<BYTE>();
+			if (str.empty()) return {};
+			if (str.size() > (std::numeric_limits<DWORD>::max)() || str.find(L'\0') != wstring::npos) {
+				throw ItsException(L"Invalid Base64 input length or embedded NUL");
 			}
 
-			if (!CryptStringToBinary(str.c_str(), (DWORD)str.size(), CRYPT_STRING_BASE64, NULL, &cbData, NULL, &dwFlags))
-			{
+			const auto length = static_cast<DWORD>(str.size());
+			DWORD bytes = 0;
+			if (!CryptStringToBinaryW(str.c_str(), length, CRYPT_STRING_BASE64, nullptr, &bytes, nullptr, nullptr)) {
 				throw ItsException(L"CryptStringToBinary failed");
 			}
 
-			BYTE* pReturnValue = new BYTE[cbData];
-			if (!CryptStringToBinary(str.c_str(), (DWORD)str.size(), CRYPT_STRING_BASE64, pReturnValue, &cbData, NULL, &dwFlags))
-			{
-				delete[] pReturnValue;
+			vector<BYTE> decoded(bytes);
+			if (!CryptStringToBinaryW(str.c_str(), length, CRYPT_STRING_BASE64, decoded.data(), &bytes, nullptr, nullptr)) {
 				throw ItsException(L"CryptStringToBinary failed");
 			}
-
-			auto retVal = vector<BYTE>(cbData);
-			for (DWORD i = 0; i < cbData; i++) {
-				retVal[i] = pReturnValue[i];
-			}
-
-			delete[] pReturnValue;
-
-			return retVal;
+			decoded.resize(bytes);
+			return decoded;
 		}
 
 		//
@@ -1374,14 +1038,21 @@ namespace ItSoftware::Win
 		//
 		static wstring ToBase64String(vector<BYTE> data)
 		{
-			DWORD dwLength(static_cast<DWORD>(data.size()));
-			DWORD cchString(0);
-			CryptBinaryToString(data.data(), dwLength, CRYPT_STRING_BASE64, NULL, &cchString);
-			unique_ptr<wchar_t[]> buffer = make_unique<wchar_t[]>(static_cast<size_t>(cchString) + 1);
-			CryptBinaryToString(data.data(), dwLength, CRYPT_STRING_BASE64, buffer.get(), &cchString);
-			buffer[cchString] = L'\0';
+			if (data.empty()) return {};
+			if (data.size() > (std::numeric_limits<DWORD>::max)()) throw ItsException(L"Base64 input is too large");
 
-			return wstring(buffer.get());
+			const auto length = static_cast<DWORD>(data.size());
+			DWORD count = 0;
+			if (!CryptBinaryToStringW(data.data(), length, CRYPT_STRING_BASE64, nullptr, &count) || !count) {
+				throw ItsException(L"CryptBinaryToString failed");
+			}
+			wstring encoded(count, L'\0');
+			if (!CryptBinaryToStringW(data.data(), length, CRYPT_STRING_BASE64, encoded.data(), &count) ||
+				count >= encoded.size()) {
+				throw ItsException(L"CryptBinaryToString failed");
+			}
+			encoded.resize(count);
+			return encoded;
 		}
 
 		//
@@ -1389,33 +1060,13 @@ namespace ItSoftware::Win
 		//
 		static wstring FromBase64StringToString(wstring str)
 		{
-			DWORD cbData(0);
-			DWORD dwFlags(0);
-
-			if (str.size() == 0)
-			{
-				return L"";
+			const auto decoded = FromBase64String(std::move(str));
+			if (decoded.size() % sizeof(wchar_t) != 0) {
+				throw ItsException(L"Base64 data is not a sequence of wide characters");
 			}
-
-			if (!CryptStringToBinary(str.c_str(), (DWORD)str.size(), CRYPT_STRING_BASE64, NULL, &cbData, NULL, &dwFlags))
-			{
-				throw ItsException(L"CryptStringToBinary failed");
-			}
-
-			BYTE* pReturnValue = new BYTE[cbData + sizeof(wchar_t)];
-			if (!CryptStringToBinary(str.c_str(), (DWORD)str.size(), CRYPT_STRING_BASE64, pReturnValue, &cbData, NULL, &dwFlags))
-			{
-				throw ItsException(L"CryptStringToBinary failed");
-			}
-
-			pReturnValue[cbData] = 0;
-			pReturnValue[cbData + 1] = 0;
-
-			auto retVal = wstring(reinterpret_cast<wchar_t*>(pReturnValue));
-
-			delete[] pReturnValue;
-
-			return retVal;
+			wstring result(decoded.size() / sizeof(wchar_t), L'\0');
+			if (!decoded.empty()) std::memcpy(result.data(), decoded.data(), decoded.size());
+			return result;
 		}
 
 		//
@@ -1423,19 +1074,13 @@ namespace ItSoftware::Win
 		//
 		static wstring ToBase64StringFromString(wstring str)
 		{
-			if (str.size() == 0) {
-				return L"";
+			if (str.empty()) return {};
+			if (str.size() > (std::numeric_limits<DWORD>::max)() / sizeof(wchar_t)) {
+				throw ItsException(L"Base64 input is too large");
 			}
 
-			BYTE* pData = reinterpret_cast<BYTE*>(const_cast<wchar_t*>(str.c_str()));
-			size_t dwSize = str.size() * sizeof(wchar_t);
-
-			vector<BYTE> buffer;
-			for (size_t i = 0; i < dwSize; i++) {
-				buffer.push_back(pData[i]);
-			}
-
-			return ToBase64String(buffer);
+			const auto* bytes = reinterpret_cast<const BYTE*>(str.data());
+			return ToBase64String(vector<BYTE>(bytes, bytes + str.size() * sizeof(wchar_t)));
 		}
 	};
 }// namespace ItSoftware::Win

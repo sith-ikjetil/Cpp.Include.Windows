@@ -31,6 +31,18 @@
 #include <regex>
 #include <stdlib.h>
 #include <time.h>
+#include <bit>
+#include <cerrno>
+#include <climits>
+#include <cmath>
+#include <cstring>
+#include <cwctype>
+#include <limits>
+#include <mutex>
+#include <set>
+#include <stdexcept>
+#include <type_traits>
+#include <utility>
 #include "itsoftware-exceptions.h"
 
 //
@@ -47,7 +59,7 @@ namespace ItSoftware
 	using std::stringstream;
 	using std::wstringstream;
 	using std::endl;
-	using ItSoftware::Exceptions::ItsException;	
+	using ItSoftware::Exceptions::ItsException;
 
 	// 
 	// Macros
@@ -56,17 +68,32 @@ namespace ItSoftware
 #define DECIMALTOSTRING1(d) DECIMALTOSTRING2(d)
 #define ERR_AT_LOCATION(e) __FILE__ "(" DECIMALTOSTRING1(__LINE__) "): " #e 
 #define ERROR_HERE __FILE__ "(" DECIMALTOSTRING2(__LINE__) "): "  
+#ifndef CHAR_BIT
 #define CHAR_BIT 8
+#endif
 #define BitsCount( val ) ( sizeof( val ) * CHAR_BIT )
-#define Shift( val, steps ) ( steps % BitsCount( val ) )
-#define ROL( val, steps ) ( ( val << Shift( val, steps ) ) | ( val >> ( BitsCount( val ) - Shift( val, steps ) ) ) )
-#define ROR( val, steps ) ( ( val >> Shift( val, steps ) ) | ( val << ( BitsCount( val ) - Shift( val, steps ) ) ) )	
-#define AddFlag( val, flag ) (val | flag)
-#define RemoveFlag(val, flag) (val & ~flag)
+#define Shift( val, steps ) ( (steps) % BitsCount( val ) )
+#define ROL( val, steps ) ( ::ItSoftware::detail::Rotate<true>((val), (steps)) )
+#define ROR( val, steps ) ( ::ItSoftware::detail::Rotate<false>((val), (steps)) )
+#define AddFlag( val, flag ) ((val) | (flag))
+#define RemoveFlag(val, flag) ((val) & ~(flag))
 
-//
-// Function: as_const
-//
+	namespace detail
+	{
+		template<bool Left, typename T, typename Steps>
+		constexpr auto Rotate(T value, Steps steps)
+		{
+			using Unsigned = std::make_unsigned_t<T>;
+			constexpr int bits = std::numeric_limits<Unsigned>::digits;
+			const int count = static_cast<int>(steps % bits);
+			const auto word = static_cast<Unsigned>(value);
+			return static_cast<decltype(value | value)>(Left ? std::rotl(word, count) : std::rotr(word, count));
+		}
+	}
+
+	//
+	// Function: as_const
+	//
 	template<typename T>
 	const T& as_const(const T& item) { return item; }
 
@@ -120,70 +147,45 @@ namespace ItSoftware
 
 			static std::wstring ToString(const std::string& str)
 			{
-				/*typedef std::codecvt_utf8<wchar_t> convert_typeX;
-				std::wstring_convert<convert_typeX, wchar_t> converterX;
-
-				return converterX.from_bytes( str );*/
-				if (str.empty())
-					return std::wstring();
-
-				int size_needed = MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), NULL, 0);
-				if (size_needed == 0) {
-					return std::wstring();
-				}
-				
-				std::wstring wstrTo(size_needed, 0);
-				MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), &wstrTo[0], size_needed);
-
-				return wstrTo;
+				if (str.empty() || str.size() > static_cast<size_t>((std::numeric_limits<int>::max)())) return {};
+				const int length = static_cast<int>(str.size());
+				const int count = MultiByteToWideChar(CP_UTF8, 0, str.data(), length, nullptr, 0);
+				if (count <= 0) return {};
+				std::wstring result(count, 0);
+				if (MultiByteToWideChar(CP_UTF8, 0, str.data(), length, result.data(), count) != count) return {};
+				return result;
 			}
 
 			static std::string ToString(const std::wstring& wstr)
 			{
-				/*typedef std::codecvt_utf8<wchar_t> convert_typeX;
-				std::wstring_convert<convert_typeX, wchar_t> converterX;
-
-				return converterX.to_bytes( wstr );*/
-				if (wstr.empty())
-					return std::string();
-
-				int size_needed = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), NULL, 0, NULL, NULL);
-				if (size_needed == 0) {
-					return std::string();
-				}
-
-				std::string strTo(size_needed, 0);
-				WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), &strTo[0], size_needed, NULL, NULL);
-				
-				return strTo;
+				if (wstr.empty() || wstr.size() > static_cast<size_t>((std::numeric_limits<int>::max)())) return {};
+				const int length = static_cast<int>(wstr.size());
+				const int count = WideCharToMultiByte(CP_UTF8, 0, wstr.data(), length, nullptr, 0, nullptr, nullptr);
+				if (count <= 0) return {};
+				std::string result(count, 0);
+				if (WideCharToMultiByte(CP_UTF8, 0, wstr.data(), length, result.data(), count, nullptr, nullptr) != count) return {};
+				return result;
 			}
 
 			static unsigned char* ToBytes(const std::wstring& wstr, long* cbLength)
 			{
-				/*typedef std::codecvt_utf8<wchar_t> convert_typeX;
-				std::wstring_convert<convert_typeX, wchar_t> converterX;
-
-				std::string s = converterX.to_bytes( wstr );*/
+				if (cbLength == nullptr) return nullptr;
+				*cbLength = 0;
 
 				std::string s = UTF8::ToString(wstr);
 
-				size_t length = s.length() * sizeof(char);
-				unsigned char* pBytes = new (std::nothrow) unsigned char[length];
-				if (pBytes == nullptr)
-				{
-					*cbLength = 0;
-					return nullptr;
-				}
+				const size_t length = s.size();
+				if (length == 0 && !wstr.empty()) return nullptr;
+				auto* bytes = new (std::nothrow) unsigned char[length];
+				if (bytes == nullptr) return nullptr;
+				std::memcpy(bytes, s.data(), length);
+				*cbLength = static_cast<long>(length);
 
-				memcpy(reinterpret_cast<void*>(pBytes), s.data(), length);
-
-				*cbLength = (long)length;
-
-				return pBytes;
+				return bytes;
 			}
 		};
 	}
-	
+
 	//
 	// struct: ItsTime
 	//
@@ -193,34 +195,20 @@ namespace ItSoftware
 	{
 		static void SplitMsToHourMinuteSeconds(size_t time_ms, size_t* part_hours, size_t* part_minutes, size_t* part_seconds, size_t* part_ms)
 		{
-			size_t seconds = time_ms / 1000;
-
-			*part_hours = 0;
-			*part_minutes = 0;;
-			*part_seconds = 0;
-			*part_ms = 0;
-
-			*part_hours = seconds / 3600;
-			*part_minutes = (seconds - (*part_hours * 3600)) / 60;
-			*part_seconds = seconds - (*part_hours * 3600) - (*part_minutes * 60);
-			*part_ms = time_ms - (*part_seconds * 1000) - (*part_minutes * 60 * 1000) - (*part_hours * 3600 * 1000);
+			const size_t seconds = time_ms / 1000;
+			if (part_hours) *part_hours = seconds / 3600;
+			if (part_minutes) *part_minutes = seconds / 60 % 60;
+			if (part_seconds) *part_seconds = seconds % 60;
+			if (part_ms) *part_ms = time_ms % 1000;
 		}
 
 		static void SplitHourToYearWeekDayHour(size_t houIn, size_t* houRest, size_t* day, size_t* week, size_t* year)
 		{
-			*houRest = houIn;
-
-			*day = houIn / 24;
-			*week = *day / 7;
-			*year = *week / 52;
-
-			*day -= (*week * 7);
-
-			*week -= (*year * 52);
-
-			*houRest -= *week * 7 * 24;
-			*houRest -= *day * 24;
-			*houRest -= *year * 52 * 7 * 24;
+			const size_t days = houIn / 24;
+			if (houRest) *houRest = houIn % 24;
+			if (day) *day = days % 7;
+			if (week) *week = days / 7 % 52;
+			if (year) *year = days / 7 / 52;
 		}
 
 		static wstring RenderMsToFullString(size_t milliseconds, bool bWithMilliseconds)
@@ -333,69 +321,61 @@ namespace ItSoftware
 	struct ItsString
 	{
 		static std::generator<string> StringFromTextByRegex(const string& text, const string& re) {
-			std::regex rgx(re);
-			std::sregex_token_iterator iter(text.begin(), text.end(), rgx);
-			std::sregex_token_iterator end;
-			for (; iter != end; ++iter) {
-				co_yield iter->str();
-			}
-			co_return;
+			return [](string owned, string pattern) -> std::generator<string> {
+				const std::regex regex(pattern);
+				auto it = std::sregex_iterator(owned.begin(), owned.end(), regex);
+				for (; it != std::sregex_iterator{}; ++it) co_yield it->str();
+				}(text, re);
 		}
 
 		static std::generator<wstring> StringFromTextByRegex(const wstring& text, const wstring& re) {
-			std::wregex rgx(re);
-			std::wsregex_token_iterator iter(text.begin(), text.end(), rgx);
-			std::wsregex_token_iterator end;
-			for (; iter != end; ++iter) {
-				co_yield iter->str();
-			}
-			co_return;
+			return [](wstring owned, wstring pattern) -> std::generator<wstring> {
+				const std::wregex regex(pattern);
+				auto it = std::wsregex_iterator(owned.begin(), owned.end(), regex);
+				for (; it != std::wsregex_iterator{}; ++it) co_yield it->str();
+				}(text, re);
 		}
 
 		static std::generator<string> WordsFromText(const string& text) {
-			std::regex rgx(R"(\b\w+\b)");
-			std::sregex_token_iterator iter(text.begin(), text.end(), rgx);
-			std::sregex_token_iterator end;
-			for (; iter != end; ++iter) {
-				co_yield iter->str();
-			}
-			co_return;
+			return [](string owned) -> std::generator<string> {
+				const std::regex regex(R"(\b\w+\b)");
+				auto it = std::sregex_iterator(owned.begin(), owned.end(), regex);
+				for (; it != std::sregex_iterator{}; ++it) co_yield it->str();
+				}(text);
 		}
 
 		static std::generator<wstring> WordsFromText(const wstring& text) {
-			std::wregex rgx(LR"(\b\w+\b)");
-			std::wsregex_token_iterator iter(text.begin(), text.end(), rgx);
-			std::wsregex_token_iterator end;
-			for (; iter != end; ++iter) {
-				co_yield iter->str();
-			}
-			co_return;
+			return [](wstring owned) -> std::generator<wstring> {
+				const std::wregex regex(LR"(\b\w+\b)");
+				auto it = std::wsregex_iterator(owned.begin(), owned.end(), regex);
+				for (; it != std::wsregex_iterator{}; ++it) co_yield it->str();
+				}(text);
 		}
 
 		static std::generator<string> LinesFromText(const string& text) {
-			std::regex r("^.*$");
-			string normalized_text = std::regex_replace(text, std::regex("\r\n"), "\n"); // normalize
-			auto words_begin = std::sregex_iterator(normalized_text.begin(), normalized_text.end(), r);
-			auto words_end = std::sregex_iterator();
-
-			for (std::sregex_iterator i = words_begin; i != words_end; ++i) {
-				co_yield i->str();
-			}
-
-			co_return;
+			return [](string owned) -> std::generator<string> {
+				size_t start = 0;
+				while (start < owned.size()) {
+					const auto end = owned.find('\n', start);
+					const auto limit = end != string::npos && end > start && owned[end - 1] == '\r' ? end - 1 : end;
+					co_yield owned.substr(start, limit == string::npos ? string::npos : limit - start);
+					if (end == string::npos) break;
+					start = end + 1;
+				}
+				}(text);
 		}
 
 		static std::generator<wstring> LinesFromText(const wstring& text) {
-			std::wregex r(L"^.*$");
-			wstring normalized_text = std::regex_replace(text, std::wregex(L"\r\n"), L"\n"); // normalize
-			auto words_begin = std::wsregex_iterator(normalized_text.begin(), normalized_text.end(), r);
-			auto words_end = std::wsregex_iterator();
-
-			for (std::wsregex_iterator i = words_begin; i != words_end; ++i) {
-				co_yield i->str();
-			}
-
-			co_return;
+			return [](wstring owned) -> std::generator<wstring> {
+				size_t start = 0;
+				while (start < owned.size()) {
+					const auto end = owned.find('\n', start);
+					const auto limit = end != wstring::npos && end > start && owned[end - 1] == '\r' ? end - 1 : end;
+					co_yield owned.substr(start, limit == wstring::npos ? wstring::npos : limit - start);
+					if (end == wstring::npos) break;
+					start = end + 1;
+				}
+				}(text);
 		}
 
 		static wstring WidthExpand(const wstring& source, size_t width, wchar_t fill, ItsExpandDirection direction)
@@ -476,13 +456,13 @@ namespace ItSoftware
 
 		static wstring ToLowerCase(wstring s)
 		{
-			std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+			std::transform(s.begin(), s.end(), s.begin(), [](wchar_t ch) { return static_cast<wchar_t>(std::towlower(ch)); });
 			return s;
 		}
 
 		static wstring ToUpperCase(wstring s)
 		{
-			std::transform(s.begin(), s.end(), s.begin(), ::toupper);
+			std::transform(s.begin(), s.end(), s.begin(), [](wchar_t ch) { return static_cast<wchar_t>(std::towupper(ch)); });
 			return s;
 		}
 
@@ -506,74 +486,17 @@ namespace ItSoftware
 
 		static wstring Left(const wstring& s, size_t count)
 		{
-			if (s.size() == 0 || count == 0)
-			{
-				return wstring(L"");
-			}
-
-			if (count >= s.size())
-			{
-				return s;
-			}
-
-			wstringstream ss;
-			for (unsigned int i = 0; i < count; i++)
-			{
-				ss << s[i];
-			}
-
-			wstring str = ss.str();
-			return str;
+			return s.substr(0, count);
 		}
 
 		static wstring Mid(const wstring& s, size_t index, size_t count)
 		{
-			if (s.size() == 0 || count == 0 || index >= s.size())
-			{
-				return wstring(L"");
-			}
-
-			if (index + count >= s.size())
-			{
-				wstringstream ss;
-				for (size_t i = index; i < s.size(); i++)
-				{
-					ss << s[i];
-				}
-				wstring str = ss.str();
-				return str;
-			}
-
-			wstringstream ss;
-			for (size_t i = index; i < index + count; i++)
-			{
-				ss << s[i];
-			}
-
-			wstring str = ss.str();
-			return str;
+			return index >= s.size() ? wstring{} : s.substr(index, count);
 		}
 
 		static wstring Right(const wstring& s, size_t count)
 		{
-			if (s.size() == 0 || count == 0)
-			{
-				return wstring(L"");
-			}
-
-			if (count >= s.size())
-			{
-				return s;
-			}
-
-			wstringstream ss;
-			for (size_t i = s.size() - count; i < s.size(); i++)
-			{
-				ss << s[i];
-			}
-
-			wstring str = ss.str();
-			return str;
+			return s.substr(s.size() - (std::min)(count, s.size()));
 		}
 
 
@@ -581,7 +504,7 @@ namespace ItSoftware
 		{
 			if (s.size() == 0 || replace.size() == 0 || replace.size() > s.size())
 			{
-				return wstring(L"");
+				return s;
 			}
 
 			wstring retVal = s;
@@ -686,68 +609,34 @@ namespace ItSoftware
 		template<typename Numeric>
 		static Numeric ToNumber(const wstring& str)
 		{
-			if (std::is_same_v<Numeric, char>)
-			{
-				return static_cast<char>(std::stoi(str));
+			if constexpr (std::is_same_v<Numeric, float>) return std::stof(str);
+			else if constexpr (std::is_same_v<Numeric, double>) return std::stod(str);
+			else if constexpr (std::is_same_v<Numeric, long double>) return std::stold(str);
+			else if constexpr (std::is_integral_v<Numeric> && std::is_signed_v<Numeric>) {
+				const auto value = std::stoll(str);
+				if (value < (std::numeric_limits<Numeric>::min)() || value >(std::numeric_limits<Numeric>::max)()) throw std::out_of_range("Integer does not fit destination type");
+				return static_cast<Numeric>(value);
 			}
-			else if (std::is_same_v<Numeric, unsigned char>)
-			{
-				return static_cast<unsigned char>(std::stoi(str));
+			else if constexpr (std::is_integral_v<Numeric>) {
+				const auto first = str.find_first_not_of(L" \t\r\n\f\v");
+				if (first != wstring::npos && str[first] == L'-') throw std::out_of_range("Negative unsigned integer");
+				const auto value = std::stoull(str);
+				if (value > static_cast<unsigned long long>((std::numeric_limits<Numeric>::max)())) {
+					throw std::out_of_range("Integer does not fit destination type");
+				}
+				return static_cast<Numeric>(value);
 			}
-			else if (std::is_same_v<Numeric, short>)
-			{
-				return static_cast<short>(std::stoi(str));
-			}
-			else if (std::is_same_v<Numeric, unsigned short>)
-			{
-				return static_cast<unsigned short>(std::stoi(str));
-			}
-			else if (std::is_same_v<Numeric, float>)
-			{
-				return std::stof(str);
-			}
-			else if (std::is_same_v<Numeric, double>)
-			{
-				return std::stod(str);
-			}
-			else if (std::is_same_v <Numeric, long double>)
-			{
-				return std::stold(str);
-			}
-			else if (std::is_same_v<Numeric, int>)
-			{
-				return std::stoi(str);
-			}
-			else if (std::is_same_v<Numeric, long>)
-			{
-				return std::stol(str);
-			}
-			else if (std::is_same_v<Numeric, long long>)
-			{
-				return std::stoll(str);
-			}
-			else if (std::is_same_v<Numeric, unsigned int>)
-			{
-				return static_cast<unsigned int>(std::stoul(str));
-			}
-			else if (std::is_same_v<Numeric, unsigned long>)
-			{
-				return std::stoul(str);
-			}
-			else if (std::is_same_v<Numeric, unsigned long long>)
-			{
+			else {
 				return std::stoull(str);
 			}
-
-			Numeric x = std::stoull(str);
-			return x;
 		}
 #pragma warning(error: 4244)
 		static long ToLongFromHex(const wstring& str)
 		{
-			wchar_t* p;
-			long n = wcstol(str.c_str(), &p, 16);
-			if (*p != 0) {
+			wchar_t* end = nullptr;
+			errno = 0;
+			const long n = std::wcstol(str.c_str(), &end, 16);
+			if (errno == ERANGE || end == str.c_str() || end != str.c_str() + str.size()) {
 				return 0;
 			}
 			return n;
@@ -834,22 +723,13 @@ namespace ItSoftware
 		{
 			wstringstream ss;
 			ss << std::hex;
-			if (showBase)
-			{
-				ss << "0x";
-			}
-			if (uppercase)
-			{
-				ss << std::uppercase;
-			}
-			if (width > 0)
-			{
-				ss << std::setfill(fillChar) << std::setw(width);
-			}
-			ss << number;
-
-			wstring tos = ss.str();
-			return tos;
+			if (showBase) ss << L"0x";
+			if (uppercase) ss << std::uppercase;
+			if (width > static_cast<uint32_t>((std::numeric_limits<int>::max)())) throw std::length_error("Hexadecimal width is too large");
+			ss << std::setfill(fillChar) << std::setw(static_cast<int>(width));
+			if constexpr (std::is_same_v<Numeric, char> || std::is_same_v<Numeric, signed char> || std::is_same_v<Numeric, unsigned char>) ss << +number;
+			else ss << number;
+			return Encoding::UTF8::ToString(ss.str());
 		}
 
 		static wstring ToString(tm dateTime) {
@@ -902,7 +782,16 @@ namespace ItSoftware
 		static COLORREF ToRGB(wstring color)
 		{
 			auto rgb = ItsString::Split(color, L",");
-			return (COLORREF)(RGB(ItsConvert::ToNumber<int>(rgb[0]), ItsConvert::ToNumber<int>(rgb[1]), ItsConvert::ToNumber<int>(rgb[2])));
+			if (rgb.size() != 3) throw std::invalid_argument("Expected three RGB components");
+			int channels[3]{};
+			for (size_t i = 0; i < rgb.size(); ++i) {
+				const auto component = ItsString::Trim(rgb[i]);
+				size_t end = 0;
+				channels[i] = std::stoi(component, &end);
+				if (end != component.size()) throw std::invalid_argument("Invalid RGB component");
+				if (channels[i] < 0 || channels[i] > 255) throw std::out_of_range("RGB component is outside 0-255");
+			}
+			return RGB(channels[0], channels[1], channels[2]);
 		}
 
 		static wstring ToString(vector<long long> pks)
@@ -950,6 +839,7 @@ namespace ItSoftware
 			st.wYear = static_cast<WORD>(dateTime.tm_year + 1900);
 			st.wMonth = static_cast<WORD>(dateTime.tm_mon + 1);
 			st.wDay = static_cast<WORD>(dateTime.tm_mday);
+			st.wDayOfWeek = static_cast<WORD>(dateTime.tm_wday);
 			st.wHour = static_cast<WORD>(dateTime.tm_hour);
 			st.wMinute = static_cast<WORD>(dateTime.tm_min);
 			st.wSecond = static_cast<WORD>(dateTime.tm_sec);
@@ -964,6 +854,8 @@ namespace ItSoftware
 			t.tm_year = st.wYear - 1900;
 			t.tm_mon = st.wMonth - 1;
 			t.tm_mday = st.wDay;
+			t.tm_wday = st.wDayOfWeek;
+			t.tm_isdst = -1;
 			t.tm_hour = st.wHour;
 			t.tm_min = st.wMinute;
 			t.tm_sec = st.wSecond;
@@ -980,18 +872,20 @@ namespace ItSoftware
 	template<typename Numeric, typename Generator = std::mt19937>
 	Numeric ItsRandom(Numeric from, Numeric to)
 	{
+		if (!(from <= to)) throw std::invalid_argument("Invalid random range");
 		thread_local static Generator gen(std::random_device{}());
-
-		using dist_type = typename std::conditional
-			<
-			std::is_integral<Numeric>::value
-			, std::uniform_int_distribution<Numeric>
-			, std::uniform_real_distribution<Numeric>
-			>::type;
-
-		thread_local static dist_type dist{};
-
-		return dist(gen, typename dist_type::param_type{ from, to });
+		if constexpr (std::is_integral_v<Numeric>) {
+			using Result = std::conditional_t<(sizeof(Numeric) < sizeof(int)), int, Numeric>;
+			return static_cast<Numeric>(std::uniform_int_distribution<Result>(
+				static_cast<Result>(from), static_cast<Result>(to))(gen));
+		}
+		else {
+			if (!std::isfinite(from) || !std::isfinite(to) ||
+				(from < 0 && to >(std::numeric_limits<Numeric>::max)() + from)) {
+				throw std::invalid_argument("Invalid random range");
+			}
+			return std::uniform_real_distribution<Numeric>(from, to)(gen);
+		}
 	}
 
 	//
@@ -1004,6 +898,25 @@ namespace ItSoftware
 	private:
 		tm m_tm;
 
+		static void AdjustField(int& field, int amount, bool subtract)
+		{
+			const auto delta = static_cast<long long>(amount);
+			const auto result = static_cast<long long>(field) + (subtract ? -delta : delta);
+			if (result < (std::numeric_limits<int>::min)() || result >(std::numeric_limits<int>::max)()) {
+				throw std::out_of_range("Date component overflow");
+			}
+			field = static_cast<int>(result);
+		}
+
+		void SetNormalized(tm candidate)
+		{
+			candidate.tm_isdst = -1;
+			if (std::mktime(&candidate) == static_cast<time_t>(-1)) {
+				throw std::out_of_range("Date is outside the supported time range");
+			}
+			m_tm = candidate;
+		}
+
 	public:
 		explicit ItsDateTime(tm timeDate)
 		{
@@ -1014,7 +927,7 @@ namespace ItSoftware
 		{
 			this->m_tm = dateTime.m_tm;
 		}
-		
+
 		static ItsDateTime Now()
 		{
 			time_t t;
@@ -1223,110 +1136,110 @@ namespace ItSoftware
 
 		void AddYears(int year)
 		{
-			this->m_tm.tm_year += year;
-
-			mktime(&this->m_tm);
+			tm candidate = m_tm;
+			AdjustField(candidate.tm_year, year, false);
+			SetNormalized(candidate);
 		}
 
 		void AddMonths(int month)
 		{
-			this->m_tm.tm_mon += month;
-
-			mktime(&this->m_tm);
+			tm candidate = m_tm;
+			AdjustField(candidate.tm_mon, month, false);
+			SetNormalized(candidate);
 		}
 
 		void AddDays(int day)
 		{
-			this->m_tm.tm_mday += day;
-
-			mktime(&this->m_tm);
+			tm candidate = m_tm;
+			AdjustField(candidate.tm_mday, day, false);
+			SetNormalized(candidate);
 		}
 
 		void AddHours(int hour)
 		{
-			this->m_tm.tm_hour += hour;
-
-			mktime(&this->m_tm);
+			tm candidate = m_tm;
+			AdjustField(candidate.tm_hour, hour, false);
+			SetNormalized(candidate);
 		}
 
 		void AddMinutes(int min)
 		{
-			this->m_tm.tm_min += min;
-
-			mktime(&this->m_tm);
+			tm candidate = m_tm;
+			AdjustField(candidate.tm_min, min, false);
+			SetNormalized(candidate);
 		}
 
 		void AddSeconds(int sec)
 		{
-			this->m_tm.tm_sec += sec;
-
-			mktime(&this->m_tm);
+			tm candidate = m_tm;
+			AdjustField(candidate.tm_sec, sec, false);
+			SetNormalized(candidate);
 		}
 
 		void Add(int year, int month, int day, int hour, int min, int sec)
 		{
-			this->m_tm.tm_year += year;
-			this->m_tm.tm_mon += month;
-			this->m_tm.tm_mday += day;
-			this->m_tm.tm_hour += hour;
-			this->m_tm.tm_min += min;
-			this->m_tm.tm_sec += sec;
-
-			mktime(&this->m_tm);
+			tm candidate = m_tm;
+			AdjustField(candidate.tm_year, year, false);
+			AdjustField(candidate.tm_mon, month, false);
+			AdjustField(candidate.tm_mday, day, false);
+			AdjustField(candidate.tm_hour, hour, false);
+			AdjustField(candidate.tm_min, min, false);
+			AdjustField(candidate.tm_sec, sec, false);
+			SetNormalized(candidate);
 		}
 
 		void SubtractYears(int year)
 		{
-			this->m_tm.tm_year -= year;
-
-			mktime(&this->m_tm);
+			tm candidate = m_tm;
+			AdjustField(candidate.tm_year, year, true);
+			SetNormalized(candidate);
 		}
 
 		void SubtractMonths(int month)
 		{
-			this->m_tm.tm_mon -= month;
-
-			mktime(&this->m_tm);
+			tm candidate = m_tm;
+			AdjustField(candidate.tm_mon, month, true);
+			SetNormalized(candidate);
 		}
 
 		void SubtractDays(int day)
 		{
-			this->m_tm.tm_mday -= day;
-
-			mktime(&this->m_tm);
+			tm candidate = m_tm;
+			AdjustField(candidate.tm_mday, day, true);
+			SetNormalized(candidate);
 		}
 
 		void SubtractHours(int hour)
 		{
-			this->m_tm.tm_hour -= hour;
-
-			mktime(&this->m_tm);
+			tm candidate = m_tm;
+			AdjustField(candidate.tm_hour, hour, true);
+			SetNormalized(candidate);
 		}
 
 		void SubtractMinutes(int min)
 		{
-			this->m_tm.tm_min -= min;
-
-			mktime(&this->m_tm);
+			tm candidate = m_tm;
+			AdjustField(candidate.tm_min, min, true);
+			SetNormalized(candidate);
 		}
 
 		void SubtractSeconds(int sec)
 		{
-			this->m_tm.tm_sec -= sec;
-
-			mktime(&this->m_tm);
+			tm candidate = m_tm;
+			AdjustField(candidate.tm_sec, sec, true);
+			SetNormalized(candidate);
 		}
 
 		void Subtract(int year, int month, int day, int hour, int min, int sec)
 		{
-			this->m_tm.tm_year -= year;
-			this->m_tm.tm_mon -= month;
-			this->m_tm.tm_mday -= day;
-			this->m_tm.tm_hour -= hour;
-			this->m_tm.tm_min -= min;
-			this->m_tm.tm_sec -= sec;
-
-			mktime(&this->m_tm);
+			tm candidate = m_tm;
+			AdjustField(candidate.tm_year, year, true);
+			AdjustField(candidate.tm_mon, month, true);
+			AdjustField(candidate.tm_mday, day, true);
+			AdjustField(candidate.tm_hour, hour, true);
+			AdjustField(candidate.tm_min, min, true);
+			AdjustField(candidate.tm_sec, sec, true);
+			SetNormalized(candidate);
 		}
 
 		int GetYear()
@@ -1385,7 +1298,7 @@ namespace ItSoftware
 	//
 	// (i): Log status
 	//
-	enum class ItsLogStatus 
+	enum class ItsLogStatus
 	{
 		OK,
 		Failure
@@ -1439,22 +1352,11 @@ namespace ItSoftware
 		}
 
 		static string WideToUTF8(const std::wstring& wstr) {
-			if (wstr.empty()) return {};
-
-			int sizeNeeded = WideCharToMultiByte(CP_UTF8, 0,
-				wstr.data(), (int)wstr.size(),
-				nullptr, 0,
-				nullptr, nullptr);
-			std::string str(sizeNeeded, 0);
-			WideCharToMultiByte(CP_UTF8, 0,
-				wstr.data(), (int)wstr.size(),
-				str.data(), sizeNeeded,
-				nullptr, nullptr);
-			return str;
+			return Encoding::UTF8::ToString(wstr);
 		}
 	};
 
-	
+
 	//
 	// struct: ItsLog
 	//
@@ -1468,22 +1370,17 @@ namespace ItSoftware
 	public:
 		explicit ItsLog(const wstring& fileName, const bool doQuoteEsc = true)
 			: m_filename(fileName), m_doQuoteEsc(doQuoteEsc)
-		{
-		}
+		{}
 		~ItsLog()
-		{
-		}
+		{}
 
 		static inline std::unique_ptr<ItsLog> ApplicationLog = nullptr;
 
 		void Log(const ItsLogStatus& status, const ItsLogType type, const wstring& title, const wstring& description)
 		{
-			static int logCount = 1;
-
-			if (logCount == 1) {
-				std::ofstream out(this->m_filename, std::ios::trunc);
-				out.close();
-			}
+			static std::mutex mutex;
+			static std::set<wstring> startedFiles;
+			static unsigned long long logCount = 1;
 
 			std::wstring _title = title;
 			_title.erase(std::remove(_title.begin(), _title.end(), L'\r'), _title.end());
@@ -1513,15 +1410,23 @@ namespace ItSoftware
 
 					return s;
 				}
-			};
+				};
 
-			std::ofstream out(this->m_filename, std::ios::app);
-			out << logCount++ << "> ";			
+			const std::lock_guard lock(mutex);
+			const auto mode = startedFiles.contains(m_filename) ? std::ios::app : std::ios::trunc;
+			std::ofstream out(m_filename, mode);
+			if (!out) return;
+			out << logCount << "> ";
 			out << ItsLogUtil::LogStatusToString(status) << " ";
 			out << "| Type=" << ItsLogUtil::LogTypeToString(type) << " ";
 			out << "| When=" << std::chrono::system_clock::now() << " ";
 			out << "| Title=\"" << fnEscQuot(_title8) << "\" ";
 			out << "| Description=\"" << fnEscQuot(_description8) << "\"\n";
+			out.close();
+			if (out) {
+				startedFiles.insert(m_filename);
+				++logCount;
+			}
 		}
 
 		void LogInformation(const ItsLogStatus& status, const wstring& title, const wstring& description)
@@ -1577,50 +1482,17 @@ namespace ItSoftware
 				count = 16;
 			}
 
-			wstring dataMin = L"abcdefghijklmnopqrstuvwxyz";
-			wstring dataMaj = L"ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-			wstring dataMinMaj = L"aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ";
-			wstring dataMinNum = L"a0b1c2d3e4f5g6h7i8j9k0l1m2n3o4p5q6r7s8t9u0v1w2x3y4z5";
-			wstring dataMajNum = L"A0B1C2D3E4F5G6G7I8J9K0L1M2N3O4P5Q6R7S8T9U0V1W2X3Y4Z5";
-			wstring dataMinMajNum = L"aA0bB1cC2dD3eE4fF5gG6hH7iI8jJ9kK0lL1mM2nN3oO4pP5qQ6rR7sS8tT9uU0vV1wW2xX3yY4zZ5";
+			wstring alphabet;
+			if (options != ItsCreateIDOptions::UpperCase) alphabet += L"abcdefghijklmnopqrstuvwxyz";
+			if (options != ItsCreateIDOptions::LowerCase) alphabet += L"ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+			if (includeNumbers) alphabet += L"0123456789";
 
-			wstring data = dataMin;
-			if (options == ItsCreateIDOptions::LowerAndUpperCase && includeNumbers)
-			{
-				data = dataMinMajNum;
+			wstring id;
+			id.reserve(count);
+			for (size_t i = 0; i < count; ++i) {
+				id += alphabet[ItsRandom<size_t>(0, alphabet.size() - 1)];
 			}
-			if (options == ItsCreateIDOptions::LowerAndUpperCase && !includeNumbers)
-			{
-				data = dataMinMaj;
-			}
-			else if (options == ItsCreateIDOptions::LowerCase && includeNumbers)
-			{
-				data = dataMinNum;
-			}
-			else if (options == ItsCreateIDOptions::LowerCase && !includeNumbers)
-			{
-				data = dataMin;
-			}
-			else if (options == ItsCreateIDOptions::UpperCase && includeNumbers)
-			{
-				data = dataMajNum;
-			}
-			else if (options == ItsCreateIDOptions::UpperCase && !includeNumbers)
-			{
-				data = dataMaj;
-			}
-
-			wstringstream id;
-			int i = 0;
-			do
-			{
-				size_t j = ItsRandom<size_t>(0, data.size() - 1);
-				id << data[j];
-
-			} while (++i < count);
-
-			wstring retVal = id.str();
-			return retVal;
+			return id;
 		}
 	};
 }// namespace ItSoftware

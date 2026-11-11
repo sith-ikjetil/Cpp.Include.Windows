@@ -25,6 +25,18 @@
 #include <time.h>
 #include <map>
 #include <chrono>
+#include <algorithm>
+#include <atomic>
+#include <cstddef>
+#include <cstdio>
+#include <cstring>
+#include <iostream>
+#include <limits>
+#include <sstream>
+#include <string_view>
+#include <cwchar>
+#include <type_traits>
+#include <utility>
 
 //
 // #pragma
@@ -76,31 +88,27 @@ namespace ItSoftware::Win::Core
 			: name(fName),
 			wide(false),
 			start(std::chrono::steady_clock::now())
-		{
-		}
+		{}
 
 		ItsTimeTracker(const std::string& fName, ItsTimeTrackerOutput output)
 			: name(fName),
 			alertOutput(output),
 			wide(false),
 			start(std::chrono::steady_clock::now())
-		{
-		}
+		{}
 
 		explicit ItsTimeTracker(const std::wstring& fName)
 			: wname(fName),
 			wide(true),
 			start(std::chrono::steady_clock::now())
-		{
-		}
+		{}
 
 		ItsTimeTracker(const std::wstring& fName, ItsTimeTrackerOutput output)
 			: wname(fName),
 			alertOutput(output),
 			wide(true),
 			start(std::chrono::steady_clock::now())
-		{
-		}
+		{}
 
 		ItsTimeTracker(const std::string& fName, std::function<void(std::string name, std::chrono::steady_clock::duration)> ff)
 			: name(fName),
@@ -108,8 +116,7 @@ namespace ItSoftware::Win::Core
 			wide(false),
 			start(std::chrono::steady_clock::now()),
 			callback(true)
-		{
-		}
+		{}
 
 		ItsTimeTracker(const std::wstring& fName, std::function<void(std::wstring name, std::chrono::steady_clock::duration)> ff)
 			: wname(fName),
@@ -117,66 +124,69 @@ namespace ItSoftware::Win::Core
 			wide(true),
 			start(std::chrono::steady_clock::now()),
 			callback(true)
-		{
-		}
+		{}
 
 		~ItsTimeTracker() noexcept
-		{
-			end = std::chrono::steady_clock::now();
+			try
+			{
+				end = std::chrono::steady_clock::now();
 
-			if (callback) {
-				if (wide) {
-					wfnComplete(this->wname, (end - start));
-				}
-				else {
-					fnComplete(this->name, (end - start));
-				}
-			}
-			else {
-				if (alertOutput == ItsTimeTrackerOutput::MessageBox) {
+				if (callback) {
 					if (wide) {
-						auto duration1 = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-						auto duration2 = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-						auto duration3 = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
-						std::wstring msg = L"Time taken: " + std::to_wstring(duration1) + L" ms | " + std::to_wstring(duration2) + L" us | " + std::to_wstring(duration3) + L" ns";
-						MessageBoxW(NULL, msg.c_str(), wname.c_str(), MB_OK | MB_ICONINFORMATION);
+						wfnComplete(this->wname, (end - start));
 					}
 					else {
-						auto duration1 = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-						auto duration2 = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-						auto duration3 = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
-						std::string msg = "Time taken: " + std::to_string(duration1) + " ms | " + std::to_string(duration2) + " us | " + std::to_string(duration3) + " ns";
-						MessageBoxA(NULL, msg.c_str(), name.c_str(), MB_OK | MB_ICONINFORMATION);
-					}
-					return;
-				}
-				else if (alertOutput == ItsTimeTrackerOutput::Console) {
-					// continue to print to console
-					auto duration1 = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-					auto duration2 = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
-					auto duration3 = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
-
-					//std::println("{}: {} ms | {} us | {} ns", name, duration1, duration2, duration3);
-					if (wide)
-					{
-						std::wcout << L">> " << wname << L": " << duration1 << L" ms | " << duration2 << L" us | " << duration3 << L" ns" << L'\n';
-					}
-					else
-					{
-						std::cout << ">> " << name << ": " << duration1 << " ms | " << duration2 << " us | " << duration3 << " ns" << '\n';
+						fnComplete(this->name, (end - start));
 					}
 				}
 				else {
-					// Unknown output type, default to console
+					if (alertOutput == ItsTimeTrackerOutput::MessageBox) {
+						if (wide) {
+							auto duration1 = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+							auto duration2 = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+							auto duration3 = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+							std::wstring msg = L"Time taken: " + std::to_wstring(duration1) + L" ms | " + std::to_wstring(duration2) + L" us | " + std::to_wstring(duration3) + L" ns";
+							MessageBoxW(NULL, msg.c_str(), wname.c_str(), MB_OK | MB_ICONINFORMATION);
+						}
+						else {
+							auto duration1 = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+							auto duration2 = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+							auto duration3 = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+							std::string msg = "Time taken: " + std::to_string(duration1) + " ms | " + std::to_string(duration2) + " us | " + std::to_string(duration3) + " ns";
+							MessageBoxA(NULL, msg.c_str(), name.c_str(), MB_OK | MB_ICONINFORMATION);
+						}
+						return;
+					}
+					else if (alertOutput == ItsTimeTrackerOutput::Console) {
+						// continue to print to console
+						auto duration1 = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+						auto duration2 = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+						auto duration3 = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+
+						//std::println("{}: {} ms | {} us | {} ns", name, duration1, duration2, duration3);
+						if (wide)
+						{
+							std::wcout << L">> " << wname << L": " << duration1 << L" ms | " << duration2 << L" us | " << duration3 << L" ns" << L'\n';
+						}
+						else
+						{
+							std::cout << ">> " << name << ": " << duration1 << " ms | " << duration2 << " us | " << duration3 << " ns" << '\n';
+						}
+					}
+					else {
+						// Unknown output type, default to console
+					}
 				}
 			}
-		}
+			catch (...) {
+				// Reporting must not let an exception escape the destructor.
+			}
 
-		// No copying or moving
-		ItsTimeTracker(const ItsTimeTracker&) = delete;
-		ItsTimeTracker& operator=(const ItsTimeTracker&) = delete;
-		ItsTimeTracker(ItsTimeTracker&&) = delete;
-		ItsTimeTracker& operator=(ItsTimeTracker&&) = delete;
+			// No copying or moving
+			ItsTimeTracker(const ItsTimeTracker&) = delete;
+			ItsTimeTracker& operator=(const ItsTimeTracker&) = delete;
+			ItsTimeTracker(ItsTimeTracker&&) = delete;
+			ItsTimeTracker& operator=(ItsTimeTracker&&) = delete;
 	};
 
 	//
@@ -204,8 +214,10 @@ namespace ItSoftware::Win::Core
 
 		void Stop()
 		{
-			this->m_end = std::chrono::steady_clock::now();
-			this->m_isRunning = false;
+			if (this->m_isRunning) {
+				this->m_end = std::chrono::steady_clock::now();
+				this->m_isRunning = false;
+			}
 		}
 
 		bool IsRunning()
@@ -325,6 +337,7 @@ namespace ItSoftware::Win::Core
 		}
 		static bool CreateGuid(GUID* pGuid)
 		{
+			if (pGuid == nullptr) return false;
 			HRESULT hr = CoCreateGuid(pGuid);
 			if (FAILED(hr)) {
 				return false;
@@ -335,16 +348,40 @@ namespace ItSoftware::Win::Core
 			return ItsGuid::ToString(guid, ItsGuidFormat::RegistryFormat);
 		}
 		static wstring ToString(GUID& guid, wstring format) {
-			wchar_t wcsBuffer[100];
-			memset(wcsBuffer, 0, 100);
-
-			wsprintf(wcsBuffer, format.c_str(),
-				// first copy...
-				guid.Data1, guid.Data2, guid.Data3,
-				guid.Data4[0], guid.Data4[1], guid.Data4[2], guid.Data4[3],
-				guid.Data4[4], guid.Data4[5], guid.Data4[6], guid.Data4[7]);
-
-			return wstring(wcsBuffer);
+			size_t argument = 0;
+			bool firstIsLong = false;
+			for (size_t i = 0; i < format.size(); ++i) {
+				if (format[i] != L'%') continue;
+				if (++i == format.size()) return {};
+				if (format[i] == L'%') continue;
+				i = format.find_first_not_of(L"-+# 0.123456789", i);
+				if (i == wstring::npos || argument >= 11) return {};
+				const bool wideInteger = format[i] == L'l';
+				if (wideInteger && ++i == format.size()) return {};
+				if ((wideInteger && argument != 0) ||
+					std::wstring_view(L"xXuo").find(format[i]) == std::wstring_view::npos) return {};
+				if (argument == 0) firstIsLong = wideInteger;
+				++argument;
+			}
+			const auto render = [&](wchar_t* buffer, size_t size, auto first) {
+				return std::swprintf(buffer, size, format.c_str(),
+					first, static_cast<unsigned>(guid.Data2), static_cast<unsigned>(guid.Data3),
+					static_cast<unsigned>(guid.Data4[0]), static_cast<unsigned>(guid.Data4[1]),
+					static_cast<unsigned>(guid.Data4[2]), static_cast<unsigned>(guid.Data4[3]),
+					static_cast<unsigned>(guid.Data4[4]), static_cast<unsigned>(guid.Data4[5]),
+					static_cast<unsigned>(guid.Data4[6]), static_cast<unsigned>(guid.Data4[7]));
+				};
+			vector<wchar_t> buffer(128);
+			while (buffer.size() <= 65536) {
+				const int count = firstIsLong
+					? render(buffer.data(), buffer.size(), guid.Data1)
+					: render(buffer.data(), buffer.size(), static_cast<unsigned>(guid.Data1));
+				if (count >= 0 && static_cast<size_t>(count) < buffer.size()) {
+					return wstring(buffer.data(), count);
+				}
+				buffer.resize(buffer.size() * 2);
+			}
+			return {};
 		}
 	};
 
@@ -357,10 +394,10 @@ namespace ItSoftware::Win::Core
 	struct ItsPath
 	{
 	public:
-		static const wchar_t VolumeSeparator = ':';
-		static const wchar_t PathSeparator = '\\';
-		static const wchar_t AlternatePathSeparator = '/';
-		static const wchar_t ExtensionSeparator = '.';
+		inline static const wchar_t VolumeSeparator = ':';
+		inline static const wchar_t PathSeparator = '\\';
+		inline static const wchar_t AlternatePathSeparator = '/';
+		inline static const wchar_t ExtensionSeparator = '.';
 		static wstring NormalizePath(wstring path)
 		{
 			if (path.size() == 0) {
@@ -454,8 +491,10 @@ namespace ItSoftware::Win::Core
 
 			wstringstream path;
 			path << path1;
-			if (path1[path1.size() - 1] != ItsPath::PathSeparator &&
-				path2[0] != ItsPath::PathSeparator) {
+			if (path1.back() == ItsPath::PathSeparator && path2.front() == ItsPath::PathSeparator) {
+				path2.erase(0, 1);
+			}
+			else if (path1.back() != ItsPath::PathSeparator && path2.front() != ItsPath::PathSeparator) {
 				path << ItsPath::PathSeparator;
 			}
 			path << path2;
@@ -469,12 +508,12 @@ namespace ItSoftware::Win::Core
 		}
 		static bool IsFile(const wstring& path)
 		{
-			DWORD fileAttributes = GetFileAttributes(path.c_str());
+			DWORD fileAttributes = GetFileAttributesW(path.c_str());
 			return (fileAttributes != INVALID_FILE_ATTRIBUTES && !(fileAttributes & FILE_ATTRIBUTE_DIRECTORY));
 		}
 		static bool IsDirectory(const wstring& path)
 		{
-			DWORD fileAttributes = GetFileAttributes(path.c_str());
+			DWORD fileAttributes = GetFileAttributesW(path.c_str());
 			return (fileAttributes != INVALID_FILE_ATTRIBUTES && (fileAttributes & FILE_ATTRIBUTE_DIRECTORY));
 		}
 		static wstring GetVolume(const wstring& path)
@@ -494,10 +533,6 @@ namespace ItSoftware::Win::Core
 				return wstring(L"");
 			}
 
-			if (path.find(ItsPath::PathSeparator) == wstring::npos) {
-				return wstring(L"");
-			}
-
 			path = ItsPath::NormalizePath(path);
 
 			auto i = path.find_last_of(ItsPath::PathSeparator);
@@ -512,17 +547,10 @@ namespace ItSoftware::Win::Core
 				return wstring(L"");
 			}
 
-			if (path.find(ItsPath::PathSeparator) == wstring::npos) {
-				return wstring(L"");
-			}
-
 			path = ItsPath::NormalizePath(path);
-
-			auto i = path.rfind(ItsPath::PathSeparator);
-			if (i == std::wstring::npos) {
-				return wstring(L"");
-			}
-			return path.substr(i + 1, path.size() - i - 1);
+			const auto separator = path.rfind(ItsPath::PathSeparator);
+			if (separator != wstring::npos) return path.substr(separator + 1);
+			return ItsPath::GetVolume(path).empty() ? path : path.substr(2);
 		}
 		static wstring GetExtension(wstring path)
 		{
@@ -530,17 +558,9 @@ namespace ItSoftware::Win::Core
 				return wstring(L"");
 			}
 
-			if (path.find(ItsPath::PathSeparator) == wstring::npos) {
-				return wstring(L"");
-			}
-
-			path = ItsPath::NormalizePath(path);
-
-			auto i = path.rfind(ItsPath::ExtensionSeparator);
-			if (i == std::wstring::npos) {
-				return wstring(L"");
-			}
-			return path.substr(i, path.size() - i);
+			const auto filename = ItsPath::GetFilename(path);
+			const auto dot = filename.rfind(ItsPath::ExtensionSeparator);
+			return dot == wstring::npos ? wstring{} : filename.substr(dot);
 		}
 		static bool IsPathValid(const wstring& path)
 		{
@@ -548,34 +568,21 @@ namespace ItSoftware::Win::Core
 				return false;
 			}
 
-			wstring volume = ItsPath::GetVolume(path);
-			wstring directory = ItsPath::GetDirectory(path);
-			wstring filename = ItsPath::GetFilename(path);
-
-			if (directory.size() == 0 && filename.size() == 0 && volume.size() == 0) {
-                return false;
-            }
-
-			auto invalidPathChars = ItsPath::GetInvalidPathCharacters();
-			auto invalidFileChars = ItsPath::GetInvalidFilenameCharacters();
-
-			if (directory[directory.size() - 1] != ItsPath::PathSeparator) {
-				return false;
+			auto normalized = ItsPath::NormalizePath(path);
+			if (normalized.rfind(L"\\\\?\\", 0) == 0) normalized.erase(0, 4);
+			if (normalized.empty()) return false;
+			if (normalized.size() >= 2 && normalized[1] == L':') {
+				const wchar_t drive = normalized[0];
+				if (!((drive >= L'A' && drive <= L'Z') || (drive >= L'a' && drive <= L'z'))) {
+					return false;
+				}
+				normalized.erase(0, 2);
 			}
-
-			return std::all_of(directory.begin(), directory.end(), [&](wchar_t d) {
-				return std::none_of(invalidPathChars.begin(), invalidPathChars.end(), [&](wchar_t i) {
-					return d == i;
-					});
+			const auto invalid = ItsPath::GetInvalidFilenameCharacters();
+			return std::all_of(normalized.begin(), normalized.end(), [&](wchar_t ch) {
+				return ch == ItsPath::PathSeparator ||
+					std::find(invalid.begin(), invalid.end(), ch) == invalid.end();
 				});
-
-			return std::all_of(filename.begin(), filename.end(), [&](wchar_t d) {
-				return std::none_of(invalidFileChars.begin(), invalidFileChars.end(), [&](wchar_t i) {
-					return d == i;
-					});
-				});
-
-			return true;
 		}
 		static bool HasExtension(const wstring& path, const wstring& extension)
 		{
@@ -622,8 +629,9 @@ namespace ItSoftware::Win::Core
 			}
 
 			wstring npath = path;
-			wstring retVal = npath.replace(pe, path.size() - pe, newExtension);
-			return retVal;
+			const auto extension = newExtension.front() == ItsPath::ExtensionSeparator
+				? newExtension : ItsPath::ExtensionSeparator + newExtension;
+			return npath.replace(pe, path.size() - pe, extension);
 		}
 
 		static wstring GetParentDirectory(wstring path)
@@ -641,7 +649,7 @@ namespace ItSoftware::Win::Core
 			}
 
 			size_t pos2 = pos1;
-			if (pos1 == (path.size() - 1)) {
+			if (pos1 != 0 && pos1 == (path.size() - 1)) {
 				pos2 = path.rfind(ItsPath::PathSeparator, pos1 - 1);
 				if (pos2 == wstring::npos) {
 					pos2 = pos1;
@@ -706,29 +714,7 @@ namespace ItSoftware::Win::Core
 		//
 		static wstring GetLastErrorDescription()
 		{
-			LPVOID lpMsgBuf = nullptr;
-			FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER |
-				FORMAT_MESSAGE_FROM_SYSTEM |
-				FORMAT_MESSAGE_IGNORE_INSERTS,
-				NULL,
-				GetLastError(),
-				MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-				reinterpret_cast<wchar_t*>(&lpMsgBuf),
-				0,
-				NULL);
-
-			if (lpMsgBuf != nullptr) {
-				// Copy buffer contet to bstr...
-				CComBSTR bstr;
-				bstr += reinterpret_cast<wchar_t*>(lpMsgBuf);
-
-				// Free the buffer...
-				LocalFree(lpMsgBuf);
-
-				// Return value...
-				return wstring(bstr.operator LPWSTR());;
-			}
-
+			return GetErrorDescription(GetLastError());
 			return std::wstring();
 		}// inline CComBSTR GetLastErrorDesc( )
 
@@ -737,38 +723,17 @@ namespace ItSoftware::Win::Core
 			//
 		static wstring GetErrorDescription(DWORD dwError)
 		{
-			LPVOID lpMsgBuf = nullptr;
-			FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER |
-				FORMAT_MESSAGE_FROM_SYSTEM |
-				FORMAT_MESSAGE_IGNORE_INSERTS,
-				NULL,
-				dwError,
-				MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-				reinterpret_cast<wchar_t*>(&lpMsgBuf),
-				0,
-				NULL);
-
-			if (lpMsgBuf != nullptr) {
-				// Copy buffer contet to bstr...
-				CComBSTR bstr;
-				bstr += reinterpret_cast<wchar_t*>(lpMsgBuf);
-
-				// Free the buffer...
-				LocalFree(lpMsgBuf);
-
-				// Return value...
-				return wstring(bstr.operator LPWSTR());;
-			}
-
-			return std::wstring();
+			wchar_t* message = nullptr;
+			const DWORD count = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER |
+				FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+				nullptr, dwError, 0, reinterpret_cast<wchar_t*>(&message), 0, nullptr);
+			const std::unique_ptr<wchar_t, decltype(&::LocalFree)> buffer(message, ::LocalFree);
+			return count == 0 ? wstring{} : wstring(buffer.get(), count);
 		}// inline CComBSTR GetLastErrorDesc( )
 
 		static wstring GetHResultErrorInfo(HRESULT hr)
 		{
-			wchar_t wszMsg[1024];
-			::FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, hr, 0, wszMsg, 1024, NULL);
-			wstring str(wszMsg);
-			return str;
+			return GetErrorDescription(static_cast<DWORD>(hr));
 		}
 
 		//
@@ -786,11 +751,13 @@ namespace ItSoftware::Win::Core
 				return std::wstring();
 			}
 
-			CComBSTR bstr;
-			pErrInfo->GetDescription(&bstr);
-			pErrInfo->Release();
-			return wstring(bstr.operator LPWSTR());			
-		}// inline CComBSTR GetLastErrorDesc( )
+			const auto release = [](IErrorInfo* info) { info->Release(); };
+			const std::unique_ptr<IErrorInfo, decltype(release)> info(pErrInfo, release);
+			BSTR description = nullptr;
+			hr = info->GetDescription(&description);
+			const std::unique_ptr<wchar_t, decltype(&::SysFreeString)> text(description, ::SysFreeString);
+			return FAILED(hr) || !text ? wstring{} : wstring(text.get(), SysStringLen(text.get()));
+		}
 
 		/// <summary>
 		/// Gets the error description for a standard exception.
@@ -799,7 +766,7 @@ namespace ItSoftware::Win::Core
 		/// <returns></returns>
 		static wstring GetStdExceptionErrorInfo(const std::exception& e)
 		{
-			
+
 			auto Utf8ToWide = [](std::string_view text) -> wstring
 				{
 					if (text.empty())
@@ -830,7 +797,7 @@ namespace ItSoftware::Win::Core
 
 					return result;
 				};
-			
+
 			string msg = e.what();
 			return Utf8ToWide(msg);
 		}// inline CComBSTR GetLastErrorDesc( )}
@@ -848,6 +815,14 @@ namespace ItSoftware::Win::Core
 		typedef typename Traits::pointer pointer;
 
 		pointer m_value;
+
+		bool HasValue() const noexcept
+		{
+			if constexpr (std::is_pointer_v<pointer>) {
+				if (m_value == nullptr) return false;
+			}
+			return m_value != Traits::invalid();
+		}
 
 	protected:
 	public:
@@ -887,7 +862,7 @@ namespace ItSoftware::Win::Core
 		//
 		explicit operator bool() const noexcept
 		{
-			return m_value != Traits::invalid();
+			return HasValue();
 		}
 
 		//
@@ -900,10 +875,11 @@ namespace ItSoftware::Win::Core
 
 		void operator=(HANDLE handle)
 		{
-			if (this->m_value != Traits::invalid()) {
-				this->close();
+			const auto next = static_cast<typename Traits::pointer>(handle);
+			if (next != m_value) {
+				close();
+				m_value = next;
 			}
-			m_value = static_cast<typename Traits::pointer>(handle);
 		}
 
 		//
@@ -916,10 +892,11 @@ namespace ItSoftware::Win::Core
 
 		void operator=(HWND handle)
 		{
-			if (this->m_value != Traits::invalid()) {
-				this->close();
+			const auto next = static_cast<typename Traits::pointer>(handle);
+			if (next != m_value) {
+				close();
+				m_value = next;
 			}
-			m_value = static_cast<typename Traits::pointer>(handle);
 		}
 
 		//
@@ -932,10 +909,11 @@ namespace ItSoftware::Win::Core
 
 		void operator=(HBITMAP handle)
 		{
-			if (this->m_value != Traits::invalid()) {
-				this->close();
+			const auto next = static_cast<typename Traits::pointer>(handle);
+			if (next != m_value) {
+				close();
+				m_value = next;
 			}
-			m_value = static_cast<typename Traits::pointer>(handle);
 		}
 
 		//
@@ -961,10 +939,11 @@ namespace ItSoftware::Win::Core
 
 		void operator=(HMENU handle)
 		{
-			if (this->m_value != Traits::invalid()) {
-				this->close();
+			const auto next = static_cast<typename Traits::pointer>(handle);
+			if (next != m_value) {
+				close();
+				m_value = next;
 			}
-			m_value = static_cast<typename Traits::pointer>(handle);
 		}
 
 		//
@@ -977,10 +956,11 @@ namespace ItSoftware::Win::Core
 
 		void operator=(HIMAGELIST handle)
 		{
-			if (this->m_value != Traits::invalid()) {
-				this->close();
+			const auto next = static_cast<typename Traits::pointer>(handle);
+			if (next != m_value) {
+				close();
+				m_value = next;
 			}
-			m_value = static_cast<typename Traits::pointer>(handle);
 		}
 
 		//
@@ -993,10 +973,11 @@ namespace ItSoftware::Win::Core
 
 		void operator=(HRGN handle)
 		{
-			if (this->m_value != Traits::invalid()) {
-				this->close();
+			const auto next = static_cast<typename Traits::pointer>(handle);
+			if (next != m_value) {
+				close();
+				m_value = next;
 			}
-			m_value = static_cast<typename Traits::pointer>(handle);
 		}
 
 		//
@@ -1009,10 +990,11 @@ namespace ItSoftware::Win::Core
 
 		void operator=(HBRUSH handle)
 		{
-			if (this->m_value != Traits::invalid()) {
-				this->close();
+			const auto next = static_cast<typename Traits::pointer>(handle);
+			if (next != m_value) {
+				close();
+				m_value = next;
 			}
-			m_value = static_cast<typename Traits::pointer>(handle);
 		}
 
 		//
@@ -1025,10 +1007,11 @@ namespace ItSoftware::Win::Core
 
 		void operator=(HFONT handle)
 		{
-			if (this->m_value != Traits::invalid()) {
-				this->close();
+			const auto next = static_cast<typename Traits::pointer>(handle);
+			if (next != m_value) {
+				close();
+				m_value = next;
 			}
-			m_value = static_cast<typename Traits::pointer>(handle);
 		}
 
 		//
@@ -1041,10 +1024,11 @@ namespace ItSoftware::Win::Core
 
 		void operator=(HICON handle)
 		{
-			if (this->m_value != Traits::invalid()) {
-				this->close();
+			const auto next = static_cast<typename Traits::pointer>(handle);
+			if (next != m_value) {
+				close();
+				m_value = next;
 			}
-			m_value = static_cast<typename Traits::pointer>(handle);
 		}
 
 		//
@@ -1052,7 +1036,7 @@ namespace ItSoftware::Win::Core
 		//
 		bool IsInvalid()
 		{
-			return (m_value == Traits::invalid());
+			return !HasValue();
 		}
 
 		//
@@ -1060,7 +1044,7 @@ namespace ItSoftware::Win::Core
 		//
 		bool IsValid()
 		{
-			return (m_value != Traits::invalid());
+			return HasValue();
 		}
 	};
 
@@ -1301,7 +1285,7 @@ namespace ItSoftware::Win::Core
 	public:
 		static bool Exists(wstring directory)
 		{
-			DWORD fileAttributes = GetFileAttributes(directory.c_str());
+			DWORD fileAttributes = GetFileAttributesW(directory.c_str());
 			return (fileAttributes != INVALID_FILE_ATTRIBUTES && (fileAttributes & FILE_ATTRIBUTE_DIRECTORY));
 		}
 		static bool CreateDirectory(wstring path)
@@ -1335,7 +1319,7 @@ namespace ItSoftware::Win::Core
 
 			WIN32_FIND_DATAW wfd{ 0 };
 			vector<wstring> dirs;
-			unique_findhandle_handle h(::FindFirstFile(path.c_str(), &wfd));
+			unique_findhandle_handle h(::FindFirstFileW(path.c_str(), &wfd));
 			if (h.IsValid()) {
 				if (wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
 					if (wcscmp(wfd.cFileName, L".") != 0 &&
@@ -1344,7 +1328,7 @@ namespace ItSoftware::Win::Core
 						dirs.push_back(wfd.cFileName);
 					}
 				}
-				while (::FindNextFile(h, &wfd)) {
+				while (::FindNextFileW(h, &wfd)) {
 					if (wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
 						if (wcscmp(wfd.cFileName, L".") != 0 &&
 							wcscmp(wfd.cFileName, L"..") != 0)
@@ -1376,12 +1360,12 @@ namespace ItSoftware::Win::Core
 
 			WIN32_FIND_DATAW wfd{ 0 };
 			vector<wstring> dirs;
-			unique_findhandle_handle h(::FindFirstFile(path.c_str(), &wfd));
+			unique_findhandle_handle h(::FindFirstFileW(path.c_str(), &wfd));
 			if (h.IsValid()) {
 				if (!(wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
 					dirs.push_back(wfd.cFileName);
 				}
-				while (::FindNextFile(h, &wfd)) {
+				while (::FindNextFileW(h, &wfd)) {
 					if (!(wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
 						dirs.push_back(wfd.cFileName);
 					}
@@ -1398,7 +1382,7 @@ namespace ItSoftware::Win::Core
 			DWORD dw = ::GetLogicalDrives();
 
 			for (DWORD i = 0; i < 26; i++) {
-				DWORD dwBit = pow(2, (i));
+				DWORD dwBit = DWORD{ 1 } << i;
 				DWORD dwResult = dw & dwBit;
 				if (dwResult) {
 					d.push_back(wszDrives[i]);
@@ -1406,7 +1390,7 @@ namespace ItSoftware::Win::Core
 			}
 
 			return d;
-		}				
+		}
 	};
 
 	//
@@ -1422,12 +1406,12 @@ namespace ItSoftware::Win::Core
 	public:
 		ItsEvent()
 		{
-			this->m_handle = CreateEvent(NULL, TRUE, FALSE, NULL);
+			this->m_handle = CreateEventW(NULL, TRUE, FALSE, NULL);
 		}
 
 		explicit ItsEvent(bool signaled)
 		{
-			this->m_handle = CreateEvent(NULL, TRUE, (signaled) ? TRUE : FALSE, NULL);
+			this->m_handle = CreateEventW(NULL, TRUE, (signaled) ? TRUE : FALSE, NULL);
 		}
 
 		ItsEvent(ItsEvent const&) = delete;
@@ -1451,7 +1435,7 @@ namespace ItSoftware::Win::Core
 		bool Wait(DWORD milliseconds = INFINITE)
 		{
 			auto result = WaitForSingleObject(this->m_handle.p(), milliseconds);
-			return (result == WAIT_OBJECT_0 || result == WAIT_TIMEOUT);
+			return result == WAIT_OBJECT_0;
 		}
 	};
 
@@ -1504,10 +1488,11 @@ namespace ItSoftware::Win::Core
 		//
 		bool GetFileSize(size_t* size)
 		{
-			LARGE_INTEGER s{ 0 };
-			bool status = (bool)GetFileSizeEx(this->m_handle.p(), &s);
-			*size = s.QuadPart;
-			return status;
+			LARGE_INTEGER sizeValue{};
+			if (!size || !GetFileSizeEx(this->m_handle.p(), &sizeValue) || sizeValue.QuadPart < 0 ||
+				static_cast<ULONGLONG>(sizeValue.QuadPart) >(std::numeric_limits<size_t>::max)()) return false;
+			*size = static_cast<size_t>(sizeValue.QuadPart);
+			return true;
 		}
 	public:
 
@@ -1564,9 +1549,10 @@ namespace ItSoftware::Win::Core
 
 			LARGE_INTEGER zero{ 0 };
 			LARGE_INTEGER pos{ 0 };
-			bool status = (bool)SetFilePointerEx(this->m_handle.p(), zero, &pos, FILE_CURRENT);
-			*position = pos.QuadPart;
-			return status;
+			if (!position || !SetFilePointerEx(this->m_handle.p(), zero, &pos, FILE_CURRENT) ||
+				pos.QuadPart < 0 || static_cast<ULONGLONG>(pos.QuadPart) >(std::numeric_limits<size_t>::max)()) return false;
+			*position = static_cast<size_t>(pos.QuadPart);
+			return true;
 		}
 
 		//
@@ -1593,8 +1579,12 @@ namespace ItSoftware::Win::Core
 				dwPosition = FILE_END;
 			}
 
-			LARGE_INTEGER distance{ 0 };
-			distance.QuadPart = distanceToMove;
+			else {
+				return false;
+			}
+			if (distanceToMove > static_cast<ULONGLONG>((std::numeric_limits<LONGLONG>::max)())) return false;
+			LARGE_INTEGER distance{};
+			distance.QuadPart = static_cast<LONGLONG>(distanceToMove);
 			return (bool)SetFilePointerEx(this->m_handle.p(), distance, NULL, dwPosition);
 		}
 
@@ -1619,7 +1609,7 @@ namespace ItSoftware::Win::Core
 			{
 				return false;
 			}
-			this->SetFilePosition(pos, ItsFilePosition::FileBegin);
+			if (!this->SetFilePosition(pos, ItsFilePosition::FileBegin)) return false;
 			return (bool)SetEndOfFile(this->m_handle.p());
 		}
 	};
@@ -1639,8 +1629,7 @@ namespace ItSoftware::Win::Core
 		// Constructor
 		//
 		ItsFile()
-		{
-		}
+		{}
 
 		//
 		// Method: OpenOrCreate
@@ -1694,7 +1683,7 @@ namespace ItSoftware::Win::Core
 				dwFlags = TRUNCATE_EXISTING;
 			}
 
-			this->m_handle = CreateFile(filename.c_str(), dwAccess, dwShare, NULL, dwFlags, FILE_ATTRIBUTE_NORMAL, NULL);
+			this->m_handle = CreateFileW(filename.c_str(), dwAccess, dwShare, NULL, dwFlags, FILE_ATTRIBUTE_NORMAL, NULL);
 
 			return this->m_handle.IsValid();
 		}
@@ -1710,10 +1699,7 @@ namespace ItSoftware::Win::Core
 				return false;
 			}
 
-			LARGE_INTEGER tmp{ 0 };
-			bool result = (bool)GetFileSizeEx(file.m_handle.p(), &tmp);
-			*size = tmp.QuadPart;
-			return result;
+			return file.ItsFileBase::GetFileSize(size);
 		}
 
 		//
@@ -1721,7 +1707,7 @@ namespace ItSoftware::Win::Core
 		//
 		static bool Delete(const wstring& filename)
 		{
-			return (bool)DeleteFile(filename.c_str());
+			return (bool)DeleteFileW(filename.c_str());
 		}
 
 		//
@@ -1729,7 +1715,7 @@ namespace ItSoftware::Win::Core
 		//
 		static bool Copy(const wstring& existingFilename, const wstring& newFilename, bool failIfExists)
 		{
-			return (bool)CopyFile(existingFilename.c_str(), newFilename.c_str(), (failIfExists) ? TRUE : FALSE);
+			return (bool)CopyFileW(existingFilename.c_str(), newFilename.c_str(), (failIfExists) ? TRUE : FALSE);
 		}
 
 		//
@@ -1737,7 +1723,7 @@ namespace ItSoftware::Win::Core
 		//
 		static bool Move(const wstring& existingFilename, const wstring& newFilename, bool failIfExists)
 		{
-			return (bool)MoveFileEx(existingFilename.c_str(), newFilename.c_str(), MOVEFILE_COPY_ALLOWED | ((failIfExists) ? MOVEFILE_REPLACE_EXISTING : 0));
+			return (bool)MoveFileExW(existingFilename.c_str(), newFilename.c_str(), MOVEFILE_COPY_ALLOWED | (failIfExists ? 0 : MOVEFILE_REPLACE_EXISTING));
 		}
 
 		//
@@ -1745,7 +1731,7 @@ namespace ItSoftware::Win::Core
 		//
 		static bool Exists(const wstring& filename)
 		{
-			DWORD fileAttributes = GetFileAttributes(filename.c_str());
+			DWORD fileAttributes = GetFileAttributesW(filename.c_str());
 			return (fileAttributes != INVALID_FILE_ATTRIBUTES && !(fileAttributes & FILE_ATTRIBUTE_DIRECTORY));
 		}
 
@@ -1763,30 +1749,10 @@ namespace ItSoftware::Win::Core
 
 		static bool Shred(const wstring& filename, bool alsoDelete)
 		{
-			if (!ItsFile::Exists(filename))
-			{
-				return false;
-			}
-
-			size_t fileSize = 0;
-			if (!ItsFile::GetFileSize(filename, &fileSize))
-			{
-				return false;
-			}
-			if (fileSize == 0)
-			{
-				return false;
-			}
-
 			ItsFile f;
-			if (!f.OpenOrCreate(filename, L"rw", L"r", ItsFileOpenCreation::OpenExisting))
-			{
-				return false;
-			}
-			if (f.IsInvalid())
-			{
-				return false;
-			}
+			if (!f.OpenOrCreate(filename, L"rw", L"", ItsFileOpenCreation::OpenExisting)) return false;
+			size_t fileSize = 0;
+			if (!f.ItsFileBase::GetFileSize(&fileSize)) return false;
 
 			const uint32_t bufferSize = 2048;
 			DWORD bytesWritten = 0;
@@ -1795,11 +1761,12 @@ namespace ItSoftware::Win::Core
 			for (uint32_t i = 0; i < bufferSize; i++) {
 				pdata[i] = 0xFF;
 			}
-			f.SetFilePosition(0, ItsFilePosition::FileBegin);
 			while (totalWritten < fileSize) {
-				f.Write(static_cast<const void*>(pdata.get()), static_cast<DWORD>(((fileSize - totalWritten) > bufferSize) ? bufferSize : (fileSize - totalWritten)), &bytesWritten);
+				const DWORD count = static_cast<DWORD>((std::min)(fileSize - totalWritten, size_t{ bufferSize }));
+				if (!f.Write(pdata.get(), count, &bytesWritten) || bytesWritten == 0) return false;
 				totalWritten += bytesWritten;
 			}
+			if (!FlushFileBuffers(f.m_handle.p())) return false;
 			f.Close();
 
 			if (alsoDelete)
@@ -1825,6 +1792,20 @@ namespace ItSoftware::Win::Core
 	{
 	private:
 		ItsFileTextType m_textType = ItsFileTextType::Ansi;
+		size_t m_bomSize = 0;
+
+		bool WriteBytes(const void* data, size_t size)
+		{
+			auto bytes = static_cast<const BYTE*>(data);
+			while (size != 0) {
+				const DWORD count = static_cast<DWORD>((std::min)(size, size_t{ 65536 }));
+				DWORD written = 0;
+				if (!this->Write(bytes, count, &written) || written == 0) return false;
+				bytes += written;
+				size -= written;
+			}
+			return true;
+		}
 
 		//
 		// Method: OpenOrCreate
@@ -1878,7 +1859,7 @@ namespace ItSoftware::Win::Core
 				dwFlags = TRUNCATE_EXISTING;
 			}
 
-			this->m_handle = CreateFile(filename.c_str(), dwAccess, dwShare, NULL, dwFlags, FILE_ATTRIBUTE_NORMAL, NULL);
+			this->m_handle = CreateFileW(filename.c_str(), dwAccess, dwShare, NULL, dwFlags, FILE_ATTRIBUTE_NORMAL, NULL);
 
 			return this->m_handle.IsValid();
 		}
@@ -1894,8 +1875,7 @@ namespace ItSoftware::Win::Core
 		// Constructor
 		//
 		ItsTextFile()
-		{
-		}
+		{}
 
 		//
 		// Method: OpenOrCreateText
@@ -1907,66 +1887,42 @@ namespace ItSoftware::Win::Core
 				return false;
 			}
 
-			if (!this->OpenOrCreate(filename, accessReadWrite, shareReadWrite, flagCreation))
-			{
-				return false;
+			if (type != ItsFileTextType::Ansi && type != ItsFileTextType::Unicode &&
+				type != ItsFileTextType::UTF8WithBOM && type != ItsFileTextType::UTF8NoBOM) return false;
+			if (!this->OpenOrCreate(filename, accessReadWrite, shareReadWrite, flagCreation)) return false;
+
+			const auto fail = [&]() { this->Close(); return false; };
+			size_t size = 0;
+			if (!this->GetFileSize(&size)) return fail();
+
+			m_textType = type;
+			m_bomSize = 0;
+			const bool canRead = accessReadWrite.find(L'r') != wstring::npos;
+			const bool canWrite = accessReadWrite.find(L'w') != wstring::npos;
+			if (size != 0 && canRead) {
+				BYTE bom[3]{};
+				DWORD count = 0;
+				if (!this->Read(bom, sizeof(bom), &count)) return fail();
+				if (count >= 2 && bom[0] == 0xFF && bom[1] == 0xFE) {
+					m_textType = ItsFileTextType::Unicode;
+					m_bomSize = 2;
+				}
+				else if (count == 3 && bom[0] == 0xEF && bom[1] == 0xBB && bom[2] == 0xBF) {
+					m_textType = ItsFileTextType::UTF8WithBOM;
+					m_bomSize = 3;
+				}
+				if (!this->SetFilePosition(m_bomSize, ItsFilePosition::FileBegin)) return fail();
 			}
-
-			size_t size{ 0 };
-			this->GetFileSize(&size);
-			if (size > 2)
-			{
-				this->SetFilePosition(0, ItsFilePosition::FileBegin);
-
-				unique_ptr<BYTE[]> bom = make_unique<BYTE[]>(3);
-
-				DWORD dwRead{ 0 };
-				this->Read(bom.get(), 3, &dwRead);
-
-				if (dwRead > 2) {
-					if (bom.get()[0] == 0xFF &&
-						bom.get()[1] == 0xFE)
-					{
-						this->SetFilePosition(2, ItsFilePosition::FileBegin);
-
-						this->m_textType = ItsFileTextType::Unicode;
-						return true;
-					}
-					else if (bom.get()[0] == 0xEF &&
-						bom.get()[1] == 0xBB &&
-						bom.get()[2] == 0xBF)
-					{
-						this->SetFilePosition(3, ItsFilePosition::FileBegin);
-
-						this->m_textType = ItsFileTextType::UTF8WithBOM;
-						return true;
-					}
+			else if (size == 0 && canWrite) {
+				const vector<BYTE>* bom = nullptr;
+				if (type == ItsFileTextType::Unicode) bom = &ByteOrderMarkUnicode;
+				if (type == ItsFileTextType::UTF8WithBOM) bom = &ByteOrderMarkUTF8;
+				if (bom != nullptr) {
+					if (!WriteBytes(bom->data(), bom->size())) return fail();
+					m_bomSize = bom->size();
 				}
 			}
-
-			this->m_textType = type;
-
-			if (type == ItsFileTextType::Ansi)
-			{
-				return true;
-			}
-
-			vector<BYTE> bom;
-			if (type == ItsFileTextType::Unicode) {
-				bom.push_back(0xFF);
-				bom.push_back(0xFE);
-			}
-			else if (type == ItsFileTextType::UTF8WithBOM)
-			{
-				bom.push_back(0xEF);
-				bom.push_back(0xBB);
-				bom.push_back(0xBF);
-			}
-
-			this->SetFilePosition(0, ItsFilePosition::FileBegin);
-
-			DWORD dwWritten{ 0 };
-			return this->Write(bom.data(), (DWORD)bom.size(), &dwWritten);
+			return true;
 		}
 
 		//
@@ -1977,16 +1933,8 @@ namespace ItSoftware::Win::Core
 		//
 		static bool CreateTextFile(const wstring& filename, ItsFileTextType type)
 		{
-			if (ItsFile::Exists(filename)) {
-				return false;
-			}
-
 			ItsTextFile file{};
-			if (!file.OpenOrCreateText(filename, L"rw", L"rw", ItsFileOpenCreation::CreateAlways, type)) {
-				return false;
-			}
-
-			return true;
+			return file.OpenOrCreateText(filename, L"rw", L"rw", ItsFileOpenCreation::CreateNew, type);
 		}
 
 		//
@@ -1994,140 +1942,11 @@ namespace ItSoftware::Win::Core
 		//
 		bool ReadTextAllLines(vector<wstring>& lines, const wstring& lineDelimiter = L"\r\n")
 		{
-			if (!this->m_handle.IsValid())
-			{
-				return false;
-			}
-
-			size_t size{ 0 };
-			if (!this->GetFileSize(&size))
-			{
-				return false;
-			}
-
-			if (size == 0) {
-				lines.clear();
-				return true;
-			}
-
-			if (this->m_textType == ItsFileTextType::Ansi)
-			{
-				this->SetFilePosition(0, ItsFilePosition::FileBegin);
-
-				unique_ptr<BYTE[]> text = make_unique<BYTE[]>(size + 1);
-
-				const DWORD readBuffSize = 8192;
-				size_t read_pos{ 0 };
-
-				DWORD dwRead{ 0 };
-
-				this->Read(reinterpret_cast<BYTE*>(text.get()), readBuffSize, &dwRead);
-
-				read_pos += dwRead;
-
-				while (dwRead > 0 && (read_pos + 0) < size)
-				{
-					this->Read(reinterpret_cast<BYTE*>(&(text.get()[read_pos])), readBuffSize, &dwRead);
-
-					read_pos += dwRead;
-				}
-
-				text.get()[size] = '\0';
-
-				string all(reinterpret_cast<char*>(text.get()));
-				wstring out_all(all.begin(), all.end());
-				lines = ItsString::Split(out_all, lineDelimiter);
-			}
-			else if (this->m_textType == ItsFileTextType::Unicode)
-			{
-				this->SetFilePosition(2, ItsFilePosition::FileBegin);
-
-				unique_ptr<BYTE[]> text = make_unique<BYTE[]>(size);
-
-				const DWORD readBuffSize = 8192;
-				size_t read_pos{ 0 };
-
-				DWORD dwRead{ 0 };
-
-				this->Read(reinterpret_cast<BYTE*>(text.get()), readBuffSize, &dwRead);
-
-				read_pos += dwRead;
-
-				while (dwRead > 0 && (read_pos + 2) < size)
-				{
-					this->Read(reinterpret_cast<BYTE*>(&(text.get()[read_pos])), readBuffSize, &dwRead);
-
-					read_pos += dwRead;
-				}
-
-				text.get()[size - 2] = '\0';
-				text.get()[size - 1] = '\0';
-
-				wstring all(reinterpret_cast<wchar_t*>(text.get()));
-				lines = ItsString::Split(all, lineDelimiter);
-			}
-			else if (this->m_textType == ItsFileTextType::UTF8WithBOM)
-			{
-				this->SetFilePosition(3, ItsFilePosition::FileBegin);
-
-				unique_ptr<BYTE[]> text = make_unique<BYTE[]>(size);
-
-				const DWORD readBuffSize = 8192;
-				size_t read_pos{ 0 };
-
-				DWORD dwRead{ 0 };
-
-				this->Read(reinterpret_cast<BYTE*>(text.get()), readBuffSize, &dwRead);
-
-				read_pos += dwRead;
-
-				while (dwRead > 0 && (read_pos + 3) < size)
-				{
-					this->Read(reinterpret_cast<BYTE*>(&(text.get()[read_pos])), readBuffSize, &dwRead);
-
-					read_pos += dwRead;
-				}
-
-				text.get()[size - 3] = '\0';
-				text.get()[size - 2] = '\0';
-				text.get()[size - 1] = '\0';
-
-				wstring all = ItSoftware::Encoding::UTF8::ToString(reinterpret_cast<char*>(text.get()));
-				lines = ItsString::Split(all, lineDelimiter);
-			}
-			else if (this->m_textType == ItsFileTextType::UTF8NoBOM)
-			{
-				this->SetFilePosition(0, ItsFilePosition::FileBegin);
-
-				unique_ptr<BYTE[]> text = make_unique<BYTE[]>(size);
-
-				const DWORD readBuffSize = 8192;
-				size_t read_pos{ 0 };
-
-				DWORD dwRead{ 0 };
-
-				this->Read(reinterpret_cast<BYTE*>(text.get()), readBuffSize, &dwRead);
-
-				read_pos += dwRead;
-
-				while (dwRead > 0 && (read_pos + 3) < size)
-				{
-					this->Read(reinterpret_cast<BYTE*>(&(text.get()[read_pos])), readBuffSize, &dwRead);
-
-					read_pos += dwRead;
-				}
-
-				text.get()[size - 3] = '\0';
-				text.get()[size - 2] = '\0';
-				text.get()[size - 1] = '\0';
-
-				wstring all = ItSoftware::Encoding::UTF8::ToString(reinterpret_cast<char*>(text.get()));
-				lines = ItsString::Split(all, lineDelimiter);
-			}
-			else {
-				return false;
-			}
-
+			if (lineDelimiter.empty()) return false;
+			wstring text;
+			if (!ReadTextAll(text)) return false;
+			if (text.empty()) lines.clear();
+			else lines = ItsString::Split(text, lineDelimiter);
 			return true;
 		}
 
@@ -2143,7 +1962,7 @@ namespace ItSoftware::Win::Core
 			}
 
 			ItsTextFile file{};
-			if (!file.OpenOrCreateText(filename, L"rw", L"rw", ItsFileOpenCreation::OpenExisting, textType)) {
+			if (!file.OpenOrCreateText(filename, L"r", L"rw", ItsFileOpenCreation::OpenExisting, textType)) {
 				return false;
 			}
 
@@ -2161,137 +1980,38 @@ namespace ItSoftware::Win::Core
 		//
 		bool ReadTextAll(wstring& out)
 		{
-			if (!this->m_handle.IsValid())
-			{
-				return false;
+			size_t size = 0;
+			if (!this->GetFileSize(&size) || size < m_bomSize ||
+				!this->SetFilePosition(m_bomSize, ItsFilePosition::FileBegin)) return false;
+
+			vector<char> bytes(size - m_bomSize);
+			size_t offset = 0;
+			while (offset < bytes.size()) {
+				const DWORD requested = static_cast<DWORD>((std::min)(bytes.size() - offset, size_t{ 65536 }));
+				DWORD count = 0;
+				if (!this->Read(bytes.data() + offset, requested, &count) || count == 0) return false;
+				offset += count;
 			}
 
-			size_t size{ 0 };
-			if (!this->GetFileSize(&size))
-			{
-				return false;
+			wstring text;
+			if (m_textType == ItsFileTextType::Unicode) {
+				if (bytes.size() % sizeof(wchar_t) != 0) return false;
+				text.resize(bytes.size() / sizeof(wchar_t));
+				if (!bytes.empty()) std::memcpy(text.data(), bytes.data(), bytes.size());
 			}
-
-			if (size == 0) {
-				return true;
+			else if (m_textType == ItsFileTextType::Ansi) {
+				// Preserve the existing one-byte text representation.
+				text.assign(bytes.begin(), bytes.end());
 			}
-
-			if (this->m_textType == ItsFileTextType::Ansi)
-			{
-				this->SetFilePosition(0, ItsFilePosition::FileBegin);
-
-				unique_ptr<BYTE[]> text = make_unique<BYTE[]>(size + 1);
-
-				const DWORD readBuffSize = 8192;
-				size_t read_pos{ 0 };
-
-				DWORD dwRead{ 0 };
-
-				this->Read(reinterpret_cast<BYTE*>(text.get()), readBuffSize, &dwRead);
-
-				read_pos += dwRead;
-
-				while (dwRead > 0 && (read_pos + 0) < size)
-				{
-					this->Read(reinterpret_cast<BYTE*>(&(text.get()[read_pos])), readBuffSize, &dwRead);
-
-					read_pos += dwRead;
-				}
-
-				text.get()[size] = '\0';
-
-				string all(reinterpret_cast<char*>(text.get()));
-				wstring out_all(all.begin(), all.end());
-				out = out_all;
+			else if (!bytes.empty()) {
+				if (bytes.size() > static_cast<size_t>((std::numeric_limits<int>::max)())) return false;
+				const int sizeBytes = static_cast<int>(bytes.size());
+				const int count = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, bytes.data(), sizeBytes, nullptr, 0);
+				if (count == 0) return false;
+				text.resize(count);
+				if (MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, bytes.data(), sizeBytes, text.data(), count) != count) return false;
 			}
-			else if (this->m_textType == ItsFileTextType::Unicode)
-			{
-				this->SetFilePosition(2, ItsFilePosition::FileBegin);
-
-				unique_ptr<BYTE[]> text = make_unique<BYTE[]>(size);
-
-				const DWORD readBuffSize = 8192;
-				size_t read_pos{ 0 };
-
-				DWORD dwRead{ 0 };
-
-				this->Read(reinterpret_cast<BYTE*>(text.get()), readBuffSize, &dwRead);
-
-				read_pos += dwRead;
-
-				while (dwRead > 0 && (read_pos + 2) < size)
-				{
-					this->Read(reinterpret_cast<BYTE*>(&(text.get()[read_pos])), readBuffSize, &dwRead);
-
-					read_pos += dwRead;
-				}
-
-				text.get()[size - 2] = '\0';
-				text.get()[size - 1] = '\0';
-
-				wstring all(reinterpret_cast<wchar_t*>(text.get()));
-				out = all;
-			}
-			else if (this->m_textType == ItsFileTextType::UTF8WithBOM)
-			{
-				this->SetFilePosition(3, ItsFilePosition::FileBegin);
-
-				unique_ptr<BYTE[]> text = make_unique<BYTE[]>(size);
-
-				const DWORD readBuffSize = 8192;
-				size_t read_pos{ 0 };
-
-				DWORD dwRead{ 0 };
-
-				this->Read(reinterpret_cast<BYTE*>(text.get()), readBuffSize, &dwRead);
-
-				read_pos += dwRead;
-
-				while (dwRead > 0 && (read_pos + 3) < size)
-				{
-					this->Read(reinterpret_cast<BYTE*>(&(text.get()[read_pos])), readBuffSize, &dwRead);
-
-					read_pos += dwRead;
-				}
-
-				text.get()[size - 3] = '\0';
-				text.get()[size - 2] = '\0';
-				text.get()[size - 1] = '\0';
-
-				wstring all = ItSoftware::Encoding::UTF8::ToString(reinterpret_cast<char*>(text.get()));
-				out = all;
-			}
-			else if (this->m_textType == ItsFileTextType::UTF8NoBOM)
-			{
-				this->SetFilePosition(0, ItsFilePosition::FileBegin);
-
-				unique_ptr<BYTE[]> text = make_unique<BYTE[]>(size+1);
-
-				const DWORD readBuffSize = 8192;
-				size_t read_pos{ 0 };
-
-				DWORD dwRead{ 0 };
-
-				this->Read(reinterpret_cast<BYTE*>(text.get()), readBuffSize, &dwRead);
-
-				read_pos += dwRead;
-
-				while (dwRead > 0 && (read_pos + 3) < size)
-				{
-					this->Read(reinterpret_cast<BYTE*>(&(text.get()[read_pos])), readBuffSize, &dwRead);
-
-					read_pos += dwRead;
-				}
- 				
-				text.get()[size] = '\0';
-
-				wstring all = ItSoftware::Encoding::UTF8::ToString(reinterpret_cast<char*>(text.get()));
-				out = all;
-			}
-			else {
-				return false;
-			}
-
+			out.swap(text);
 			return true;
 		}
 
@@ -2307,7 +2027,7 @@ namespace ItSoftware::Win::Core
 			}
 
 			ItsTextFile file{};
-			if ( !file.OpenOrCreateText(filename, L"rw", L"rw", ItsFileOpenCreation::OpenExisting, textType)) {
+			if (!file.OpenOrCreateText(filename, L"r", L"rw", ItsFileOpenCreation::OpenExisting, textType)) {
 				return false;
 			}
 
@@ -2339,30 +2059,22 @@ namespace ItSoftware::Win::Core
 				return false;
 			}
 
-			if (this->m_textType == ItsFileTextType::Ansi)
-			{
-				string txt(text.begin(), text.end());
-				DWORD dwWritten{ 0 };
-				return this->Write(reinterpret_cast<BYTE*>(txt.data()), (DWORD)txt.size(), &dwWritten);
+			if (text.empty()) return true;
+			if (m_textType == ItsFileTextType::Ansi) {
+				const string bytes(text.begin(), text.end());
+				return WriteBytes(bytes.data(), bytes.size());
 			}
-			else if (this->m_textType == ItsFileTextType::Unicode) {
-				DWORD dwWritten{ 0 };
-				return this->Write(reinterpret_cast<BYTE*>(const_cast<wchar_t*>(text.data())), (DWORD)(text.size() * sizeof(wchar_t)), &dwWritten);
+			if (m_textType == ItsFileTextType::Unicode) {
+				return WriteBytes(text.data(), text.size() * sizeof(wchar_t));
 			}
-			else if (this->m_textType == ItsFileTextType::UTF8WithBOM) {
-				long cbLength{ 0 };
-				unique_ptr<BYTE[]> pData(ItSoftware::Encoding::UTF8::ToBytes(text, &cbLength));
-				DWORD dwWritten{ 0 };
-				return this->Write(pData.get(), cbLength, &dwWritten);
-			}
-			else if (this->m_textType == ItsFileTextType::UTF8NoBOM) {
-				long cbLength{ 0 };
-				unique_ptr<BYTE[]> pData(ItSoftware::Encoding::UTF8::ToBytes(text, &cbLength));
-				DWORD dwWritten{ 0 };
-				return this->Write(pData.get(), cbLength, &dwWritten);
-			}
-
-			return false;
+			if (text.size() > static_cast<size_t>((std::numeric_limits<int>::max)())) return false;
+			const int length = static_cast<int>(text.size());
+			const int size = WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, text.data(), length,
+				nullptr, 0, nullptr, nullptr);
+			if (size == 0) return false;
+			vector<char> bytes(size);
+			return WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, text.data(), length,
+				bytes.data(), size, nullptr, nullptr) == size && WriteBytes(bytes.data(), bytes.size());
 		}
 
 		//
@@ -2501,7 +2213,7 @@ namespace ItSoftware::Win::Core
 
 			HKEY hOpenKey;
 			LONG lResult(0);
-			lResult = RegOpenKeyEx(hKey, path.c_str(), 0, KEY_ENUMERATE_SUB_KEYS, &hOpenKey);
+			lResult = RegOpenKeyExW(hKey, path.c_str(), 0, KEY_ENUMERATE_SUB_KEYS, &hOpenKey);
 			if (lResult != ERROR_SUCCESS)
 			{
 				return false;
@@ -2511,30 +2223,23 @@ namespace ItSoftware::Win::Core
 
 			long lIndex(0);
 			ULONG cbAvailable(0);
-			wchar_t* pwcsName = new wchar_t[512];
+			const auto close = std::unique_ptr<std::remove_pointer_t<HKEY>, decltype(&RegCloseKey)>(hOpenKey, RegCloseKey);
+			wchar_t name[256]{};
 
 			FILETIME ft;
 			do
 			{
-				cbAvailable = 512;
-				lResult = RegEnumKeyEx(hOpenKey, lIndex++, pwcsName, &cbAvailable, 0, NULL, 0, &ft);
+				cbAvailable = static_cast<ULONG>(std::size(name));
+				lResult = RegEnumKeyExW(hOpenKey, lIndex++, name, &cbAvailable, nullptr, nullptr, nullptr, &ft);
 
 				if (lResult == ERROR_SUCCESS)
 				{
-					result->push_back(pwcsName);
+					result->emplace_back(name, cbAvailable);
 				}// if ( lResult == ERROR_SUCCESS ) {			
 
 			} while (lResult == ERROR_SUCCESS);
 
-			delete[] pwcsName;
-
-			if (lResult != ERROR_NO_MORE_ITEMS)
-			{
-				RegCloseKey(hOpenKey);
-				return false;
-			}
-
-			RegCloseKey(hOpenKey);
+			if (lResult != ERROR_NO_MORE_ITEMS) return false;
 
 			return true;
 		}
@@ -2558,7 +2263,7 @@ namespace ItSoftware::Win::Core
 
 			HKEY hOpenKey;
 			LONG lResult(0);
-			lResult = RegOpenKeyEx(hKey, path.c_str(), 0, KEY_QUERY_VALUE, &hOpenKey);
+			lResult = RegOpenKeyExW(hKey, path.c_str(), 0, KEY_QUERY_VALUE, &hOpenKey);
 			if (lResult != ERROR_SUCCESS)
 			{
 				return false;
@@ -2566,28 +2271,21 @@ namespace ItSoftware::Win::Core
 
 			result->clear();
 
-			long lIndex(0);
-			ULONG cbAvailable(0);
-			wchar_t* pwcsName = new wchar_t[512];
-
+			const auto close = std::unique_ptr<std::remove_pointer_t<HKEY>, decltype(&RegCloseKey)>(hOpenKey, RegCloseKey);
+			DWORD lIndex = 0;
+			ULONG cbAvailable = 0;
+			vector<wchar_t> name(16384);
 			do
 			{
-				cbAvailable = 512;
-				lResult = RegEnumValue(hOpenKey, lIndex++, pwcsName, &cbAvailable, NULL, NULL, NULL, NULL);
+				cbAvailable = static_cast<ULONG>(name.size());
+				lResult = RegEnumValueW(hOpenKey, lIndex++, name.data(), &cbAvailable, nullptr, nullptr, nullptr, nullptr);
 				if (lResult == ERROR_SUCCESS)
 				{
-					result->push_back(pwcsName);
+					result->emplace_back(name.data(), cbAvailable);
 				}// if ( lResult == ERROR_SUCCESS ) {			
 			} while (lResult == ERROR_SUCCESS);
 
-			delete[] pwcsName;
-
-			if (lResult != ERROR_NO_MORE_ITEMS)
-			{
-				return false;
-			}
-
-			RegCloseKey(hOpenKey);
+			if (lResult != ERROR_NO_MORE_ITEMS) return false;
 
 			return true;
 		}
@@ -2611,41 +2309,28 @@ namespace ItSoftware::Win::Core
 
 			HKEY hOpenKey;
 			LONG lResult(0);
-			lResult = RegOpenKeyEx(hKey, path.c_str(), 0, KEY_READ, &hOpenKey);
+			lResult = RegOpenKeyExW(hKey, path.c_str(), 0, KEY_READ, &hOpenKey);
 			if (lResult != ERROR_SUCCESS)
 			{
 				return false;
 			}
 
-			DWORD dwType(0);
-			ULONG lSize(0);
-			lResult = RegQueryValueEx(hOpenKey, value.c_str(), 0, &dwType, NULL, &lSize);
-			if (lResult != ERROR_SUCCESS)
-			{
-				RegCloseKey(hOpenKey);
-				return false;
+			const auto close = std::unique_ptr<std::remove_pointer_t<HKEY>, decltype(&RegCloseKey)>(hOpenKey, RegCloseKey);
+			DWORD size = 0;
+			LSTATUS status = RegGetValueW(hOpenKey, nullptr, value.c_str(), RRF_RT_REG_SZ, nullptr, nullptr, &size);
+			while (status == ERROR_SUCCESS || status == ERROR_MORE_DATA) {
+				if (size % sizeof(wchar_t) != 0) return false;
+				vector<wchar_t> buffer(size / sizeof(wchar_t) + 1);
+				DWORD actual = size;
+				status = RegGetValueW(hOpenKey, nullptr, value.c_str(), RRF_RT_REG_SZ, nullptr, buffer.data(), &actual);
+				if (status == ERROR_SUCCESS) {
+					*data = buffer.data();
+					return true;
+				}
+				if (status != ERROR_MORE_DATA || actual <= size) return false;
+				size = actual;
 			}
-
-			if (dwType != REG_SZ)
-			{
-				RegCloseKey(hOpenKey);
-				return false;
-			}
-
-			wchar_t* pszBuffer = new wchar_t[lSize / sizeof(wchar_t)];
-			lResult = RegQueryValueEx(hOpenKey, value.c_str(), 0, &dwType, reinterpret_cast<BYTE*>(pszBuffer), &lSize);
-			if (lResult != ERROR_SUCCESS)
-			{
-				RegCloseKey(hOpenKey);
-				delete[] pszBuffer;
-				return false;
-			}
-
-			RegCloseKey(hOpenKey);
-
-			*data = wstring(pszBuffer);
-
-			return true;
+			return false;
 		}
 
 		//
@@ -2666,7 +2351,7 @@ namespace ItSoftware::Win::Core
 			path += key;
 
 			DWORD dwResult(0);
-			dwResult = ::SHDeleteKey(hKey, path.c_str());
+			dwResult = ::SHDeleteKeyW(hKey, path.c_str());
 			if (dwResult != ERROR_SUCCESS) {
 				if (GetLastError() != 0) {
 					return false;
@@ -2690,18 +2375,7 @@ namespace ItSoftware::Win::Core
 				return false;
 			}
 
-			if (path.length() > 0) {
-				wchar_t wch = path.at(0);
-				while (wch == L'\\') {
-					path.erase(0);
-					if (path.length() > 0) {
-						wch = path.at(0);
-					}
-					else {
-						break;
-					}
-				}
-			}
+			path.erase(0, path.find_first_not_of(L'\\'));
 
 			if (path.length() > 0) {
 				if (path.at(path.length() - 1) != L'\\') {
@@ -2713,14 +2387,14 @@ namespace ItSoftware::Win::Core
 
 			// Create new key
 			HKEY hNewKey;
-			LONG lResult = RegCreateKeyEx(hKey, path.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hNewKey, NULL);
+			LONG lResult = RegCreateKeyExW(hKey, path.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hNewKey, NULL);
 			if (lResult != ERROR_SUCCESS) {
 				return false;
 			}
 
 			// Set default value.	
 			if (default_data.size() > 0) {
-				lResult = RegSetValueEx(hNewKey, NULL, 0, REG_SZ, reinterpret_cast<CONST BYTE*>(const_cast<const wchar_t*>(default_data.data())), (static_cast<DWORD>(default_data.size()) * sizeof(wchar_t)) + 2);
+				lResult = RegSetValueExW(hNewKey, NULL, 0, REG_SZ, reinterpret_cast<CONST BYTE*>(const_cast<const wchar_t*>(default_data.data())), (static_cast<DWORD>(default_data.size()) * sizeof(wchar_t)) + 2);
 				if (lResult != ERROR_SUCCESS) {
 					RegCloseKey(hNewKey);	// Close New Key				
 					return false;
@@ -2751,12 +2425,12 @@ namespace ItSoftware::Win::Core
 
 			HKEY hOpenKey;
 			LONG lResult(0);
-			lResult = RegOpenKeyEx(hKey, path.c_str(), 0, KEY_ALL_ACCESS, &hOpenKey);
+			lResult = RegOpenKeyExW(hKey, path.c_str(), 0, KEY_ALL_ACCESS, &hOpenKey);
 			if (lResult != ERROR_SUCCESS) {
 				return false;
 			}
 
-			lResult = RegSetValueEx(hOpenKey, value.c_str(), 0, REG_SZ, reinterpret_cast<const BYTE*>(data.data()), (static_cast<DWORD>(data.size()) * sizeof(wchar_t)) + 2);
+			lResult = RegSetValueExW(hOpenKey, value.c_str(), 0, REG_SZ, reinterpret_cast<const BYTE*>(data.data()), (static_cast<DWORD>(data.size()) * sizeof(wchar_t)) + 2);
 			if (lResult != ERROR_SUCCESS) {
 				RegCloseKey(hOpenKey);
 				return false;
@@ -2786,11 +2460,11 @@ namespace ItSoftware::Win::Core
 
 			HKEY hOpenKey;
 			LONG lResult(0);
-			lResult = RegOpenKeyEx(hKey, path.c_str(), 0, KEY_ALL_ACCESS, &hOpenKey);
+			lResult = RegOpenKeyExW(hKey, path.c_str(), 0, KEY_ALL_ACCESS, &hOpenKey);
 			if (lResult != ERROR_SUCCESS) {
 				return false;
 			}
-			lResult = RegDeleteValue(hOpenKey, value.c_str());
+			lResult = RegDeleteValueW(hOpenKey, value.c_str());
 			if (lResult != ERROR_SUCCESS) {
 				RegCloseKey(hOpenKey);
 				return false;
@@ -2840,84 +2514,89 @@ namespace ItSoftware::Win::Core
 	{
 	private:
 
+		static constexpr DWORD NotificationBufferSize = 64 * 1024;
 		uint32_t m_mask;
 		thread m_thread;
 		unique_handle_handle m_dirHandle;
+		unique_handle_handle m_stopEvent;
 		wstring m_pathname;
-		DWORD m_dwBytesReturned;
 		unique_ptr<BYTE[]> m_pbuffer;
 		bool m_bWatchSubTree;
-		bool m_bPaused;
-		bool m_bStopped;
-		OVERLAPPED m_o{ 0 };
-		function<void(ItsFileMonitorEvent&)> m_func;
+		std::atomic<bool> m_bPaused{ false };
+		std::atomic<bool> m_bStopped{ false };
 	protected:
 		void ExecuteDispatchThread(function<void(ItsFileMonitorEvent&)> func)
 		{
-			this->m_o.Pointer = this;
-			this->m_o.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-			BOOL bResult = ::ReadDirectoryChangesExW(this->m_dirHandle.operator HANDLE(),
-				this->m_pbuffer.get(),
-				sizeof(FILE_NOTIFY_EXTENDED_INFORMATION) + MAX_PATH,
-				this->m_bWatchSubTree,
-				this->m_mask,
-				&this->m_dwBytesReturned,
-				&this->m_o,
-				NULL,
-				ReadDirectoryNotifyExtendedInformation);
-
-			if (!bResult) {
-				this->Stop();
+			unique_handle_handle completed(CreateEventW(nullptr, TRUE, FALSE, nullptr));
+			if (completed.IsInvalid()) {
+				Stop();
+				return;
 			}
+			const HANDLE events[] = { m_stopEvent.p(), completed.p() };
+			while (!IsStopped()) {
+				ResetEvent(completed.p());
+				OVERLAPPED request{};
+				request.hEvent = completed.p();
+				if (!ReadDirectoryChangesExW(m_dirHandle.p(), m_pbuffer.get(), NotificationBufferSize,
+					m_bWatchSubTree, m_mask, nullptr, &request, nullptr, ReadDirectoryNotifyExtendedInformation)) {
+					if (GetLastError() == ERROR_NOTIFY_ENUM_DIR) continue;
+					break;
+				}
 
-			while (!this->m_bStopped) {
-				if (this->m_o.hEvent != nullptr) {
-					DWORD dw = WaitForSingleObject(this->m_o.hEvent, 0);
-					if (dw == WAIT_OBJECT_0) {
-						bResult = ::GetOverlappedResult(this->m_dirHandle, &this->m_o, &this->m_dwBytesReturned, FALSE);
-						if (bResult) {
-							FILE_NOTIFY_EXTENDED_INFORMATION* ptr = reinterpret_cast<FILE_NOTIFY_EXTENDED_INFORMATION*>(this->m_pbuffer.get());
+				DWORD bytes = 0;
+				if (WaitForMultipleObjects(2, events, FALSE, INFINITE) != WAIT_OBJECT_0 + 1) {
+					CancelIoEx(m_dirHandle.p(), &request);
+					GetOverlappedResult(m_dirHandle.p(), &request, &bytes, TRUE);
+					break;
+				}
+				if (!GetOverlappedResult(m_dirHandle.p(), &request, &bytes, TRUE)) {
+					if (GetLastError() == ERROR_NOTIFY_ENUM_DIR) continue;
+					break;
+				}
+				if (bytes > NotificationBufferSize) break;
 
-							wstring name = ((ptr->FileNameLength != 0) ? wstring(ptr->FileName) : wstring{ L"." });
+				constexpr size_t headerSize = offsetof(FILE_NOTIFY_EXTENDED_INFORMATION, FileName);
+				size_t offset = 0;
+				while (!IsStopped() && bytes - offset >= headerSize) {
+					FILE_NOTIFY_EXTENDED_INFORMATION record{};
+					std::memcpy(&record, m_pbuffer.get() + offset, headerSize);
+					const size_t remaining = bytes - offset;
+					const size_t recordSize = record.NextEntryOffset ? record.NextEntryOffset : remaining;
+					if (recordSize > remaining || recordSize < headerSize ||
+						record.FileNameLength > recordSize - headerSize ||
+						record.FileNameLength % sizeof(wchar_t) != 0) break;
 
-							DWORD action = ptr->Action;
-
-							ItsFileMonitorEvent event;
-							event.Action = action;
-							event.CreationTime = ptr->CreationTime;
-							event.LastModificationTime = ptr->LastModificationTime;
-							event.LastChangeTime = ptr->LastChangeTime;
-							event.LastAccessTime = ptr->LastAccessTime;
-							event.FileSize = ptr->FileSize;
-							event.FileAttributes = ptr->FileAttributes;
-							event.ReparsePointTag = ptr->ReparsePointTag;
-							event.FileId = ptr->FileId;
-							event.ParentFileId = ptr->ParentFileId;
-							event.FileName = name;
-
-							this->m_func(event);
-
-							memset(static_cast<void*>(this->m_pbuffer.get()), 0, sizeof(FILE_NOTIFY_EXTENDED_INFORMATION) + MAX_PATH);
+					if (!IsPaused() && func) {
+						try {
+							ItsFileMonitorEvent event{};
+							event.Action = record.Action;
+							event.CreationTime = record.CreationTime;
+							event.LastModificationTime = record.LastModificationTime;
+							event.LastChangeTime = record.LastChangeTime;
+							event.LastAccessTime = record.LastAccessTime;
+							event.FileSize = record.FileSize;
+							event.FileAttributes = record.FileAttributes;
+							event.ReparsePointTag = record.ReparsePointTag;
+							event.FileId = record.FileId;
+							event.ParentFileId = record.ParentFileId;
+							if (record.FileNameLength == 0) event.FileName = L".";
+							else {
+								event.FileName.resize(record.FileNameLength / sizeof(wchar_t));
+								std::memcpy(event.FileName.data(), m_pbuffer.get() + offset + headerSize,
+									record.FileNameLength);
+							}
+							func(event);
 						}
-
-						::ResetEvent(this->m_o.hEvent);
-
-						::ReadDirectoryChangesExW(this->m_dirHandle.operator HANDLE(),
-							this->m_pbuffer.get(),
-							sizeof(FILE_NOTIFY_EXTENDED_INFORMATION) + MAX_PATH,
-							this->m_bWatchSubTree,
-							this->m_mask,
-							&this->m_dwBytesReturned,
-							&this->m_o,
-							NULL,
-							ReadDirectoryNotifyExtendedInformation);
+						catch (...) {
+							Stop();
+							break;
+						}
 					}
-				}
-
-				if (this->m_o.hEvent != nullptr) {
-					CloseHandle(this->m_o.hEvent);
+					if (!record.NextEntryOffset) break;
+					offset += record.NextEntryOffset;
 				}
 			}
+			Stop();
 		}
 
 	public:
@@ -2927,28 +2606,18 @@ namespace ItSoftware::Win::Core
 
 		}
 		ItsFileMonitor(const wstring& pathname, bool watchSubTree, uint32_t mask, function<void(ItsFileMonitorEvent&)> func)
-			: m_pathname(pathname),
-			m_mask(mask),
-			m_bWatchSubTree(watchSubTree),
-			m_bPaused(false),
-			m_bStopped(false),
-			m_func(func),
-			m_dwBytesReturned(0)
+			: m_mask(mask), m_pathname(pathname), m_bWatchSubTree(watchSubTree)
 		{
-			if (ItsFile::Exists(this->m_pathname)) {
-				this->m_dirHandle = CreateFile(this->m_pathname.c_str(),
-					FILE_LIST_DIRECTORY,
-					FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
-					NULL,
-					OPEN_EXISTING,
-					FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED,
-					NULL);
-
-				if (this->m_dirHandle.IsValid()) {
-					this->m_pbuffer = make_unique<BYTE[]>(sizeof(FILE_NOTIFY_EXTENDED_INFORMATION) + MAX_PATH);
-					this->m_thread = thread(&ItsFileMonitor::ExecuteDispatchThread, this, func);
-				}
+			m_dirHandle = CreateFileW(m_pathname.c_str(), FILE_LIST_DIRECTORY,
+				FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING,
+				FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED, nullptr);
+			m_stopEvent = CreateEventW(nullptr, TRUE, FALSE, nullptr);
+			if (m_dirHandle.IsInvalid() || m_stopEvent.IsInvalid() || m_mask == 0 || !func) {
+				Stop();
+				return;
 			}
+			m_pbuffer = make_unique<BYTE[]>(NotificationBufferSize);
+			m_thread = thread(&ItsFileMonitor::ExecuteDispatchThread, this, std::move(func));
 		}
 		void Pause() {
 			this->m_bPaused = true;
@@ -2961,6 +2630,7 @@ namespace ItSoftware::Win::Core
 		}
 		void Stop() {
 			this->m_bStopped = true;
+			if (m_stopEvent.IsValid()) SetEvent(m_stopEvent.p());
 		}
 		bool IsStopped()
 		{
@@ -2995,7 +2665,6 @@ namespace ItSoftware::Win::Core
 
 			bool bDoCreate = false;
 			if (overwriteifexist == true) {
-				ItsIniFile::DeleteKey(filename, sectionname, keyname);
 				bDoCreate = true;
 			}
 			else {
@@ -3006,7 +2675,7 @@ namespace ItSoftware::Win::Core
 			}
 
 			if (bDoCreate == true) {
-				if (!::WritePrivateProfileString(sectionname.c_str(), keyname.c_str(), value.c_str(), filename.c_str())) {
+				if (!::WritePrivateProfileStringW(sectionname.c_str(), keyname.c_str(), value.c_str(), filename.c_str())) {
 					return false;
 				}
 			}
@@ -3022,7 +2691,7 @@ namespace ItSoftware::Win::Core
 
 			wstring readValue;
 			if (ItsIniFile::ReadValue(filename, sectionname, keyname, &readValue) == true) {
-				if (!WritePrivateProfileString(sectionname.c_str(), keyname.c_str(), NULL, filename.c_str())) {
+				if (!WritePrivateProfileStringW(sectionname.c_str(), keyname.c_str(), NULL, filename.c_str())) {
 					return false;
 				}
 			}
@@ -3032,28 +2701,26 @@ namespace ItSoftware::Win::Core
 
 		static bool ReadValue(wstring filename, wstring sectionname, wstring keyname, wstring* value)
 		{
-			if (filename.size() == 0 || sectionname.size() == 0 || keyname.size() == 0) {
-				return false;
-			}
+			if (filename.empty() || sectionname.empty() || keyname.empty() || value == nullptr) return false;
 
-			wchar_t wcsDefault[] = L"24AA9E3A-5086-409c-A6CF-E1C48B8FFA62";
-			wchar_t* pwcs = new wchar_t[2048];
-			if (::GetPrivateProfileString(sectionname.c_str(), keyname.c_str(), wcsDefault, pwcs, 2047, filename.c_str()) == 0) {
-				// FOUND BUT HAD NO VALUE WITCH IS OK. WE HAD AN EMPTY STRING
-				*value = L"";
-			}
-			else {
-				if (wcscmp(wcsDefault, pwcs) == 0) {	// CANNOT BE FOUND			
-					delete[] pwcs;
-					return false;
+			const wchar_t missing[] = L"24AA9E3A-5086-409c-A6CF-E1C48B8FFA62";
+			vector<wchar_t> buffer(256);
+			for (;;) {
+				const DWORD count = GetPrivateProfileStringW(sectionname.c_str(), keyname.c_str(),
+					missing, buffer.data(), static_cast<DWORD>(buffer.size()), filename.c_str());
+				if (count < buffer.size() - 1) {
+					if (std::wstring_view(buffer.data(), count) == missing) {
+						const DWORD probe = GetPrivateProfileStringW(sectionname.c_str(), keyname.c_str(),
+							L"?", buffer.data(), static_cast<DWORD>(buffer.size()), filename.c_str());
+						if (probe == 1 && buffer[0] == L'?') return false;
+						*value = missing;
+					}
+					else value->assign(buffer.data(), count);
+					return true;
 				}
-				else {									// VALUE FOUND					
-					*value = wstring(pwcs);
-				}
+				if (buffer.size() > (std::numeric_limits<DWORD>::max)() / 2) return false;
+				buffer.resize(buffer.size() * 2);
 			}
-			delete[] pwcs;
-
-			return true;
 		}
 
 
@@ -3069,12 +2736,12 @@ namespace ItSoftware::Win::Core
 			}
 
 			if (value.size() == 0) {
-				if (!WritePrivateProfileString(sectionname.c_str(), keyname.c_str(), L"", filename.c_str())) {
+				if (!WritePrivateProfileStringW(sectionname.c_str(), keyname.c_str(), L"", filename.c_str())) {
 					return false;
 				}
 			}
 			else {
-				if (!WritePrivateProfileString(sectionname.c_str(), keyname.c_str(), value.c_str(), filename.c_str())) {
+				if (!WritePrivateProfileStringW(sectionname.c_str(), keyname.c_str(), value.c_str(), filename.c_str())) {
 					return false;
 				}
 			}
@@ -3088,16 +2755,13 @@ namespace ItSoftware::Win::Core
 				return false;
 			}
 
-			wstring key(L"KKSINIFILE");
-			wstring value(L"YOU CAN SAFTLEY DELETE ME!");
-			if (!ItsIniFile::CreateKey(filename, sectionname, key, value, false)) {
-				return false;
+			vector<wstring> sections;
+			if (!EnumerateSections(filename, sections)) return false;
+			for (const auto& section : sections) {
+				if (CompareStringOrdinal(section.c_str(), -1, sectionname.c_str(), -1, TRUE) == CSTR_EQUAL) return true;
 			}
-			else {
-				DeleteKey(filename, sectionname, key);
-			}
-
-			return true;
+			const wchar_t emptySection[] = { L'\0', L'\0' };
+			return WritePrivateProfileSectionW(sectionname.c_str(), emptySection, filename.c_str()) != FALSE;
 		}
 
 		static bool DeleteSection(const wstring& filename, const wstring& sectionname)
@@ -3106,7 +2770,7 @@ namespace ItSoftware::Win::Core
 				return false;
 			}
 
-			if (!WritePrivateProfileString(sectionname.c_str(), NULL, NULL, filename.c_str())) {
+			if (!WritePrivateProfileStringW(sectionname.c_str(), NULL, NULL, filename.c_str())) {
 				return false;
 			}
 
@@ -3122,7 +2786,7 @@ namespace ItSoftware::Win::Core
 			for (auto itr = map.begin(); itr != map.end(); itr++) {
 				const wstring key = itr->first;
 				const wstring value = itr->second;
-				CreateKey(filename, sectionname, key, value, overwriteifexist);
+				if (!CreateKey(filename, sectionname, key, value, overwriteifexist)) return false;
 			}
 
 			return true;
@@ -3134,43 +2798,19 @@ namespace ItSoftware::Win::Core
 				return false;
 			}
 
-			wchar_t* pwcs = new wchar_t[2048];
-			wchar_t wcsDefault[] = L"03803CC2-1BAC-4775-BBA6-733AA181F9CC";
-			if (GetPrivateProfileString(sectionname.c_str(), NULL, wcsDefault, pwcs, 2047, filename.c_str()) == 0) {
-				// FOUND BUT HAD NO VALUE	
+			vector<wchar_t> buffer(256);
+			for (;;) {
+				const DWORD count = GetPrivateProfileStringW(sectionname.c_str(), nullptr, nullptr,
+					buffer.data(), static_cast<DWORD>(buffer.size()), filename.c_str());
+				if (count < buffer.size() - 2) break;
+				if (buffer.size() > (std::numeric_limits<DWORD>::max)() / 2) return false;
+				buffer.resize(buffer.size() * 2);
 			}
-			else {
-				if (wcscmp(pwcs, wcsDefault) == 0) {
-					// NOT KEYS FOUND.
-					delete[] pwcs;
-					return true;
-				}
-				else {
-					int iIndex = 0;
-					wchar_t* p;
-					wchar_t* beg = pwcs;
-					for (p = pwcs; p < pwcs + 2047; p++) {
-						if (*p == L'\0') {
-							iIndex++;
-
-							wstring key(beg);
-							wstring value;
-							ReadValue(filename, sectionname, beg, &value);
-
-							if (map.find(key) == map.end()) {
-								map.insert(std::pair<wstring, wstring>(key, value));
-							}
-
-							if (*(p + 1) == L'\0')
-								break;
-
-							beg = p + 1;
-						}// if ( *p == L'\0' ) {
-					}// for ( p = pwcs; p < pwcs+1024; p++ ) {
-				}// else {
-			}// else {
-			delete[] pwcs;
-
+			for (const wchar_t* key = buffer.data(); *key != L'\0'; key += std::wcslen(key) + 1) {
+				wstring value;
+				if (!ReadValue(filename, sectionname, key, &value)) return false;
+				map.emplace(key, std::move(value));
+			}
 			return true;
 		}
 
@@ -3180,39 +2820,17 @@ namespace ItSoftware::Win::Core
 				return false;
 			}
 
-			wchar_t* pwcs = new wchar_t[2048];
-			wchar_t wcsDefault[] = L"1B5E632E-BDD5-4343-86D8-4C668E1C1808";
-			if (GetPrivateProfileString(NULL, L"", wcsDefault, pwcs, 2047, filename.c_str()) == 0) {
-				// FOUND BUT HAD NO VALUE		
+			vector<wchar_t> buffer(256);
+			for (;;) {
+				const DWORD count = GetPrivateProfileStringW(nullptr, nullptr, nullptr,
+					buffer.data(), static_cast<DWORD>(buffer.size()), filename.c_str());
+				if (count < buffer.size() - 2) break;
+				if (buffer.size() > (std::numeric_limits<DWORD>::max)() / 2) return false;
+				buffer.resize(buffer.size() * 2);
 			}
-			else {
-				if (wcscmp(pwcs, wcsDefault) == 0) {
-					// NO SECTIONS FOUND.
-					delete[] pwcs;
-					return true;
-				}
-				else {
-					int iIndex = 0;
-					wchar_t* p;
-					wchar_t* beg = pwcs;
-					for (p = pwcs; p < pwcs + 1024; p++) {
-						if (*p == L'\0') {
-							iIndex++;
-
-							wstring value(beg);
-							list.push_back(value);
-
-							if (*(p + 1) == L'\0')
-								break;
-
-							beg = p + 1;
-						}// if ( *p == L'\0' ) {
-					}// for ( p = pwcs; p < pwcs+1024; p++ ) {
-				}// else {
-			}// else {
-
-			delete[] pwcs;
-
+			for (const wchar_t* section = buffer.data(); *section != L'\0'; section += std::wcslen(section) + 1) {
+				list.emplace_back(section);
+			}
 			return true;
 		}
 	};// ItsIniFile
