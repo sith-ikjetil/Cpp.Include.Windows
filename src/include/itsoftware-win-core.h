@@ -2163,7 +2163,7 @@ namespace ItSoftware::Win::Core
 			{
 				this->SetFilePosition(0, ItsFilePosition::FileBegin);
 
-				unique_ptr<BYTE[]> text = make_unique<BYTE[]>(size);
+				unique_ptr<BYTE[]> text = make_unique<BYTE[]>(size+1);
 
 				const DWORD readBuffSize = 8192;
 				size_t read_pos{ 0 };
@@ -2180,10 +2180,8 @@ namespace ItSoftware::Win::Core
 
 					read_pos += dwRead;
 				}
-
-				text.get()[size - 3] = '\0';
-				text.get()[size - 2] = '\0';
-				text.get()[size - 1] = '\0';
+ 				
+				text.get()[size] = '\0';
 
 				wstring all = ItSoftware::Encoding::UTF8::ToString(reinterpret_cast<char*>(text.get()));
 				out = all;
@@ -2207,7 +2205,7 @@ namespace ItSoftware::Win::Core
 			}
 
 			ItsTextFile file{};
-			if (!file.OpenOrCreateText(filename, L"rw", L"rw", ItsFileOpenCreation::OpenExisting, textType)) {
+			if ( !file.OpenOrCreateText(filename, L"rw", L"rw", ItsFileOpenCreation::OpenExisting, textType)) {
 				return false;
 			}
 
