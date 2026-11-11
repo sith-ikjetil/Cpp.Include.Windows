@@ -1,206 +1,185 @@
-///////////////////////////////////////////////////////////////////
-//: Title        : itsoftware-exceptions.cpp
-//: Product:     : Cpp.Include.Windows
-//: Date         : 2020-05-01
-//: Author       : "Kjetil Kristoffer Solberg" <post@ikjetil.no>
-//: Version      : 1.0.0.0
-//: Descriptions : Implementation of Cpp.Include.Windows.
 #pragma once
-//
-// #include Windows Headers
-//
+
 #include <windows.h>
 #include <atlbase.h>
+#include <atlcomcli.h>
 
-//
-// #include C++ Headers
-//
-#include <sstream>
-#include <string>
 #include <exception>
-#include <stdexcept>
+#include <limits>
 #include <memory>
+#include <sstream>
+#include <stdexcept>
+#include <string>
 
-//
-// disable warning
-//
-#pragma warning(disable: 4244)
-
-//
-// namespace
-//
 namespace ItSoftware::Exceptions
 {
-    //
-    // using
-    //
-	using std::wstring;
+    using std::wstring;
     using std::string;
-	using std::endl;
+    using std::endl;
     using std::wstringstream;
-	using std::exception;
-	using std::shared_ptr;
-	using std::make_unique;
+    using std::exception;
+    using std::shared_ptr;
+    using std::make_unique;
 
-    //
-    // Class: ItsException
-    //
-    // (i): Generic root exception
-    //
     class ItsException : public exception
-    {            
+    {
     private:
-            
-    protected:
-		unsigned int				m_errorCode;
-		wstring						m_message;
-        string                      m_messageA;
-		shared_ptr<ItsException>	m_pInnerException;
+        static string ToUtf8(const wstring& text)
+        {
+            if (text.empty() ||
+                text.size() > static_cast<size_t>((std::numeric_limits<int>::max)()))
+            {
+                return {};
+            }
 
-        //
-        //
-        //
+            const int length = static_cast<int>(text.size());
+            const int count = ::WideCharToMultiByte(
+                CP_UTF8, 0, text.data(), length, nullptr, 0, nullptr, nullptr);
+
+            if (count == 0)
+            {
+                return {};
+            }
+
+            string result(static_cast<size_t>(count), '\0');
+            if (::WideCharToMultiByte(
+                CP_UTF8, 0, text.data(), length,
+                result.data(), count, nullptr, nullptr) != count)
+            {
+                return {};
+            }
+
+            return result;
+        }
+
+    protected:
+        unsigned int m_errorCode;
+        wstring m_message;
+        string m_messageA;
+        shared_ptr<ItsException> m_pInnerException;
+
         wstring GetWin32ErrorMessage()
         {
-            return ItsException::GetWin32ErrorMessage( this->m_errorCode );
+            return GetWin32ErrorMessage(m_errorCode);
         }
-        //
-        //
-        //
+
         static wstring GetWin32ErrorMessage(unsigned int errorCode)
         {
-            LPVOID lpMsgBuf = nullptr;
-            FormatMessageW( FORMAT_MESSAGE_ALLOCATE_BUFFER |
-                    FORMAT_MESSAGE_FROM_SYSTEM |
-                    FORMAT_MESSAGE_IGNORE_INSERTS,
-                    NULL,
-                    errorCode,
-                    MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), // Default language
-                    reinterpret_cast<wchar_t*>(&lpMsgBuf),
-                    0,
-                    NULL );
+            wchar_t* buffer = nullptr;
+            const DWORD length = ::FormatMessageW(
+                FORMAT_MESSAGE_ALLOCATE_BUFFER |
+                FORMAT_MESSAGE_FROM_SYSTEM |
+                FORMAT_MESSAGE_IGNORE_INSERTS,
+                nullptr,
+                errorCode,
+                MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                reinterpret_cast<LPWSTR>(&buffer),
+                0,
+                nullptr);
 
-            if ( lpMsgBuf != nullptr )
-            {
-                // Copy buffer contet to bstr...
-                wstring msg(reinterpret_cast<wchar_t *>(lpMsgBuf) );
+            const std::unique_ptr<wchar_t, decltype(&::LocalFree)>
+                message(buffer, &::LocalFree);
 
-                // Free the buffer...
-                LocalFree( lpMsgBuf );
-
-                // Return value...
-                return msg;
-            }
-
-            return L"";
+            return length != 0 && message
+                ? wstring(message.get(), length)
+                : wstring{};
         }
-        //
-        //
-        //
+
         static wstring GetCoLastErrorMessage()
         {
-            IErrorInfo *pErrInfo = nullptr;
-            HRESULT hr = GetErrorInfo( NULL, static_cast<IErrorInfo **>(&pErrInfo) );
-            CComBSTR bstr;
-            if ( hr == S_OK && pErrInfo != nullptr )
+            ATL::CComPtr<IErrorInfo> info;
+            if (::GetErrorInfo(0, &info) != S_OK || !info)
             {
-                pErrInfo->GetDescription( &bstr );
-                return wstring( bstr.operator LPWSTR() );
+                return {};
             }
-            return L"";
+
+            ATL::CComBSTR description;
+            if (FAILED(info->GetDescription(&description)) || !description.m_str)
+            {
+                return {};
+            }
+
+            return wstring(description.m_str, description.Length());
         }
 
-            
     public:
-            
         explicit ItsException()
-            : exception(),
-            m_errorCode(0)
-        { 
-        }
-            
-        explicit ItsException(const unsigned int errorCode)
-            : exception(),
-            m_errorCode(errorCode)
-        {
+            : m_errorCode(0)
+        {}
 
-        }
-            
+        explicit ItsException(const unsigned int errorCode)
+            : m_errorCode(errorCode)
+        {}
+
         explicit ItsException(const wstring& message)
-            : exception(),
-            m_errorCode( 0 ),
-            m_message(message)
-        {
-            m_messageA = string(this->m_message.begin(), this->m_message.end());
-        }
+            : ItsException(0, message)
+        {}
 
         explicit ItsException(const ItsException& other)
-        {            
-            this->m_errorCode = other.m_errorCode;
-            this->m_pInnerException = other.m_pInnerException;				
-            this->m_message = other.m_message;            
-            m_messageA = string(this->m_message.begin(), this->m_message.end());
-        }
+            : exception(other),
+            m_errorCode(other.m_errorCode),
+            m_message(other.m_message),
+            m_messageA(ToUtf8(m_message)),
+            m_pInnerException(other.m_pInnerException)
+        {}
 
-        ItsException( const unsigned int errorCode, const wstring& message )
-            :	exception(),
-            m_errorCode( errorCode ),
-            m_message( message )
+        ItsException(const unsigned int errorCode, const wstring& message)
+            : m_errorCode(errorCode),
+            m_message(message),
+            m_messageA(ToUtf8(m_message))
+        {}
+
+        ItsException(const unsigned int errorCode, const ItsException& inner)
+            : m_errorCode(errorCode),
+            m_pInnerException(std::make_shared<ItsException>(inner))
+        {}
+
+        ItsException(
+            const unsigned int errorCode,
+            const wstring& message,
+            const ItsException& inner)
+            : m_errorCode(errorCode),
+            m_message(message),
+            m_messageA(ToUtf8(m_message)),
+            m_pInnerException(std::make_shared<ItsException>(inner))
+        {}
+
+        virtual const char* what() const noexcept override
         {
-            m_messageA = string(this->m_message.begin(), this->m_message.end());
-        }
-
-        ItsException( const unsigned int errorCode, const ItsException& inner )
-            : exception(),
-            m_errorCode( errorCode ),
-            m_pInnerException(inner.m_pInnerException)
-        {
-			
-        }        
-
-        ItsException( const unsigned int errorCode, const wstring& message, const ItsException& inner )
-            : exception(),
-            m_errorCode( errorCode ),
-			m_message( message ),
-            m_pInnerException(inner.m_pInnerException)
-        {
-            m_messageA = string(this->m_message.begin(), this->m_message.end());
-        }
-
-		virtual const char* what() const override
-		{            
             return m_messageA.c_str();
-		}
-
-        wstring Message() const {
-            return this->m_message;
         }
 
-        unsigned int ErrorCode() const {
-            return this->m_errorCode;
+        wstring Message() const
+        {
+            return m_message;
         }
 
-        wstring ToString() 
+        unsigned int ErrorCode() const
+        {
+            return m_errorCode;
+        }
+
+        wstring ToString()
         {
             wstringstream msg;
-            msg << L"> (e): Exception" << endl;
-            msg << L"> (e): Type          : " << L"ItsException" << endl;
-            msg << L"> (e): Error Code    : 0x" << L"0x" << std::hex << this->m_errorCode << endl;
-            msg << L"> (e): Message       : " << this->m_message << endl;
-            msg << L"> (e): Win32 Message : " << this->GetWin32ErrorMessage() << endl;
-            wstring com_msg = ItsException::GetCoLastErrorMessage();
-            if (com_msg.length() > 0) {
-                msg << L"> (e): COM Message   : " << com_msg << endl;
+            msg << L"> (e): Exception\n"
+                << L"> (e): Type          : ItsException\n"
+                << L"> (e): Error Code    : 0x" << std::hex << m_errorCode << L'\n'
+                << L"> (e): Message       : " << m_message << L'\n'
+                << L"> (e): Win32 Message : " << GetWin32ErrorMessage() << L'\n';
+
+            const wstring comMessage = GetCoLastErrorMessage();
+            if (!comMessage.empty())
+            {
+                msg << L"> (e): COM Message   : " << comMessage << L'\n';
             }
 
-            if ( this->m_pInnerException != nullptr )
+            if (m_pInnerException)
             {
-                msg << endl;
-                msg << this->m_pInnerException->ToString() << endl;
-            }				
-				
-            wstring str = msg.str();
-            return str;
-        }	
-    };// class ItsException
-}// namespace ItSoftware::Exceptions
+                msg << L'\n' << m_pInnerException->ToString() << L'\n';
+            }
+
+            return msg.str();
+        }
+    };
+}
